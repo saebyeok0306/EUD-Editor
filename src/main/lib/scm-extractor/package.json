@@ -1,0 +1,43 @@
+{
+  "name": "scm-extractor",
+  "version": "1.1.0",
+  "description": "Extractor for SCM/SCX files (Starcraft 1 maps).",
+  "main": "index.js",
+  "files": [
+    "./*.js"
+  ],
+  "scripts": {
+    "lint": "eslint --ext .js ./ && echo Hooray || echo Please fix",
+    "linttest": "eslint --ext .js ./",
+    "posttest": "npm run linttest",
+    "test": "tape ./test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tec27/scm-extractor"
+  },
+  "keywords": [
+    "scm",
+    "scx",
+    "extractor",
+    "starcraft"
+  ],
+  "author": "Travis Collins <travis@tec27.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tec27/scm-extractor/issues"
+  },
+  "homepage": "https://github.com/tec27/scm-extractor",
+  "dependencies": {
+    "bl": "^6.0.1",
+    "cuint": "^0.2.0",
+    "implode-decoder": "^1.0.0",
+    "stream-splicer": "^2.0.0"
+  },
+  "devDependencies": {
+    "concat-stream": "^2.0.0",
+    "eslint": "^8.40.0",
+    "tape": "^5.6.3",
+    "through2": "^4.0.2"
+  }
+}

@@ -1,9 +1,16 @@
-import { useState } from 'react'
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { useState, useEffect } from 'react'
+import StartScreen from './components/StartScreen'
+import EditorLayout from './components/EditorLayout'
+import { initDatStore } from './utils/datStore'
 
 function App() {
   const [mapData, setMapData] = useState(null)
+  const [datReady, setDatReady] = useState(false)
+
+  // Load all .dat files once at startup
+  useEffect(() => {
+    initDatStore().then(() => setDatReady(true))
+  }, [])
 
   const handleOpenScx = async () => {
     try {
@@ -16,35 +23,15 @@ function App() {
     }
   }
 
-  return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">EUD-Editor</div>
-      <div className="text">
-        Starcraft <span className="react">Map Editor</span>
-      </div>
-      <p className="tip">
-        Click below to parse a Starcraft Map file.
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a onClick={handleOpenScx} style={{ cursor: 'pointer' }}>
-            Open SCX/SCM File
-          </a>
-        </div>
-      </div>
+  const handleCloseMap = () => setMapData(null)
 
-      {mapData && (
-        <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#2a2a2a', borderRadius: '8px', textAlign: 'left', wordBreak: 'break-all' }}>
-          <h3>{mapData.fileName}</h3>
-          <p><strong>Title:</strong> {mapData.title}</p>
-          <p><strong>Description:</strong> {mapData.description}</p>
-          <p><strong>Size:</strong> {mapData.size[0]} x {mapData.size[1]}</p>
-        </div>
-      )}
-      <Versions></Versions>
-    </>
-  )
+  if (mapData) {
+    return <EditorLayout mapData={mapData} datReady={datReady} onCloseMap={handleCloseMap} />
+  }
+
+  return <StartScreen onOpenScx={handleOpenScx} />
 }
 
 export default App
+
+

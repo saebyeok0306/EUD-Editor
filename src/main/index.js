@@ -7,6 +7,8 @@ const createExtractor = scmExtractor.default || scmExtractor
 const BwChk = bwChkData.default || bwChkData
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { extractChkSection, parseUnixSection } from './chkParser.js'
+
 
 function createWindow() {
   // Create the browser window.
@@ -57,7 +59,7 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  ipcMain.handle('dialog:openScx', async () => {
+  ipcMain.handle('dialog:openScx', async (event) => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [{ name: 'Starcraft Maps', extensions: ['scx', 'scm'] }]
@@ -77,12 +79,23 @@ app.whenReady().then(() => {
         try {
           const data = Buffer.concat(chunks)
           const chk = new BwChk(data)
+          
+          // Custom Parsing for deeper CHK sections (UNIx)
+          const unixBuffer = extractChkSection(data, 'UNIx') || extractChkSection(data, 'UNIT')
+          const unitSettings = parseUnixSection(unixBuffer)
+
+          const win = BrowserWindow.fromWebContents(event.sender)
+          if (win && !win.isMaximized()) {
+            win.maximize()
+          }
+          
           resolve({
             fileName: basename(filePath),
             filePath,
             title: chk.title,
             description: chk.description,
-            size: [chk.size[0], chk.size[1]]
+            size: [chk.size[0], chk.size[1]],
+            unitSettings
           })
         } catch (err) {
           reject(err.message)

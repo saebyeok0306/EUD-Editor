@@ -127,8 +127,8 @@ app.whenReady().then(() => {
           const data = Buffer.concat(chunks)
           const chk = new BwChk(data)
           
-          // Custom Parsing for deeper CHK sections (UNIx)
-          const unixBuffer = extractChkSection(data, 'UNIx') || extractChkSection(data, 'UNIT')
+          // Custom Parsing for deeper CHK sections (UNIx / UNIS)
+          const unixBuffer = extractChkSection(data, 'UNIx') || extractChkSection(data, 'UNIS')
           const unitSettings = parseUnixSection(unixBuffer)
 
           const win = BrowserWindow.fromWebContents(event.sender)
@@ -142,7 +142,8 @@ app.whenReady().then(() => {
             title: chk.title,
             description: chk.description,
             size: [chk.size[0], chk.size[1]],
-            unitSettings
+            unitSettings: unitSettings.units,
+            weaponSettings: unitSettings.weapons
           })
         } catch (err) {
           reject(err.message)

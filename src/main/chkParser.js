@@ -51,5 +51,20 @@ export function parseUnixSection(unixBuffer) {
     });
   }
   
-  return units;
+  // Weapon data (100 for original, 130 for Brood War)
+  const offsetWeaponBase = offsetStringId + (NUM_UNITS * 2);
+  const numWeapons = (unixBuffer.length - offsetWeaponBase) / 4;
+  const offsetWeaponUpgrade = offsetWeaponBase + (numWeapons * 2);
+  
+  const weapons = {
+    baseDamage: [],
+    upgradeBonus: []
+  };
+  
+  for (let i = 0; i < numWeapons; i++) {
+    weapons.baseDamage.push(unixBuffer.readUInt16LE(offsetWeaponBase + (i * 2)));
+    weapons.upgradeBonus.push(unixBuffer.readUInt16LE(offsetWeaponUpgrade + (i * 2)));
+  }
+
+  return { units, weapons };
 }

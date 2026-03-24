@@ -6,7 +6,13 @@ const CATEGORIES = [
   'Unit', 'Flingy', 'Sprite', 'Weapon', 'Image', 'Upgrade', 'Tech', 'Order', 'Text', 'Buttonset'
 ]
 
-function EditorLayout({ mapData, datReady, onCloseMap }) {
+function EditorLayout({ 
+  mapData, 
+  projectData, 
+  datReady, 
+  onCloseMap, 
+  onUpdateProjectUnit 
+}) {
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0])
 
   return (
@@ -18,7 +24,13 @@ function EditorLayout({ mapData, datReady, onCloseMap }) {
         onSelectCategory={setSelectedCategory}
         onCloseMap={onCloseMap}
       />
-      <MainContent selectedCategory={selectedCategory} mapData={mapData} datReady={datReady} />
+      <MainContent 
+        selectedCategory={selectedCategory} 
+        mapData={mapData} 
+        projectData={projectData}
+        datReady={datReady} 
+        onUpdateProjectUnit={onUpdateProjectUnit}
+      />
     </div>
   )
 }

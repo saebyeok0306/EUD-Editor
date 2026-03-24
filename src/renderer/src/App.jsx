@@ -24,12 +24,40 @@ function App() {
     }
   }
 
-  const handleCloseMap = () => setMapData(null)
+  const [projectData, setProjectData] = useState({
+    units: {},
+    weapons: {},
+    upgrades: {}
+  })
+
+  const handleCloseMap = () => {
+    setMapData(null)
+    setProjectData({ units: {}, weapons: {}, upgrades: {} })
+  }
+
+  const updateProjectUnit = (unitId, field, value) => {
+    setProjectData(prev => ({
+      ...prev,
+      units: {
+        ...prev.units,
+        [unitId]: {
+          ...(prev.units[unitId] || {}),
+          [field]: value
+        }
+      }
+    }))
+  }
 
   return (
     <I18nProvider>
       {mapData
-        ? <EditorLayout mapData={mapData} datReady={datReady} onCloseMap={handleCloseMap} />
+        ? <EditorLayout 
+            mapData={mapData} 
+            projectData={projectData}
+            datReady={datReady} 
+            onCloseMap={handleCloseMap} 
+            onUpdateProjectUnit={updateProjectUnit}
+          />
         : <StartScreen onOpenScx={handleOpenScx} />
       }
     </I18nProvider>

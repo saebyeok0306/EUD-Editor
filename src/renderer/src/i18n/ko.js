@@ -25,12 +25,13 @@ const ko = {
   'content.unknownCategory': '알 수 없는 카테고리',
 
   // UnitTab
-  'unit.title': '유닛 속성 (EUD + 맵 데이터)',
+  'unit.title': '기본 정보',
   'unit.badge.mapDefault': '맵 기본값',
   'unit.prop.id': 'ID',
   'unit.prop.name': '이름',
   'unit.prop.hitPoints': '체력',
-  'unit.prop.shieldPoints': '실드',
+  'unit.prop.shieldPoints': '실드량',
+  'unit.prop.shieldEnable': '사용',
   'unit.prop.armor': '방어력',
   'unit.prop.buildTime': '생산 시간',
   'unit.prop.mineralCost': '미네랄 비용',

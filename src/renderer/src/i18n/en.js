@@ -25,12 +25,13 @@ const en = {
   'content.unknownCategory': 'Unknown Category',
 
   // UnitTab
-  'unit.title': 'Unit Properties (EUD + Map Data)',
+  'unit.title': 'Basic Info',
   'unit.badge.mapDefault': 'Map Default',
   'unit.prop.id': 'ID',
   'unit.prop.name': 'Name',
   'unit.prop.hitPoints': 'Hit Points',
   'unit.prop.shieldPoints': 'Shield Points',
+  'unit.prop.shieldEnable': 'Enabled',
   'unit.prop.armor': 'Armor',
   'unit.prop.buildTime': 'Build Time',
   'unit.prop.mineralCost': 'Mineral Cost',

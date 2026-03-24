@@ -3,7 +3,12 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  openScx: () => ipcRenderer.invoke('dialog:openScx')
+  openScx: () => ipcRenderer.invoke('dialog:openScx'),
+  onLanguageChanged: (callback) => {
+    const listener = (_event, lang) => callback(lang)
+    ipcRenderer.on('language-changed', listener)
+    return () => ipcRenderer.removeListener('language-changed', listener)
+  },
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

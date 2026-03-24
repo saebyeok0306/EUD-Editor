@@ -274,3 +274,80 @@
 .prop-span-3 {
   grid-column: span 3;
 }
+.prop-split-input {
+  display: flex;
+  align-items: stretch;
+  background-color: var(--ev-c-black-mute);
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.prop-split-input:focus-within {
+  border-color: #6988e6;
+}
+
+.prop-split-input .left-part {
+  flex: 7;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--ev-c-gray-3);
+}
+
+.prop-split-input .left-part .prop-input {
+  background: transparent;
+  border: none;
+  padding: 7px 12px;
+  width: 100%;
+  outline: none;
+}
+
+.prop-split-input .right-part {
+  flex: 3;
+  padding: 0 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--ev-c-text-2);
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  pointer-events: none;
+  user-select: none;
+}
+/* --- Sub Tabs --- */
+.sub-tabs {
+  display: flex;
+  gap: 2px;
+  background-color: var(--ev-c-gray-3);
+  padding: 2px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sub-tab-item {
+  flex: 1;
+  padding: 8px 4px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.8em;
+  color: var(--ev-c-text-2);
+  border-radius: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.sub-tab-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--ev-c-text-1);
+}
+
+.sub-tab-item.active {
+  background-color: var(--ev-c-gray-1);
+  color: var(--ev-c-white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

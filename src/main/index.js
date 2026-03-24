@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
 import { join, basename } from 'path'
 import fs from 'fs'
 import scmExtractor from 'scm-extractor'
@@ -16,7 +16,7 @@ function createWindow() {
     width: 900,
     height: 670,
     show: false,
-    autoHideMenuBar: true,
+    autoHideMenuBar: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -26,6 +26,8 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    // Build initial menu (default language: ko)
+    buildMenu('ko', mainWindow)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -40,6 +42,51 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+}
+
+function setLanguage(lang, mainWindow) {
+  const isoLabel = lang === 'ko' ? '한국어' : 'English'
+  console.log(`[i18n] Language changed to: ${isoLabel}`)
+
+  buildMenu(lang, mainWindow)
+  mainWindow.webContents.send('language-changed', lang)
+}
+
+function buildMenu(currentLang, mainWindow) {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open SCX/SCM',
+          accelerator: 'CmdOrCtrl+O',
+          click: () => mainWindow.webContents.send('menu:open-scx')
+        },
+        { type: 'separator' },
+        { role: 'quit', label: 'Quit' }
+      ]
+    },
+    {
+      label: '언어 선택 (Language)',
+      submenu: [
+        {
+          label: '한국어',
+          type: 'radio',
+          checked: currentLang === 'ko',
+          click: () => setLanguage('ko', mainWindow)
+        },
+        {
+          label: 'English',
+          type: 'radio',
+          checked: currentLang === 'en',
+          click: () => setLanguage('en', mainWindow)
+        }
+      ]
+    }
+  ]
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 }
 
 // This method will be called when Electron has finished

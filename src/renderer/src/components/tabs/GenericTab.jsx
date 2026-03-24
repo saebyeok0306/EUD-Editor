@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useI18n } from '../../i18n/i18nContext'
 
 function GenericTab({ category, mapData }) {
+  const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
   const [listWidth, setListWidth] = useState(300)
   const [isDragging, setIsDragging] = useState(false)
@@ -25,6 +27,8 @@ function GenericTab({ category, mapData }) {
     }
   }, [isDragging])
 
+  const categoryLabel = t(`category.${category}`)
+
   return (
     <div className="content-body">
       <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
@@ -35,7 +39,7 @@ function GenericTab({ category, mapData }) {
             onClick={() => setSelectedItem(i)}
           >
             <span className="list-item-id">{i.toString().padStart(3, '0')}</span>
-            <span className="list-item-name">{category} {i}</span>
+            <span className="list-item-name">{categoryLabel} {i}</span>
           </div>
         ))}
       </div>
@@ -48,13 +52,13 @@ function GenericTab({ category, mapData }) {
       <div className="properties-pane">
         {selectedItem !== null ? (
           <div>
-            <h3 className="properties-title">{category} {selectedItem.toString().padStart(3, '0')}</h3>
-            <p>Properties for this {category} will be constructed here.</p>
+            <h3 className="properties-title">{categoryLabel} {selectedItem.toString().padStart(3, '0')}</h3>
+            <p>{t('generic.prop.placeholder', { category: categoryLabel })}</p>
           </div>
         ) : (
           <div className="properties-empty">
             <div className="properties-empty-icon">⚙️</div>
-            <div className="properties-empty-text">Select a {category} to view and edit its properties</div>
+            <div className="properties-empty-text">{t('generic.empty.text', { category: categoryLabel })}</div>
           </div>
         )}
       </div>

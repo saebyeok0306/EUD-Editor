@@ -7,7 +7,8 @@ function MainContent({
   mapData, 
   projectData, 
   datReady, 
-  onUpdateProjectUnit 
+  onUpdateProjectUnit,
+  onResetProjectUnit
 }) {
   const { t } = useI18n()
 
@@ -18,6 +19,7 @@ function MainContent({
         projectData={projectData} 
         datReady={datReady} 
         onUpdateProjectUnit={onUpdateProjectUnit} 
+        onResetProjectUnit={onResetProjectUnit}
       />
       case 'Flingy': return <GenericTab category="Flingy" mapData={mapData} />
       case 'Sprite': return <GenericTab category="Sprite" mapData={mapData} />

@@ -9,6 +9,17 @@ const api = {
     ipcRenderer.on('language-changed', listener)
     return () => ipcRenderer.removeListener('language-changed', listener)
   },
+  getStarcraftPath: () => ipcRenderer.invoke('starcraft:getPath'),
+  selectStarcraftFolder: () => ipcRenderer.invoke('starcraft:selectFolder'),
+  extractStarcraftGraphics: (path) => ipcRenderer.invoke('starcraft:extract', path),
+  getStarcraftFile: (path, fileName) => ipcRenderer.invoke('starcraft:getFile', path, fileName),
+  listStarcraftFiles: (path, mask) => ipcRenderer.invoke('starcraft:listFiles', path, mask),
+  onExtractProgress: (callback) => {
+    const listener = (_event, progress) => callback(progress)
+    ipcRenderer.on('starcraft:extract-progress', listener)
+    return () => ipcRenderer.removeListener('starcraft:extract-progress', listener)
+  },
+  readLocalPalette: (filename) => ipcRenderer.invoke('app:readLocalPalette', filename)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

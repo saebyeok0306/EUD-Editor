@@ -33,8 +33,6 @@ export function parseDef(defText) {
         else if (prop === 'Type') format[id].Type = parseInt(value, 10);
         else if (prop === 'VarStart') format[id].VarStart = parseInt(value, 10);
         else if (prop === 'VarEnd') format[id].VarEnd = parseInt(value, 10);
-        else if (prop === 'VarArray') format[id].VarArray = parseInt(value, 10);
-        else if (prop === 'VarArrayIndex') format[id].VarArrayIndex = parseInt(value, 10);
         else if (prop === 'InitVar') format[id].InitVar = parseInt(value, 10);
       }
     }
@@ -60,29 +58,24 @@ export function parseDat(arrayBuffer, defData) {
     const start = fmt.VarStart !== undefined ? fmt.VarStart : 0;
     const end = fmt.VarEnd !== undefined ? fmt.VarEnd : (entryCount - 1);
     const size = fmt.Size || 4;
-    const arraySize = fmt.VarArray || 1;
-
     for (let index = start; index <= end; index++) {
-      for (let arrIdx = 0; arrIdx < arraySize; arrIdx++) {
-        let value = 0;
-        
-        if (offset + size <= arrayBuffer.byteLength) {
-          if (size === 1) {
-            value = dataView.getUint8(offset);
-          } else if (size === 2) {
-            value = dataView.getUint16(offset, true); // true for Little Endian
-          } else if (size === 4) {
-            value = dataView.getUint32(offset, true);
-          }
+      let value = 0;
+      
+      if (offset + size <= arrayBuffer.byteLength) {
+        if (size === 1) {
+          value = dataView.getUint8(offset);
+        } else if (size === 2) {
+          value = dataView.getUint16(offset, true); // true for Little Endian
+        } else if (size === 4) {
+          value = dataView.getUint32(offset, true);
         }
-        
-        offset += size;
+      }
+      
+      offset += size;
 
-        const propName = arraySize > 1 ? `${fmt.Name}_${arrIdx}` : fmt.Name;
-        // Make sure index is in array bounds
-        if (entries[index]) {
-            entries[index][propName] = value;
-        }
+      // Make sure index is in array bounds
+      if (entries[index]) {
+          entries[index][fmt.Name] = value;
       }
     }
   }

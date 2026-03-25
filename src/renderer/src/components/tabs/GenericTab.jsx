@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useI18n } from '../../i18n/i18nContext'
 
-import { 
-  getFlingyData, 
-  getSpritesData, 
-  getWeaponsData, 
-  getImagesData, 
-  getUpgradesData, 
-  getTechdataData, 
-  getOrdersData 
+import {
+  getFlingyData,
+  getSpritesData,
+  getWeaponsData,
+  getImagesData,
+  getUpgradesData,
+  getTechdataData,
+  getOrdersData
 } from '../../utils/datStore'
 
 function GenericTab({ category, mapData }) {
@@ -81,28 +81,28 @@ function GenericTab({ category, mapData }) {
               <p>{t('generic.prop.placeholder', { category: categoryLabel })}</p>
 
               {/* [DEBUG] 임시 데이터 키값 확인용 (개발 완료 후 삭제 필요) */}
-              <div style={{ 
-                marginTop: '40px', 
+              <div style={{
+                marginTop: '40px',
                 margin: '20px',
-                padding: '15px', 
-                border: '1px dashed var(--ev-c-divider)', 
+                padding: '15px',
+                border: '1px dashed var(--ev-c-divider)',
                 borderRadius: '8px',
                 backgroundColor: 'rgba(0,0,0,0.05)',
-                fontSize: '11px', 
-                color: 'var(--ev-c-text-3)' 
+                fontSize: '11px',
+                color: 'var(--ev-c-text-3)'
               }}>
                 <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>
-                   🛠 [DEBUG] Available DAT Keys ({category}):
+                  🛠 [DEBUG] Available DAT Keys ({category}):
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                   {Object.keys(currentEudData || {}).map(k => (
-                    <span key={k} style={{ 
-                      background: 'var(--ev-c-bg-mute)', 
-                      padding: '2px 6px', 
+                    <span key={k} style={{
+                      background: 'var(--ev-c-bg-mute)',
+                      padding: '2px 6px',
                       borderRadius: '4px',
                       border: '1px solid var(--ev-c-divider)'
                     }}>
-                      {k}
+                      {k}: {currentEudData[k]}
                     </span>
                   ))}
                   {(!currentEudData || Object.keys(currentEudData).length === 0) && (

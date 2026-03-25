@@ -6,7 +6,8 @@ function BasicInfo({
   currentMapData,
   currentEudData,
   unitNames,
-  onUpdateProjectUnit
+  onUpdateProjectUnit,
+  onResetProjectUnit
 }) {
   const { t } = useI18n()
 
@@ -48,6 +49,35 @@ function BasicInfo({
       <h3 className="properties-title">
         {t('unit.title')}
         {currentMapData?.useDefault && !currentProjectData && <span className="properties-badge">{t('unit.badge.mapDefault')}</span>}
+        
+        <button 
+          className="btn-reset-tab"
+          onClick={() => {
+            if (confirm(t('unit.reset.confirmTab'))) {
+              onResetProjectUnit(selectedItem, 'basic')
+            }
+          }}
+          style={{ 
+            marginLeft: 'auto',
+            padding: '3px 8px',
+            fontSize: '10px',
+            backgroundColor: 'rgba(100, 108, 255, 0.05)',
+            color: 'var(--ev-c-brand)',
+            border: '1px solid var(--ev-c-brand)',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: '500',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = 'rgba(100, 108, 255, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = 'rgba(100, 108, 255, 0.05)';
+          }}
+        >
+          {t('unit.reset.tab')}
+        </button>
       </h3>
 
       {/* Map / UNIx editable fields */}

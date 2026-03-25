@@ -8,6 +8,9 @@ const BwChk = bwChkData.default || bwChkData
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { extractChkSection, parseUnixSection } from './chkParser.js'
+import { getSettings, saveSettings } from './settings.js'
+import { openCASC, closeCASC, readFile, listFiles } from './casc.js'
+import path from 'path'
 
 
 function createWindow() {
@@ -153,6 +156,107 @@ app.whenReady().then(() => {
       
       fs.createReadStream(filePath).pipe(extractor)
     })
+  })
+
+  // StarCraft Path & CASC
+  ipcMain.handle('starcraft:getPath', () => {
+    return getSettings().starcraftPath || null
+  })
+
+  ipcMain.handle('starcraft:listFiles', async (_, scPath, mask) => {
+    try {
+      const hStorage = openCASC(scPath)
+      if (!hStorage) return []
+      const list = listFiles(hStorage, mask)
+      closeCASC(hStorage)
+      return list
+    } catch (err) {
+      console.error('[CASC] List files error:', err)
+      return []
+    }
+  })
+
+  ipcMain.handle('app:readLocalPalette', (event, filename) => {
+    const palPath = path.join(app.getAppPath(), 'resources', 'Palletes', filename)
+    if (fs.existsSync(palPath)) {
+      return fs.readFileSync(palPath)
+    }
+    return null
+  })
+
+
+  ipcMain.handle('starcraft:getFile', async (_, scPath, fileName) => {
+    console.log(`[CASC] Requesting file: ${fileName} from ${scPath}`)
+    try {
+      const hStorage = openCASC(scPath)
+      if (!hStorage) {
+        console.warn('[CASC] Failed to open storage (returned null)')
+        return null
+      }
+      const content = readFile(hStorage, fileName)
+      closeCASC(hStorage)
+      
+      if (!content) {
+        console.warn(`[CASC] File not found or failed to read: ${fileName}`)
+      } else {
+        console.log(`[CASC] Successfully read ${fileName} (${content.length} bytes)`)
+      }
+      
+      return content
+    } catch (err) {
+      console.error('[CASC] Error in getFile:', err.message)
+      return null
+    }
+  })
+
+  ipcMain.handle('starcraft:selectFolder', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'StarCraft Executable', extensions: ['exe'] }],
+      title: 'Select StarCraft.exe'
+    })
+    
+    if (canceled || filePaths.length === 0) return null
+    // Return the directory containing the .exe
+    return path.dirname(filePaths[0])
+  })
+
+  ipcMain.handle('starcraft:extract', async (event, scPath) => {
+    saveSettings({ starcraftPath: scPath })
+    
+    try {
+      const hStorage = openCASC(scPath)
+      
+      // key common SD assets in SC:R
+      const filesToExtract = [
+        'unit/terran/spider.grp', // Some palettes
+        // ... in a full implementation, we'd have hundreds of files
+      ]
+
+      const userDataPath = app.getPath('userData')
+      const cachePath = path.join(userDataPath, 'cache', 'sd')
+      if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true })
+      
+      for (let i = 0; i < filesToExtract.length; i++) {
+        const fileName = filesToExtract[i]
+        event.sender.send('starcraft:extract-progress', { 
+          percent: Math.round(((i + 1) / filesToExtract.length) * 100), 
+          currentFile: `Extracting ${fileName}...` 
+        })
+
+        const content = readFile(hStorage, fileName)
+        if (content) {
+          const targetPath = path.join(cachePath, fileName.replace(/\//g, '_'))
+          fs.writeFileSync(targetPath, content)
+        }
+      }
+      
+      closeCASC(hStorage)
+      return { success: true }
+    } catch (err) {
+      console.error('Extraction error:', err)
+      return { success: false, error: err.message }
+    }
   })
 
   createWindow()

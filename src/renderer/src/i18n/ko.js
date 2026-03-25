@@ -58,6 +58,12 @@ const ko = {
   'unit.tab.ai': '인공지능 명령',
   'unit.tab.ui': '화면 정보',
   'unit.tab.req': '생산조건',
+  
+  // Reset
+  'unit.reset.all': '유닛 초기화',
+  'unit.reset.tab': '현재 탭 초기화',
+  'unit.reset.confirmUnit': '이 유닛의 모든 수정사항을 초기화하시겠습니까?',
+  'unit.reset.confirmTab': '이 탭의 모든 수정사항을 초기화하시겠습니까?',
 }
 
 export default ko

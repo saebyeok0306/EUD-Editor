@@ -58,6 +58,12 @@ const en = {
   'unit.tab.ai': 'AI / Orders',
   'unit.tab.ui': 'UIPreview',
   'unit.tab.req': 'Requirements',
+  
+  // Reset
+  'unit.reset.all': 'Reset Unit',
+  'unit.reset.tab': 'Reset This Tab',
+  'unit.reset.confirmUnit': 'Are you sure you want to reset all modifications for this unit?',
+  'unit.reset.confirmTab': 'Are you sure you want to reset modifications for this tab?',
 }
 
 export default en

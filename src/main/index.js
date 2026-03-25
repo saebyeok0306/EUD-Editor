@@ -184,6 +184,21 @@ app.whenReady().then(() => {
     return null
   })
 
+  ipcMain.handle('app:saveUnitImage', (event, unitId, base64Data) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const imagesPath = path.join(userDataPath, 'cache', 'images')
+      if (!fs.existsSync(imagesPath)) fs.mkdirSync(imagesPath, { recursive: true })
+      
+      const buffer = Buffer.from(base64Data.replace(/^data:image\/\w+;base64,/, ''), 'base64')
+      const filePath = path.join(imagesPath, `${unitId}.webp`)
+      fs.writeFileSync(filePath, buffer)
+      return { success: true, path: filePath }
+    } catch (err) {
+      console.error('Failed to save image:', err)
+      return { success: false, error: err.message }
+    }
+  })
 
   ipcMain.handle('starcraft:getFile', async (_, scPath, fileName) => {
     console.log(`[CASC] Requesting file: ${fileName} from ${scPath}`)

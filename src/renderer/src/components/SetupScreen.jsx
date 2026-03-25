@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { decodeGRP, renderToCanvas, PLAYER_COLORS } from '../utils/grpDecoder'
+import unitsRaw from '../data/grpUnit.txt?raw'
 
 export default function SetupScreen({ onCompleted }) {
   const [scPath, setScPath] = useState('')
@@ -44,15 +45,52 @@ export default function SetupScreen({ onCompleted }) {
     setError('')
 
     try {
-      const result = await window.api.extractStarcraftGraphics(scPath)
-      if (result.success) {
-        onCompleted(scPath)
+      // 1. Extract base assets (like cmdicons) via main process
+      await window.api.extractStarcraftGraphics(scPath)
+
+      // 2. Load PCX Palette
+      let palBuffer = await window.api.getStarcraftFile(scPath, 'game/tunit.pcx')
+      let paletteData = null
+      if (palBuffer && palBuffer.byteLength > 768) {
+        paletteData = new Uint8Array(palBuffer.buffer, palBuffer.byteOffset + palBuffer.byteLength - 768, 768)
       } else {
-        setError(result.error || 'Failed to extract graphics.')
-        setExtracting(false)
+        paletteData = await window.api.readLocalPalette('badlands.wpe')
       }
+
+      // 3. Batch Extract All Units as WebP (Orange player color)
+      const unitNames = unitsRaw.split('\n')
+      const offscreenCanvas = document.createElement('canvas')
+      const ctx = offscreenCanvas.getContext('2d')
+
+      for (let i = 0; i < unitNames.length; i++) {
+        const name = unitNames[i]
+        setProgress(Math.round((i / unitNames.length) * 100))
+
+        // Simple heuristic for filename mapping
+
+        const grpPath = name
+
+        const grpBuffer = await window.api.getStarcraftFile(scPath, grpPath)
+        if (!grpBuffer) continue // skip if not found
+
+        const firstFrame = decodeGRP(grpBuffer, 0)
+        if (!firstFrame) continue
+
+        offscreenCanvas.width = firstFrame.width
+        offscreenCanvas.height = firstFrame.height
+
+        // Render with Orange player color
+        renderToCanvas(ctx, firstFrame, paletteData, PLAYER_COLORS['Orange'])
+
+        const base64Data = offscreenCanvas.toDataURL('image/webp')
+        await window.api.saveUnitImage(i, base64Data)
+      }
+
+      setExtracting(false)
+      onCompleted(scPath)
     } catch (err) {
-      setError(err.message)
+      console.error('Extraction error:', err)
+      setError('Setup failed: ' + err.message)
       setExtracting(false)
     }
   }
@@ -301,8 +339,8 @@ export default function SetupScreen({ onCompleted }) {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <p style={{ fontSize: '0.8em', color: 'var(--ev-c-text-3)' }}>Test Extraction Preview (Animated):</p>
-                <select 
-                  value={playerColor} 
+                <select
+                  value={playerColor}
                   onChange={(e) => setPlayerColor(e.target.value)}
                   style={{
                     padding: '4px 8px',

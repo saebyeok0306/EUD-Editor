@@ -87,3 +87,119 @@ unit\protoss\sapper.grp
 unit\protoss\arbiter.grp
 unit\protoss\templar.grp
 unit\protoss\scout.grp
+unit\neutral\bcritter.grp
+unit\neutral\jcritter.grp
+unit\protoss\scout.grp
+unit\protoss\scout.grp
+unit\neutral\KCritter.grp
+unit\neutral\SCritter.grp
+unit\neutral\acritter.grp
+unit\neutral\ICritter.grp
+unit\zerg\LurkEgg.grp
+unit\protoss\corsair.grp
+unit\terran\ghost.grp
+unit\terran\ghost.grp
+unit\neutral\maprev.grp
+unit\terran\battlecr.grp
+unit\zerg\lurknorm.grp or unit\zerg\Zlurker.grp
+unit\terran\ghost.grp
+unit\thingy\disrupt.grp -- 팔레트 다른거
+unit\terran\control.grp
+unit\terran\comsat.grp
+unit\terran\nukesilo.grp
+unit\terran\depot.grp
+unit\terran\refinery.grp
+unit\terran\tbarrack.grp
+unit\terran\academy.grp
+unit\terran\factory.grp
+unit\terran\starport.grp
+unit\terran\drydocks.grp
+unit\terran\research.grp
+unit\terran\genelab.grp
+unit\terran\physics.grp
+unit\protoss\scout.grp
+unit\terran\machines.grp
+unit\protoss\scout.grp
+unit\terran\weaponpl.grp
+unit\terran\chemlab.grp
+unit\terran\missile.grp
+unit\terran\pillbox.grp
+unit\neutral\cbattle.grp -- 팔레트 다른거
+unit\neutral\ion.grp -- 팔레트 다른거
+unit\neutral\Uraj.grp
+unit\neutral\Khalis.grp
+unit\terran\control.grp
+unit\zerg\hatchery.grp
+unit\zerg\lair.grp
+unit\zerg\hive.grp
+unit\zerg\nyduspit.grp
+unit\zerg\snakey.grp
+unit\zerg\mutapit.grp -- Defiler
+unit\zerg\mutacham.grp -- Greater Spire
+unit\zerg\nest.grp -- nest
+unit\zerg\cerebrat.grp -- Chamber
+unit\zerg\rcluster.grp -- Ultralisk
+unit\zerg\spire.grp
+unit\zerg\chrysal.grp -- Spawning
+unit\zerg\fcolony.grp -- Creep
+unit\zerg\scolony.grp -- spore
+unit\protoss\scout.grp -- Unused
+unit\zerg\lurker.grp
+unit\zerg\over1.grp
+unit\zerg\over2.grp
+unit\zerg\extract.grp -- Extractor
+unit\neutral\kerrchry.grp -- 151
+unit\zerg\ucereb.grp
+unit\zerg\ucereb.grp
+unit\protoss\scout.grp -- Unused
+unit\protoss\nexus.grp
+unit\protoss\robotic.grp
+unit\protoss\pylon.grp
+unit\protoss\assim.grp
+unit\protoss\scout.grp -- Unused
+unit\protoss\beacon.grp
+unit\protoss\gateway.grp
+unit\protoss\scout.grp -- Unused
+unit\protoss\photon.grp
+unit\protoss\citadel.grp
+unit\protoss\gencore.grp
+unit\protoss\archives.grp
+unit\protoss\forge.grp
+unit\protoss\stargate.grp
+unit\neutral\stasis.grp
+unit\protoss\warp.grp -- Fleet
+unit\protoss\prism.grp -- Arbiter Tribunal
+unit\protoss\stasis.grp -- Support Bay
+unit\protoss\sbattery.grp
+unit\neutral\khyad01.grp -- player none
+unit\neutral\temple.grp -- player none
+unit\protoss\XelTempl.grp
+unit\neutral\min01.grp
+unit\neutral\min02.grp
+unit\neutral\min03.grp
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\neutral\geyser.grp
+unit\protoss\XWarpGat.grp
+unit\neutral\PsiDisr.grp
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\protoss\scout.grp -- Unused
+unit\zerg\zmarker.grp
+unit\terran\tmarker.grp
+unit\protoss\pmarker.grp
+unit\zerg\zmarker.grp
+unit\terran\tmarker.grp
+unit\protoss\pmarker.grp
+unit\neutral\Generate.grp
+unit\zerg\XOvermnd.grp
+unit\thingy\dswarm.grp
+
+unit\neutral\flag.grp

@@ -8,7 +8,7 @@ const BwChk = bwChkData.default || bwChkData
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { extractChkSection, parseUnixSection } from './chkParser.js'
-import { getSettings, saveSettings } from './settings.js'
+import { getSettings, saveSettings, deleteSettings } from './settings.js'
 import { openCASC, closeCASC, readFile, listFiles } from './casc.js'
 import path from 'path'
 
@@ -83,6 +83,32 @@ function buildMenu(currentLang, mainWindow) {
           type: 'radio',
           checked: currentLang === 'en',
           click: () => setLanguage('en', mainWindow)
+        }
+      ]
+    },
+    {
+      label: 'Test',
+      submenu: [
+        {
+          label: 'Delete settings.json',
+          click: async () => {
+            const { response } = await dialog.showMessageBox(mainWindow, {
+              type: 'warning',
+              buttons: ['Cancel', 'Delete'],
+              defaultId: 0,
+              title: 'Delete settings.json',
+              message: 'Are you sure you want to delete settings.json? The application will be reset and closed.',
+            })
+
+            if (response === 1) {
+              const success = deleteSettings()
+              if (success) {
+                app.quit()
+              } else {
+                dialog.showErrorBox('Error', 'Failed to delete settings.json')
+              }
+            }
+          }
         }
       ]
     }

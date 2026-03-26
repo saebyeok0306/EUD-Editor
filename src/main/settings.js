@@ -27,3 +27,15 @@ export function saveSettings(settings) {
     return false
   }
 }
+
+export function deleteSettings() {
+  try {
+    if (fs.existsSync(settingsPath)) {
+      fs.unlinkSync(settingsPath)
+      return true
+    }
+  } catch (err) {
+    console.error('Error deleting settings:', err)
+  }
+  return false
+}

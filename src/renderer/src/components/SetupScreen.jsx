@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { decodeGRP, renderToCanvas, PLAYER_COLORS } from '../utils/grpDecoder'
-import unitsRaw from '../data/grpUnit.txt?raw'
+import { generateAllUnitPreviews } from '../utils/previewGenerator'
 
 export default function SetupScreen({ onCompleted }) {
   const [scPath, setScPath] = useState('')
   const [extracting, setExtracting] = useState(false)
   const [progress, setProgress] = useState({ percent: 0, currentFile: '' })
+  const [phase, setPhase] = useState('extract') // 'extract' or 'previews'
   const [error, setError] = useState('')
   const [previewLoaded, setPreviewLoaded] = useState(false)
   const [fileList, setFileList] = useState([])
@@ -16,7 +17,6 @@ export default function SetupScreen({ onCompleted }) {
   const intervalRef = useRef(null)
 
   useEffect(() => {
-    // Listen for progress from main process
     const removeListener = window.api.onExtractProgress((p) => {
       setProgress(p)
     })
@@ -27,13 +27,12 @@ export default function SetupScreen({ onCompleted }) {
   }, [])
 
   const handleSelectFolder = async () => {
-    const path = await window.api.selectStarcraftFolder() // Logic returns directory
+    const path = await window.api.selectStarcraftFolder()
     if (path) {
       setScPath(path)
       setError('')
     }
   }
-
 
   const handleStartExtraction = async () => {
     if (!scPath) {
@@ -43,53 +42,24 @@ export default function SetupScreen({ onCompleted }) {
 
     setExtracting(true)
     setError('')
+    setPhase('extract')
 
     try {
-      // 1. Extract base assets (like cmdicons) via main process
+      // 1. Extract base assets
       await window.api.extractStarcraftGraphics(scPath)
 
-      // 2. Load PCX Palette
-      let palBuffer = await window.api.getStarcraftFile(scPath, 'game/tunit.pcx')
-      let paletteData = null
-      if (palBuffer && palBuffer.byteLength > 768) {
-        paletteData = new Uint8Array(palBuffer.buffer, palBuffer.byteOffset + palBuffer.byteLength - 768, 768)
-      } else {
-        paletteData = await window.api.readLocalPalette('badlands.wpe')
-      }
-
-      // 3. Batch Extract All Units as WebP (Orange player color)
-      const unitNames = unitsRaw.split('\n')
-      const offscreenCanvas = document.createElement('canvas')
-      const ctx = offscreenCanvas.getContext('2d')
-
-      for (let i = 0; i < unitNames.length; i++) {
-        const name = unitNames[i]
-        setProgress(Math.round((i / unitNames.length) * 100))
-
-        // Simple heuristic for filename mapping
-
-        const grpPath = name
-
-        const grpBuffer = await window.api.getStarcraftFile(scPath, grpPath)
-        if (!grpBuffer) continue // skip if not found
-
-        const firstFrame = decodeGRP(grpBuffer, 0)
-        if (!firstFrame) continue
-
-        offscreenCanvas.width = firstFrame.width
-        offscreenCanvas.height = firstFrame.height
-
-        // Render with Orange player color
-        renderToCanvas(ctx, firstFrame, paletteData, PLAYER_COLORS['Orange'])
-
-        const base64Data = offscreenCanvas.toDataURL('image/webp')
-        await window.api.saveUnitImage(i, base64Data)
-      }
+      // 2. Generate unit previews for optimization
+      setPhase('previews')
+      setProgress({ percent: 0, currentFile: 'Initializing preview generation...' })
+      
+      await generateAllUnitPreviews((p) => {
+        setProgress(p)
+      })
 
       setExtracting(false)
       onCompleted(scPath)
     } catch (err) {
-      console.error('Extraction error:', err)
+      console.error('Setup error:', err)
       setError('Setup failed: ' + err.message)
       setExtracting(false)
     }
@@ -360,7 +330,9 @@ export default function SetupScreen({ onCompleted }) {
           </div>
         ) : (
           <div style={{ marginTop: '20px' }}>
-            <p style={{ marginBottom: '10px', color: 'var(--ev-c-text-1)' }}>Extracting Graphics...</p>
+            <p style={{ marginBottom: '10px', color: 'var(--ev-c-text-1)' }}>
+              {phase === 'extract' ? 'Extracting Graphics...' : 'Generating Unit Previews...'}
+            </p>
             <div style={{
               width: '100%',
               height: '12px',

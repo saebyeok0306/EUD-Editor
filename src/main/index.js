@@ -10,6 +10,7 @@ import icon from '../../resources/icon.png?asset'
 import { extractChkSection, parseUnixSection } from './chkParser.js'
 import { getSettings, saveSettings, deleteSettings } from './settings.js'
 import { openCASC, closeCASC, readFile, listFiles } from './casc.js'
+import { packCascData, readDatapackFile } from './cascPacker.js'
 import path from 'path'
 
 
@@ -106,6 +107,34 @@ function buildMenu(currentLang, mainWindow) {
                 app.quit()
               } else {
                 dialog.showErrorBox('Error', 'Failed to delete settings.json')
+              }
+            }
+          }
+        },
+        {
+          label: 'Delete casc.datapack',
+          click: async () => {
+            const { response } = await dialog.showMessageBox(mainWindow, {
+              type: 'warning',
+              buttons: ['Cancel', 'Delete'],
+              defaultId: 0,
+              title: 'Delete casc.datapack',
+              message: 'Are you sure you want to delete casc.datapack? The graphics data will be removed and you will need to setup Starcraft path again.',
+            })
+
+            if (response === 1) {
+              try {
+                const userDataPath = app.getPath('userData')
+                const packPath = path.join(userDataPath, 'casc.datapack')
+                if (fs.existsSync(packPath)) {
+                  fs.unlinkSync(packPath)
+                  deleteSettings() // Removing datapack also requires setup reset
+                  app.quit()
+                } else {
+                  dialog.showMessageBox(mainWindow, { type: 'info', message: 'casc.datapack not found.', buttons: ['OK'] })
+                }
+              } catch (err) {
+                dialog.showErrorBox('Error', 'Failed to delete casc.datapack: ' + err.message)
               }
             }
           }
@@ -210,19 +239,64 @@ app.whenReady().then(() => {
     return null
   })
 
-  ipcMain.handle('app:saveUnitImage', (event, unitId, base64Data) => {
+  ipcMain.handle('app:getDatapackFile', (event, internalPath) => {
     try {
       const userDataPath = app.getPath('userData')
-      const imagesPath = path.join(userDataPath, 'cache', 'images')
-      if (!fs.existsSync(imagesPath)) fs.mkdirSync(imagesPath, { recursive: true })
-      
-      const buffer = Buffer.from(base64Data.replace(/^data:image\/\w+;base64,/, ''), 'base64')
-      const filePath = path.join(imagesPath, `${unitId}.webp`)
-      fs.writeFileSync(filePath, buffer)
-      return { success: true, path: filePath }
+      const packPath = path.join(userDataPath, 'casc.datapack')
+      return readDatapackFile(packPath, internalPath)
     } catch (err) {
-      console.error('Failed to save image:', err)
-      return { success: false, error: err.message }
+      console.error('Failed to read datapack file:', err)
+      return null
+    }
+  })
+
+  ipcMain.handle('app:saveUnitPreview', async (event, { unitId, dataUrl }) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const previewsPath = path.join(userDataPath, 'unit_previews')
+      if (!fs.existsSync(previewsPath)) {
+        fs.mkdirSync(previewsPath, { recursive: true })
+      }
+
+      const base64Data = dataUrl.replace(/^data:image\/webp;base64,/, '')
+      const filePath = path.join(previewsPath, `${unitId}.webp`)
+      fs.writeFileSync(filePath, base64Data, 'base64')
+      return true
+    } catch (err) {
+      console.error('[Main] Failed to save unit preview:', err)
+      return false
+    }
+  })
+
+  ipcMain.handle('app:getUnitPreviewUrl', async (event, unitId) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const filePath = path.join(userDataPath, 'unit_previews', `${unitId}.webp`)
+      if (fs.existsSync(filePath)) {
+        // Return file URL for the renderer
+        return `file://${filePath}`
+      }
+      return null
+    } catch (err) {
+      return null
+    }
+  })
+
+  ipcMain.handle('app:getUserDataPath', () => {
+    return app.getPath('userData')
+  })
+
+  ipcMain.handle('read-images-tbl', () => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const packPath = path.join(userDataPath, 'casc.datapack')
+      const buffer = readDatapackFile(packPath, 'arr/images.tbl')
+      // Let renderer do the TBL parsing, or parse it here.
+      // Easiest is to send buffer to renderer.
+      return buffer
+    } catch (err) {
+      console.error('Failed to read images.tbl:', err)
+      return null
     }
   })
 
@@ -266,33 +340,15 @@ app.whenReady().then(() => {
     saveSettings({ starcraftPath: scPath })
     
     try {
-      const hStorage = openCASC(scPath)
-      
-      // key common SD assets in SC:R
-      const filesToExtract = [
-        'unit/terran/spider.grp', // Some palettes
-        // ... in a full implementation, we'd have hundreds of files
-      ]
-
       const userDataPath = app.getPath('userData')
-      const cachePath = path.join(userDataPath, 'cache', 'sd')
-      if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true })
+      const packPath = path.join(userDataPath, 'casc.datapack')
       
-      for (let i = 0; i < filesToExtract.length; i++) {
-        const fileName = filesToExtract[i]
-        event.sender.send('starcraft:extract-progress', { 
-          percent: Math.round(((i + 1) / filesToExtract.length) * 100), 
-          currentFile: `Extracting ${fileName}...` 
-        })
-
-        const content = readFile(hStorage, fileName)
-        if (content) {
-          const targetPath = path.join(cachePath, fileName.replace(/\//g, '_'))
-          fs.writeFileSync(targetPath, content)
-        }
+      const onProgress = (p) => {
+        event.sender.send('starcraft:extract-progress', p)
       }
       
-      closeCASC(hStorage)
+      await packCascData(scPath, packPath, onProgress)
+      
       return { success: true }
     } catch (err) {
       console.error('Extraction error:', err)

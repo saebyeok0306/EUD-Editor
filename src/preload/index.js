@@ -20,7 +20,11 @@ const api = {
     return () => ipcRenderer.removeListener('starcraft:extract-progress', listener)
   },
   readLocalPalette: (filename) => ipcRenderer.invoke('app:readLocalPalette', filename),
-  saveUnitImage: (unitId, base64Data) => ipcRenderer.invoke('app:saveUnitImage', unitId, base64Data)
+  getDatapackFile: (internalPath) => ipcRenderer.invoke('app:getDatapackFile', internalPath),
+  readImagesTbl: () => ipcRenderer.invoke('app:readImagesTbl'),
+  saveUnitPreview: (unitId, dataUrl) => ipcRenderer.invoke('app:saveUnitPreview', { unitId, dataUrl }),
+  getUnitPreviewUrl: (unitId) => ipcRenderer.invoke('app:getUnitPreviewUrl', unitId),
+  getUserDataPath: () => ipcRenderer.invoke('app:getUserDataPath')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

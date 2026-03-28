@@ -125,7 +125,6 @@ export function listFiles(hStorage, mask = '*') {
     do {
       const fileName = koffi.decode(findData, 'char[260]')
       results.push(fileName)
-      if (results.length > 1000) break
     } while (CascFindNextFile && CascFindNextFile(hFind, findData))
     
     if (CascFindClose) CascFindClose(hFind)

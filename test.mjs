@@ -33,14 +33,17 @@ export function parseTbl(buffer, encoding = 'EUC-KR') {
 }
 
 // Correct file path: src/renderer/src/tbl/images.tbl
-const filePath = './src/renderer/src/tbl/weapons.tbl';
+const filePath = './src/renderer/src/tbl/images.tbl';
 
 try {
   const buffer = fs.readFileSync(filePath);
   const strings = parseTbl(buffer);
   console.log('Total strings:', strings.length);
   // Log first 10 for preview
-  console.log('Preview (first 10):', strings);
+  for (let i = 0; i<strings.length; i++) {
+    console.log(i, strings[i]);
+  }
+  console.log("239: ", strings[239]);
 } catch (err) {
   console.error('Error reading or parsing TBL:', err.message);
 }

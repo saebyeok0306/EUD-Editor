@@ -35,6 +35,7 @@ import statTxtKorEngUrl from '../tbl/stat_txt_kor_eng.tbl?url'
 import statTxtKorKorUrl from '../tbl/stat_txt_kor_kor.tbl?url'
 import portdataTblUrl   from '../tbl/portdata.tbl?url'
 import sfxdataTblUrl    from '../tbl/sfxdata.tbl?url'
+import imagesTblUrl     from '../tbl/images.tbl?url'
 
 // In-memory cache
 const _store = {
@@ -55,6 +56,7 @@ const _store = {
   statTxtKorKor: null,  // Korean only
   portdataTbl:   null,  // Portrait descriptions
   sfxdataTbl:    null,  // SFX file paths
+  imagesTbl:     null,  // Image paths
 }
 
 let _initPromise = null
@@ -97,9 +99,10 @@ export function initDatStore() {
     _parseTblFile(statTxtKorKorUrl, 'EUC-KR'),
     _parseTblFile(portdataTblUrl,   'EUC-KR'),
     _parseTblFile(sfxdataTblUrl,    'UTF-8'),    // SFX paths, ASCII-safe
+    _parseTblFile(imagesTblUrl,     'UTF-8'),    // images paths, ASCII-safe
   ]).then(([
     units, flingy, images, orders, portdata, sfxdata, sprites, techdata, upgrades, weapons,
-    statTxt, statTxtKorEng, statTxtKorKor, portdataTbl, sfxdataTbl,
+    statTxt, statTxtKorEng, statTxtKorKor, portdataTbl, sfxdataTbl, imagesTbl
   ]) => {
     _store.units    = units
     _store.flingy   = flingy
@@ -116,6 +119,7 @@ export function initDatStore() {
     _store.statTxtKorKor = statTxtKorKor
     _store.portdataTbl   = portdataTbl
     _store.sfxdataTbl    = sfxdataTbl
+    _store.imagesTbl     = imagesTbl
     console.log('[datStore] Loaded all files:',
       Object.fromEntries(Object.entries(_store).map(([k, v]) => [k, v?.length]))
     )
@@ -145,3 +149,4 @@ export const getStatTxtKorEng = () => _store.statTxtKorEng  // Korean+English mi
 export const getStatTxtKorKor = () => _store.statTxtKorKor  // Korean only
 export const getPortdataTbl   = () => _store.portdataTbl    // Portrait descriptions
 export const getSfxdataTbl    = () => _store.sfxdataTbl     // SFX file paths
+export const getImagesTbl     = () => _store.imagesTbl      // Image paths

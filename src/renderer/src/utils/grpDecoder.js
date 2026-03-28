@@ -5,7 +5,7 @@ export function decodeGRP(buffer, frameIndex = 0) {
     const width = view.getUint16(2, true)
     const height = view.getUint16(4, true)
     
-    console.log(`[GRP Decoder] Size: ${buffer.byteLength}, Frames: ${frameCount}, W: ${width}, H: ${height}`)
+    // console.log(`[GRP Decoder] Size: ${buffer.byteLength}, Frames: ${frameCount}, W: ${width}, H: ${height}`)
 
     if (frameIndex >= frameCount) {
       throw new Error(`Frame index ${frameIndex} out of bounds (${frameCount})`)
@@ -32,7 +32,7 @@ export function decodeGRP(buffer, frameIndex = 0) {
 
     const lineOffsets = frameOffset
     
-    console.log(`[GRP Decoder] Frame ${frameIndex} @ ${frameOffset} -> X:${fx} Y:${fy} W:${fw} H:${fh}`)
+    // console.log(`[GRP Decoder] Frame ${frameIndex} @ ${frameOffset} -> X:${fx} Y:${fy} W:${fw} H:${fh}`)
 
     // Basic heuristic: if width/height are unreasonable, fail early
     if (fw > width || fh > height) {

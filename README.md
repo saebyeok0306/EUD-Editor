@@ -1,6 +1,6 @@
 # EUD Editor (StarCraft Data Editor)
 
-Electron 기반으로 구축된 스타크래프트 에디터 프로젝트입니다. 
+Electron 기반으로 구축된 스타크래프트 에디터 프로젝트입니다.  
 AI랑 결합한 차세대 EUD 에디터를 목표로 하고 있지만, 취미로 시작한 프로젝트라 언제 중단될지 모릅니다.🔥
 
 ![image](/md/image.png)

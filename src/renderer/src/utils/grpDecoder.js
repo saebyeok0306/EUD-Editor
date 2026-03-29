@@ -134,20 +134,24 @@ export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null) {
       imgData.data[base + 2] = rampColor[2]
       imgData.data[base + 3] = 255
     } else {
-      const isWpe = palette && palette.length === 1024
+      const isWpe = palette && palette.length >= 1024
       const stride = isWpe ? 4 : 3
 
-      if (palette && palette.length >= colorIdx * stride + 3) {
+      // Ensure index is within palette range
+      if (palette && (colorIdx * stride + 2) < palette.length) {
         imgData.data[base + 0] = palette[colorIdx * stride + 0]
         imgData.data[base + 1] = palette[colorIdx * stride + 1]
         imgData.data[base + 2] = palette[colorIdx * stride + 2]
         imgData.data[base + 3] = 255
       } else {
-        // Fallback to grayscale if no palette is provided
-        imgData.data[base + 0] = colorIdx
-        imgData.data[base + 1] = colorIdx
-        imgData.data[base + 2] = colorIdx
-        imgData.data[base + 3] = 255
+        // Fallback or shadow handling? 
+        // For indices 1-7 in low-palette, they might be shadows. 
+        // We'll just render it as partial transparency for now or dark gray.
+        const brightness = (colorIdx === 0) ? 0 : colorIdx
+        imgData.data[base + 0] = brightness
+        imgData.data[base + 1] = brightness
+        imgData.data[base + 2] = brightness
+        imgData.data[base + 3] = (colorIdx === 0) ? 0 : 255
       }
     }
   }

@@ -225,6 +225,37 @@ app.whenReady().then(() => {
     return getSettings().starcraftPath || null
   })
 
+  ipcMain.handle('app:readLocalPalette', async (event, name) => {
+    try {
+      const palettePath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Palettes', name)
+        : path.join(app.getAppPath(), 'resources', 'Palettes', name)
+        
+      if (fs.existsSync(palettePath)) {
+        return fs.readFileSync(palettePath)
+      }
+      return null
+    } catch (err) {
+      console.error('Error reading local palette:', err)
+      return null
+    }
+  })
+
+  ipcMain.handle('read-unit-preview', (event, unitId) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const filePath = path.join(userDataPath, 'unit_previews', `${unitId}.webp`)
+      if (fs.existsSync(filePath)) {
+        // Return file URL for display
+        return `file://${filePath}`
+      }
+      return null
+    } catch (err) {
+      console.error('Error reading unit preview:', err)
+      return null
+    }
+  })
+
   ipcMain.handle('starcraft:listFiles', async (_, scPath, mask) => {
     try {
       const hStorage = openCASC(scPath)
@@ -238,18 +269,6 @@ app.whenReady().then(() => {
     }
   })
 
-  ipcMain.handle('app:readLocalPalette', (event, filename) => {
-    const palDir = app.isPackaged
-      ? path.join(process.resourcesPath, 'Palettes')
-      : path.join(app.getAppPath(), 'resources', 'Palettes')
-    const palPath = path.join(palDir, filename)
-    
-    if (fs.existsSync(palPath)) {
-      return fs.readFileSync(palPath)
-    }
-    console.error(`[Main] Palette not found at: ${palPath}`)
-    return null
-  })
 
   ipcMain.handle('app:getDatapackFile', (event, internalPath) => {
     try {

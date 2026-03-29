@@ -52,11 +52,37 @@ export default function UnitGraphic({ unitId, playerColor = 'Red', maxWidth = 64
 
         if (!sharedPalette) {
           try {
-            const pcxBuffer = await window.api.getDatapackFile('game/tunit.pcx')
-            if (pcxBuffer && pcxBuffer.byteLength > 768) {
-              sharedPalette = new Uint8Array(pcxBuffer.buffer, pcxBuffer.byteOffset + pcxBuffer.byteLength - 768, 768)
+            // Helper to extract palette from PCX buffer
+            const extractPalette = (buffer) => {
+              const data = new Uint8Array(buffer)
+              // Standard PCX palette is 768 bytes at the end, preceded by 0x0C (12)
+              // We search from the end for the 0x0C marker.
+              for (let i = data.length - 769; i >= 0; i--) {
+                if (data[i] === 0x0C && (data.length - i) >= 769) {
+                  console.log(`[UnitGraphic] Found PCX palette marker at offset ${i}`)
+                  return data.slice(i + 1, i + 769)
+                }
+              }
+              // Fallback to last 768 bytes
+              return data.slice(data.length - 768)
             }
-          } catch (e) { console.warn('tunit.pcx not found') }
+
+            let pcxBuffer = await window.api.getDatapackFile('game/tunit.pcx')
+            if (pcxBuffer) {
+              sharedPalette = extractPalette(pcxBuffer)
+              console.log('[UnitGraphic] Loaded tunit.pcx from datapack')
+            } else {
+              // Try local fallback
+              console.warn('[UnitGraphic] tunit.pcx not in datapack, trying local fallback...')
+              const localPalette = await window.api.readLocalPalette('SC_unit_building.act')
+              if (localPalette) {
+                sharedPalette = new Uint8Array(localPalette)
+                console.log('[UnitGraphic] Loaded fallback palette from resources')
+              }
+            }
+          } catch (e) {
+            console.error('[UnitGraphic] Palette loading failed:', e)
+          }
         }
 
         // Load JSON Iscript
@@ -165,8 +191,8 @@ export default function UnitGraphic({ unitId, playerColor = 'Red', maxWidth = 64
                   currentScript = null // Stop on unknown label
                 }
               } else if (opcode === 'gotorepeatattk') {
-                 // Common SC opcode: repeat current label? 
-                 scriptIndex = 0 
+                // Common SC opcode: repeat current label? 
+                scriptIndex = 0
               } else if (opcode === 'end') {
                 currentScript = null
               } else {
@@ -175,7 +201,7 @@ export default function UnitGraphic({ unitId, playerColor = 'Red', maxWidth = 64
             }
 
             if (waitTicks > 0 && active) {
-              timer = setTimeout(loop, waitTicks * (1000 / 24))
+              timer = setTimeout(loop, waitTicks * (1000 / 18))
             }
           }
           loop()

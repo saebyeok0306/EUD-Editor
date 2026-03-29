@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import unitsText from '../../../data/Units.txt?raw'
 import { 
@@ -32,7 +32,7 @@ const SUB_TABS = [
   { id: 'req', key: 'unit.tab.req' },
 ]
 
-function UnitPreview({ unitId, name, userDataPath }) {
+const UnitPreview = memo(function UnitPreview({ unitId, name, userDataPath }) {
   const [hasError, setHasError] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
@@ -64,7 +64,42 @@ function UnitPreview({ unitId, name, userDataPath }) {
 
   // Fallback if path not ready or error
   return <UnitGraphic unitId={unitId} playerColor="Orange" maxWidth={44} maxHeight={44} autoCrop={true} />
-}
+})
+
+const UnitListItem = memo(({ i, name, isSelected, isModified, onClick, userDataPath }) => {
+  return (
+    <div
+      className={`list-item${isSelected ? ' active' : ''}`}
+      onClick={() => onClick(i)}
+      style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px' }}
+    >
+      <div style={{ 
+        width: '44px', 
+        height: '44px', 
+        flexShrink: 0, 
+        backgroundColor: 'var(--ev-c-bg-mute)', 
+        borderRadius: '6px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        border: '1px solid var(--ev-c-divider)'
+      }}>
+        <UnitPreview unitId={i} name={name} userDataPath={userDataPath} />
+      </div>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ev-c-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {name}
+          {isModified && <span style={{ marginLeft: '4px', color: 'var(--ev-c-brand)', fontWeight: 'bold' }}>*</span>}
+        </div>
+        <div className="list-item-id" style={{ fontSize: '10px', color: 'var(--ev-c-text-3)', marginTop: '2px' }}>
+          ID: {i.toString().padStart(3, '0')}
+        </div>
+      </div>
+    </div>
+  )
+})
 
 function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetProjectUnit }) {
   const { t } = useI18n()
@@ -139,37 +174,15 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
       {/* Left Pane: Items List */}
       <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
         {UNIT_NAMES.map((name, i) => (
-          <div
+          <UnitListItem
             key={i}
-            className={`list-item${selectedItem === i ? ' active' : ''}`}
-            onClick={() => setSelectedItem(i)}
-            style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px' }}
-          >
-            <div style={{ 
-              width: '44px', 
-              height: '44px', 
-              flexShrink: 0, 
-              backgroundColor: 'var(--ev-c-bg-mute)', 
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              border: '1px solid var(--ev-c-divider)'
-            }}>
-              <UnitPreview unitId={i} name={name} userDataPath={userDataPath} />
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ev-c-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {name}
-                {projectData.units[i] && <span style={{ marginLeft: '4px', color: 'var(--ev-c-brand)', fontWeight: 'bold' }}>*</span>}
-              </div>
-              <div className="list-item-id" style={{ fontSize: '10px', color: 'var(--ev-c-text-3)', marginTop: '2px' }}>
-                ID: {i.toString().padStart(3, '0')}
-              </div>
-            </div>
-          </div>
+            i={i}
+            name={name}
+            isSelected={selectedItem === i}
+            isModified={!!projectData.units[i]}
+            onClick={setSelectedItem}
+            userDataPath={userDataPath}
+          />
         ))}
       </div>
 

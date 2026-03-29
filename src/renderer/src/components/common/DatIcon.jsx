@@ -19,7 +19,13 @@ export default function DatIcon({
     let active = true
 
     async function loadIcon() {
-      if (frameIndex === null || frameIndex === undefined) return
+      if (frameIndex === null || frameIndex === undefined) {
+        if (canvasRef.current) {
+          canvasRef.current.width = 0
+          canvasRef.current.height = 0
+        }
+        return
+      }
 
       try {
         setLoading(true)

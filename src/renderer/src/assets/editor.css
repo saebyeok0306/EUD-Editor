@@ -274,6 +274,7 @@
 .prop-span-3 {
   grid-column: span 3;
 }
+
 .prop-split-input {
   display: flex;
   align-items: stretch;
@@ -317,6 +318,7 @@
   pointer-events: none;
   user-select: none;
 }
+
 /* --- Sub Tabs --- */
 .sub-tabs {
   display: flex;

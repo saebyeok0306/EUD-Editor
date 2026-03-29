@@ -21,7 +21,8 @@ setupPortablePath()
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
+    width: 1140,
+    minWidth: 1140,
     height: 670,
     show: false,
     autoHideMenuBar: false,
@@ -78,7 +79,7 @@ function buildMenu(currentLang, mainWindow) {
       ]
     },
     {
-      label: '언어 선택 (Language)',
+      label: 'Language',
       submenu: [
         {
           label: '한국어',

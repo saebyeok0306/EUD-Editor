@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import unitsText from '../../../data/Units.txt?raw'
-import { getUnitsData } from '../../../utils/datStore'
+import { 
+  getUnitsData, 
+  getWeaponsData, 
+  getUpgradesData, 
+  getStatTxt 
+} from '../../../utils/datStore'
 import UnitGraphic from '../../common/UnitGraphic'
 
 // Sub-components
@@ -110,7 +115,10 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
       currentEudData,
       unitNames: UNIT_NAMES,
       onUpdateProjectUnit,
-      onResetProjectUnit
+      onResetProjectUnit,
+      weaponsData: getWeaponsData(),
+      upgradesData: getUpgradesData(),
+      statTxt: getStatTxt()
     }
 
     switch (activeSubTab) {

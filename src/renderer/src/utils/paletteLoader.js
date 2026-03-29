@@ -16,8 +16,8 @@ export function resolvePalettePath(targetPath, currentTileset = 'badlands') {
   const lowerPath = targetPath.toLowerCase()
   const basename = lowerPath.split('/').pop()
   
-  // 1. UI icons
-  if (lowerPath.includes('cmdicons') || lowerPath.includes('wirefram')) {
+  // 1. UI icons (Wireframes)
+  if (lowerPath.includes('wirefram')) {
     return { type: 'pcx', path: 'game/ticon.pcx', fallback: 'Icons.act' }
   }
   

@@ -196,6 +196,10 @@ app.whenReady().then(() => {
           const unixBuffer = extractChkSection(data, 'UNIx') || extractChkSection(data, 'UNIS')
           const unitSettings = parseUnixSection(unixBuffer)
 
+          const tilesetNames = ['badlands', 'platform', 'install', 'ashworld', 'jungle', 'desert', 'ice', 'twilight']
+          const tilesetId = chk.tileset || 0
+          const tilesetName = tilesetNames[tilesetId] || 'badlands'
+
           const win = BrowserWindow.fromWebContents(event.sender)
           if (win && !win.isMaximized()) {
             win.maximize()
@@ -207,6 +211,7 @@ app.whenReady().then(() => {
             title: chk.title,
             description: chk.description,
             size: [chk.size[0], chk.size[1]],
+            tileset: tilesetName,
             unitSettings: unitSettings.units,
             weaponSettings: unitSettings.weapons
           })

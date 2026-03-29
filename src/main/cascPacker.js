@@ -28,6 +28,7 @@ export async function packCascData(scPath, targetPath, onProgress) {
     fileSet.add('arr/units.dat')
     fileSet.add('arr/sprites.dat')
     fileSet.add('game/tunit.pcx')
+    fileSet.add('game/ticon.pcx')
     fileSet.add('scripts/iscript.bin')
 
     const fileList = Array.from(fileSet)

@@ -1,5 +1,6 @@
 import { getUnitsData, getFlingyData, getSpritesData, getImagesData, getImagesTbl } from './datStore'
 import { decodeGRP, renderToCanvas, PLAYER_COLORS } from './grpDecoder'
+import { loadPalette } from './paletteLoader'
 
 export async function generateAllUnitPreviews(onProgress) {
   const unitsData = getUnitsData()
@@ -11,17 +12,6 @@ export async function generateAllUnitPreviews(onProgress) {
   if (!unitsData || !imagesData || !imagesTbl) {
     console.error('[PreviewGen] Required data not loaded yet.')
     return
-  }
-
-  // Load palette once
-  let sharedPalette = null
-  try {
-    const pcxBuffer = await window.api.getDatapackFile('game/tunit.pcx')
-    if (pcxBuffer && pcxBuffer.byteLength > 768) {
-      sharedPalette = new Uint8Array(pcxBuffer.buffer, pcxBuffer.byteOffset + pcxBuffer.byteLength - 768, 768)
-    }
-  } catch (e) {
-    console.warn('[PreviewGen] Failed to load tunit.pcx')
   }
 
   const unitIds = Object.keys(unitsData)
@@ -84,11 +74,13 @@ export async function generateAllUnitPreviews(onProgress) {
         offsetY = minY
       }
 
+      const paletteToUse = await loadPalette(targetPath, 'badlands')
+
       // Render to offscreen canvas
       const tempCanvas = document.createElement('canvas')
       tempCanvas.width = frameData.width
       tempCanvas.height = frameData.height
-      renderToCanvas(tempCanvas.getContext('2d'), frameData, sharedPalette, PLAYER_COLORS['Orange'])
+      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS['Orange'])
 
       // Prepare final preview canvas (max 44x44 for list)
       canvas.width = Math.min(cropWidth, 128)

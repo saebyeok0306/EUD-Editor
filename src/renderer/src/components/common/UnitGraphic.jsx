@@ -3,12 +3,12 @@ import { getUnitsData, getFlingyData, getSpritesData, getImagesData, getImagesTb
 import { decodeGRP, renderToCanvas, PLAYER_COLORS } from '../../utils/grpDecoder'
 import { IScriptParser, OPCODES } from '../../utils/iscriptParser'
 import iscriptJsonUrl from '../../data/iscript_data.json?url'
+import { loadPalette } from '../../utils/paletteLoader'
 
-let sharedPalette = null
 let sharedIscriptData = null
 const graphicCache = new Map()
 
-export default function UnitGraphic({ unitId, playerColor = 'Red', maxWidth = 64, maxHeight = 64, autoCrop = false, style = {}, onDebugInfo, animate = false }) {
+export default function UnitGraphic({ unitId, playerColor = 'Red', tileset = 'badlands', maxWidth = 64, maxHeight = 64, autoCrop = false, style = {}, onDebugInfo, animate = false }) {
   const canvasRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
@@ -50,40 +50,7 @@ export default function UnitGraphic({ unitId, playerColor = 'Red', maxWidth = 64
 
         if (onDebugInfo) onDebugInfo({ flingyId, imageId, path: targetPath })
 
-        if (!sharedPalette) {
-          try {
-            // Helper to extract palette from PCX buffer
-            const extractPalette = (buffer) => {
-              const data = new Uint8Array(buffer)
-              // Standard PCX palette is 768 bytes at the end, preceded by 0x0C (12)
-              // We search from the end for the 0x0C marker.
-              for (let i = data.length - 769; i >= 0; i--) {
-                if (data[i] === 0x0C && (data.length - i) >= 769) {
-                  console.log(`[UnitGraphic] Found PCX palette marker at offset ${i}`)
-                  return data.slice(i + 1, i + 769)
-                }
-              }
-              // Fallback to last 768 bytes
-              return data.slice(data.length - 768)
-            }
-
-            let pcxBuffer = await window.api.getDatapackFile('game/tunit.pcx')
-            if (pcxBuffer) {
-              sharedPalette = extractPalette(pcxBuffer)
-              console.log('[UnitGraphic] Loaded tunit.pcx from datapack')
-            } else {
-              // Try local fallback
-              console.warn('[UnitGraphic] tunit.pcx not in datapack, trying local fallback...')
-              const localPalette = await window.api.readLocalPalette('SC_unit_building.act')
-              if (localPalette) {
-                sharedPalette = new Uint8Array(localPalette)
-                console.log('[UnitGraphic] Loaded fallback palette from resources')
-              }
-            }
-          } catch (e) {
-            console.error('[UnitGraphic] Palette loading failed:', e)
-          }
-        }
+        const paletteToUse = await loadPalette(targetPath, tileset)
 
         // Load JSON Iscript
         if (animate && !sharedIscriptData) {
@@ -109,7 +76,6 @@ export default function UnitGraphic({ unitId, playerColor = 'Red', maxWidth = 64
         const finalCtx = canvasRef.current?.getContext('2d')
         if (!finalCtx) return
 
-        const paletteToUse = sharedPalette || PLAYER_COLORS[playerColor]
         const iscriptId = imagesData[imageId]['Iscript ID'] & 0xFFFF
 
         let currentScript = null

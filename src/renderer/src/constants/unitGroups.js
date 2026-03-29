@@ -24,8 +24,22 @@ export const UNIT_GROUPS = {
     'spaceRequired',
     'spaceProvided',
   ],
-  advanced: [],
-  sound: [],
+  advanced: [
+    'specialAbilityFlags',
+    'movementFlags',
+    'infestation',
+    'subUnit1',
+    'subUnit2'
+  ],
+  sound: [
+    'readySound',
+    'yesSoundStart',
+    'yesSoundEnd',
+    'whatSoundStart',
+    'whatSoundEnd',
+    'pissSoundStart',
+    'pissSoundEnd'
+  ],
   graphics: [],
   edit: [],
   ai: [],

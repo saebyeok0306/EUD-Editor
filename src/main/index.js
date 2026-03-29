@@ -318,6 +318,38 @@ app.whenReady().then(() => {
     }
   })
 
+  ipcMain.handle('app:saveImagePreview', async (event, { imageId, dataUrl }) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const previewsPath = path.join(userDataPath, 'image_previews')
+      if (!fs.existsSync(previewsPath)) {
+        fs.mkdirSync(previewsPath, { recursive: true })
+      }
+
+      const base64Data = dataUrl.replace(/^data:image\/webp;base64,/, '')
+      const filePath = path.join(previewsPath, `${imageId}.webp`)
+      fs.writeFileSync(filePath, base64Data, 'base64')
+      return true
+    } catch (err) {
+      console.error('[Main] Failed to save image preview:', err)
+      return false
+    }
+  })
+
+  ipcMain.handle('app:getImagePreviewUrl', async (event, imageId) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const filePath = path.join(userDataPath, 'image_previews', `${imageId}.webp`)
+      if (fs.existsSync(filePath)) {
+        // Return file URL for the renderer
+        return `file://${filePath}`
+      }
+      return null
+    } catch (err) {
+      return null
+    }
+  })
+
   ipcMain.handle('app:getUserDataPath', () => {
     return app.getPath('userData')
   })

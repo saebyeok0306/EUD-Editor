@@ -24,6 +24,8 @@ const api = {
   readImagesTbl: () => ipcRenderer.invoke('app:readImagesTbl'),
   saveUnitPreview: (unitId, dataUrl) => ipcRenderer.invoke('app:saveUnitPreview', { unitId, dataUrl }),
   getUnitPreviewUrl: (unitId) => ipcRenderer.invoke('app:getUnitPreviewUrl', unitId),
+  saveImagePreview: (imageId, dataUrl) => ipcRenderer.invoke('app:saveImagePreview', { imageId, dataUrl }),
+  getImagePreviewUrl: (imageId) => ipcRenderer.invoke('app:getImagePreviewUrl', imageId),
   getUserDataPath: () => ipcRenderer.invoke('app:getUserDataPath')
 }
 

@@ -113,7 +113,7 @@ export const PLAYER_COLORS = {
   Yellow: generateColorRamp(252, 252, 56)
 };
 
-export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null) {
+export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null, drawFunction = 0) {
   const { width, height, data } = decoded
   const imgData = ctx.createImageData(width, height)
   
@@ -126,6 +126,12 @@ export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null) {
       imgData.data[base + 1] = 0
       imgData.data[base + 2] = 0
       imgData.data[base + 3] = 0
+    } else if (drawFunction === 10) {
+      // shadow: black with 50% opacity
+      imgData.data[base + 0] = 0
+      imgData.data[base + 1] = 0
+      imgData.data[base + 2] = 0
+      imgData.data[base + 3] = 128
     } else if (playerColorRamp && colorIdx >= 8 && colorIdx <= 15) {
       // Player color override (indices 8-15)
       const rampColor = playerColorRamp[colorIdx - 8]

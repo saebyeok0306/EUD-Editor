@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { decodeGRP, renderToCanvas, PLAYER_COLORS } from '../utils/grpDecoder'
-import { generateAllUnitPreviews } from '../utils/previewGenerator'
+import { generateAllUnitPreviews, generateAllImagePreviews } from '../utils/previewGenerator'
 
 export default function SetupScreen({ onCompleted }) {
   const [scPath, setScPath] = useState('')
@@ -53,6 +53,14 @@ export default function SetupScreen({ onCompleted }) {
       setProgress({ percent: 0, currentFile: 'Initializing preview generation...' })
       
       await generateAllUnitPreviews((p) => {
+        setProgress(p)
+      })
+
+      // 3. Generate image previews for optimization
+      setPhase('image_previews')
+      setProgress({ percent: 0, currentFile: 'Initializing image previews...' })
+      
+      await generateAllImagePreviews((p) => {
         setProgress(p)
       })
 
@@ -331,7 +339,9 @@ export default function SetupScreen({ onCompleted }) {
         ) : (
           <div style={{ marginTop: '20px' }}>
             <p style={{ marginBottom: '10px', color: 'var(--ev-c-text-1)' }}>
-              {phase === 'extract' ? 'Extracting Graphics...' : 'Generating Unit Previews...'}
+              {phase === 'extract' ? 'Extracting Graphics...' 
+               : phase === 'previews' ? 'Generating Unit Previews...'
+               : 'Generating Image Previews...'}
             </p>
             <div style={{
               width: '100%',

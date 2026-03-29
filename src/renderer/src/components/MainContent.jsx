@@ -1,5 +1,6 @@
 import { useI18n } from '../i18n/i18nContext'
 import UnitTab from './tabs/UnitTab/index'
+import ImageTab from './tabs/ImageTab/index'
 import GenericTab from './tabs/GenericTab'
 
 function MainContent({ 
@@ -24,7 +25,7 @@ function MainContent({
       case 'Flingy': return <GenericTab category="Flingy" mapData={mapData} />
       case 'Sprite': return <GenericTab category="Sprite" mapData={mapData} />
       case 'Weapon': return <GenericTab category="Weapon" mapData={mapData} />
-      case 'Image': return <GenericTab category="Image" mapData={mapData} />
+      case 'Image': return <ImageTab mapData={mapData} projectData={projectData} datReady={datReady} />
       case 'Upgrade': return <GenericTab category="Upgrade" mapData={mapData} />
       case 'Tech': return <GenericTab category="Tech" mapData={mapData} />
       case 'Order': return <GenericTab category="Order" mapData={mapData} />

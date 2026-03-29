@@ -1,0 +1,120 @@
+use wasm_bindgen::prelude::*;
+use js_sys::{Object, Reflect, Uint8Array};
+
+#[wasm_bindgen]
+pub fn decode_grp_frame(buffer: &[u8], frame_index: u16) -> Result<Object, JsValue> {
+    if buffer.len() < 6 {
+        return Err(JsValue::from_str("Buffer too small for GRP header"));
+    }
+
+    let frame_count = u16::from_le_bytes([buffer[0], buffer[1]]);
+    let width = u16::from_le_bytes([buffer[2], buffer[3]]);
+    let height = u16::from_le_bytes([buffer[4], buffer[5]]);
+
+    if frame_index >= frame_count {
+        return Err(JsValue::from_str(&format!(
+            "Frame index {} out of bounds ({})",
+            frame_index, frame_count
+        )));
+    }
+
+    let frame_table_offset = 6 + (frame_index as usize) * 8;
+    if frame_table_offset + 8 > buffer.len() {
+        return Err(JsValue::from_str(&format!(
+            "Frame table offset {} out of bounds",
+            frame_table_offset
+        )));
+    }
+
+    let fx = buffer[frame_table_offset] as usize;
+    let fy = buffer[frame_table_offset + 1] as usize;
+    let fw = buffer[frame_table_offset + 2] as usize;
+    let fh = buffer[frame_table_offset + 3] as usize;
+    let mut frame_offset = u32::from_le_bytes([
+        buffer[frame_table_offset + 4],
+        buffer[frame_table_offset + 5],
+        buffer[frame_table_offset + 6],
+        buffer[frame_table_offset + 7],
+    ]) as usize;
+
+    frame_offset = frame_offset & 0x0FFFFFFF;
+
+    if frame_offset + 2 * fh > buffer.len() {
+        return Err(JsValue::from_str(&format!(
+            "Frame data offset {} out of bounds",
+            frame_offset
+        )));
+    }
+
+    if fw > (width as usize) || fh > (height as usize) {
+        return Err(JsValue::from_str(&format!(
+            "Frame dimensions ({}x{}) exceed GRP dimensions ({}x{})",
+            fw, fh, width, height
+        )));
+    }
+
+    // Allocate frame
+    let mut canvas_data = vec![0u8; (width as usize) * (height as usize)];
+    let line_offsets = frame_offset;
+
+    let buf_len = buffer.len();
+
+    for y in 0..fh {
+        let lo_idx = line_offsets + y * 2;
+        let line_offset = u16::from_le_bytes([buffer[lo_idx], buffer[lo_idx + 1]]) as usize;
+        let mut current_offset = frame_offset + line_offset;
+        let mut x = 0;
+
+        while x < fw {
+            if current_offset >= buf_len {
+                break;
+            }
+            let b = buffer[current_offset];
+            current_offset += 1;
+
+            if b >= 0x80 {
+                // Skip
+                x += (b - 0x80) as usize;
+            } else if b >= 0x40 {
+                // Repeat
+                let count = (b - 0x40) as usize;
+                if current_offset >= buf_len {
+                    break;
+                }
+                let color = buffer[current_offset];
+                current_offset += 1;
+
+                for _ in 0..count {
+                    if x < fw && (fy + y) < (height as usize) && (fx + x) < (width as usize) {
+                        canvas_data[(fy + y) * (width as usize) + (fx + x)] = color;
+                    }
+                    x += 1;
+                }
+            } else {
+                // Raw
+                let count = b as usize;
+                for _ in 0..count {
+                    if current_offset >= buf_len {
+                        break;
+                    }
+                    let color = buffer[current_offset];
+                    current_offset += 1;
+                    if x < fw && (fy + y) < (height as usize) && (fx + x) < (width as usize) {
+                        canvas_data[(fy + y) * (width as usize) + (fx + x)] = color;
+                    }
+                    x += 1;
+                }
+            }
+        }
+    }
+
+    let obj = Object::new();
+    let data_arr = Uint8Array::from(&canvas_data[..]);
+    
+    Reflect::set(&obj, &JsValue::from_str("width"), &JsValue::from(width))?;
+    Reflect::set(&obj, &JsValue::from_str("height"), &JsValue::from(height))?;
+    Reflect::set(&obj, &JsValue::from_str("frameCount"), &JsValue::from(frame_count))?;
+    Reflect::set(&obj, &JsValue::from_str("data"), &JsValue::from(data_arr))?;
+
+    Ok(obj)
+}

@@ -1,4 +1,40 @@
+import init, { decode_grp_frame } from '../wasm/rust_grp.js'
+import wasmUrl from '../wasm/rust_grp_bg.wasm?url'
+
+let wasmReady = false
+
+export const initWasm = async () => {
+  if (!wasmReady) {
+    try {
+      await init(wasmUrl)
+      wasmReady = true
+      console.log("[GRP Decoder] Rust WASM Module Loaded!")
+    } catch (e) {
+      console.error("[GRP Decoder] WASM load failed, fallback to JS.", e)
+    }
+  }
+}
+
+// Auto-initialize when imported
+initWasm()
+
 export function decodeGRP(buffer, frameIndex = 0) {
+  if (wasmReady) {
+    try {
+      const result = decode_grp_frame(buffer, frameIndex)
+      return {
+        width: result.width,
+        height: result.height,
+        data: result.data,
+        frameCount: result.frameCount
+      }
+    } catch (err) {
+      console.error(`[WASM GRP Decoder] Failed: ${err}`)
+      // Fallback to JS if WASM fails (e.g. out of bounds error from Rust)
+    }
+  }
+
+  // JS Fallback implementation
   try {
     const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength)
     const frameCount = view.getUint16(0, true)

@@ -4,3 +4,8 @@ out
 .DS_Store
 .eslintcache
 *.log*
+
+# Rust & WASM
+/src-rust/target
+# (선택) 만약 빌드된 외부 WASM 어셋 파일까지 Git에서 제외하고 싶다면 아래 주석을 해제하세요.
+# /src/renderer/src/wasm/rust_grp*

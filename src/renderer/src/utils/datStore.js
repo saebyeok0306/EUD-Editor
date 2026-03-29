@@ -63,13 +63,21 @@ let _initPromise = null
 
 async function _parseDatFile(defText, datUrl) {
   const defData = parseDef(defText)
+  console.log(`[datStore] Fetching DAT from: ${datUrl}`)
   const res = await fetch(datUrl)
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status} when fetching DAT: ${datUrl}`)
+  }
   const arrayBuffer = await res.arrayBuffer()
   return parseDat(arrayBuffer, defData)
 }
 
 async function _parseTblFile(url, encoding = 'EUC-KR') {
+  console.log(`[datStore] Fetching TBL from: ${url}`)
   const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status} when fetching TBL: ${url}`)
+  }
   const arrayBuffer = await res.arrayBuffer()
   return parseTbl(arrayBuffer, encoding)
 }
@@ -124,7 +132,9 @@ export function initDatStore() {
       Object.fromEntries(Object.entries(_store).map(([k, v]) => [k, v?.length]))
     )
   }).catch(err => {
-    console.error('[datStore] Failed to initialize:', err)
+    const errorPrefix = '[datStore] Failed to initialize:'
+    console.error(errorPrefix, err)
+    alert(`${errorPrefix}\n${err.message}\n\nPlease check the browser console for details.`)
     _initPromise = null
   })
 

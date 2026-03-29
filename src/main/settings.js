@@ -2,9 +2,12 @@ import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
 
-const settingsPath = path.join(app.getPath('userData'), 'settings.json')
+function getSettingsPath() {
+  return path.join(app.getPath('userData'), 'settings.json')
+}
 
 export function getSettings() {
+  const settingsPath = getSettingsPath()
   try {
     if (fs.existsSync(settingsPath)) {
       const data = fs.readFileSync(settingsPath, 'utf8')
@@ -17,6 +20,7 @@ export function getSettings() {
 }
 
 export function saveSettings(settings) {
+  const settingsPath = getSettingsPath()
   try {
     const currentSettings = getSettings()
     const newSettings = { ...currentSettings, ...settings }
@@ -29,6 +33,7 @@ export function saveSettings(settings) {
 }
 
 export function deleteSettings() {
+  const settingsPath = getSettingsPath()
   try {
     if (fs.existsSync(settingsPath)) {
       fs.unlinkSync(settingsPath)

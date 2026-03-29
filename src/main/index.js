@@ -11,7 +11,11 @@ import { extractChkSection, parseUnixSection } from './chkParser.js'
 import { getSettings, saveSettings, deleteSettings } from './settings.js'
 import { openCASC, closeCASC, readFile, listFiles } from './casc.js'
 import { packCascData, readDatapackFile } from './cascPacker.js'
+import { setupPortablePath } from './paths.js'
 import path from 'path'
+
+// Set up portable data path before anything else
+setupPortablePath()
 
 
 function createWindow() {
@@ -24,12 +28,15 @@ function createWindow() {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      webSecurity: false
     }
   })
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    // Open DevTools even in production for debugging
+    mainWindow.webContents.openDevTools()
     // Build initial menu (default language: ko)
     buildMenu('ko', mainWindow)
   })
@@ -232,10 +239,15 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('app:readLocalPalette', (event, filename) => {
-    const palPath = path.join(app.getAppPath(), 'resources', 'Palletes', filename)
+    const palDir = app.isPackaged
+      ? path.join(process.resourcesPath, 'Palettes')
+      : path.join(app.getAppPath(), 'resources', 'Palettes')
+    const palPath = path.join(palDir, filename)
+    
     if (fs.existsSync(palPath)) {
       return fs.readFileSync(palPath)
     }
+    console.error(`[Main] Palette not found at: ${palPath}`)
     return null
   })
 

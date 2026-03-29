@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.saebyeok.eud-editor
 productName: eud-editor
 directories:
   buildResources: build
@@ -8,10 +8,26 @@ files:
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
-asarUnpack:
-  - resources/**
+  - '!resources/x32/**/*'
+  - '!resources/x64/**/*'
+  - '!resources/Palettes/**/*'
+
+extraResources:
+  - from: resources/x32
+    to: x32
+  - from: resources/x64
+    to: x64
+  - from: resources/Palettes
+    to: Palettes
 win:
   executableName: eud-editor
+  target:
+    - portable
+    - zip
+
+portable:
+  artifactName: ${name}-${version}.${ext}
+
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

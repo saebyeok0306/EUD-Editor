@@ -10,13 +10,20 @@ const dllPath = isDev
   ? path.join(app.getAppPath(), 'resources', arch, 'CascLib.dll')
   : path.join(process.resourcesPath, arch, 'CascLib.dll')
 
+console.log(`[CASC-DLL] Loading CascLib.dll from: ${dllPath}`)
+
 let lib = null
 let kernel32 = null
 try {
   lib = koffi.load(dllPath)
   kernel32 = koffi.load('kernel32.dll')
+  console.log('[CASC-DLL] CascLib.dll loaded successfully')
 } catch (err) {
-  console.error(`Failed to load CascLib.dll from ${dllPath}:`, err)
+  console.error(`[CASC-DLL] Failed to load CascLib.dll from ${dllPath}:`, err)
+  // Check if file exists to provide better error
+  if (!fs.existsSync(dllPath)) {
+    console.error(`[CASC-DLL] DLL file DOES NOT EXIST at path: ${dllPath}`)
+  }
 }
 
 const GetLastError = kernel32 ? kernel32.func('uint32_t GetLastError()') : () => 0

@@ -137,6 +137,16 @@ const ko = {
   'unit.misc.infestedUnit': '감염유닛',
   'unit.misc.subUnit1': '부가유닛1',
   'unit.misc.subUnit2': '부가유닛2',
+
+  // Sound Tab
+  'unit.sound.none': '[000] 없음',
+  'unit.sound.ready': '기다림',
+  'unit.sound.yesStart': '대답(첫번째)',
+  'unit.sound.yesEnd': '대답(마지막)',
+  'unit.sound.whatStart': '물어봄(첫번째)',
+  'unit.sound.whatEnd': '물어봄(마지막)',
+  'unit.sound.pissStart': '짜증(첫번째)',
+  'unit.sound.pissEnd': '짜증(마지막)',
 }
 
 export default ko

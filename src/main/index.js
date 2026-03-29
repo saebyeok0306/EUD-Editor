@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, Menu, nativeTheme } from 'electron'
 import { join, basename } from 'path'
 import fs from 'fs'
 import scmExtractor from 'scm-extractor'
@@ -161,6 +161,7 @@ function buildMenu(currentLang, mainWindow) {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+  nativeTheme.themeSource = 'dark' // Force native UI elements (like select popups) to dark theme
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

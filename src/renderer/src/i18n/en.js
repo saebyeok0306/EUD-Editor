@@ -137,6 +137,16 @@ const en = {
   'unit.misc.infestedUnit': 'Infested Unit',
   'unit.misc.subUnit1': 'SubUnit 1',
   'unit.misc.subUnit2': 'SubUnit 2',
+
+  // Sound Tab
+  'unit.sound.none': '[000] None',
+  'unit.sound.ready': 'Ready',
+  'unit.sound.yesStart': 'Yes (First)',
+  'unit.sound.yesEnd': 'Yes (Last)',
+  'unit.sound.whatStart': 'What (First)',
+  'unit.sound.whatEnd': 'What (Last)',
+  'unit.sound.pissStart': 'Piss (First)',
+  'unit.sound.pissEnd': 'Piss (Last)',
 }
 
 export default en

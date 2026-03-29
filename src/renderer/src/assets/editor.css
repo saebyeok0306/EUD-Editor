@@ -2,6 +2,10 @@
    editor.css — EUD Editor Layout & Component Styles
    ========================================== */
 
+:root {
+  color-scheme: dark;
+}
+
 /* --- Layout --- */
 .editor-layout {
   display: flex;

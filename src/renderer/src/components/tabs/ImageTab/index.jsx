@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { getImagesData, getImagesTbl } from '../../../utils/datStore'
 import ImageGraphic from '../../common/ImageGraphic'
@@ -36,6 +36,43 @@ function ImagePreview({ imageId, name, userDataPath }) {
 
   return <ImageGraphic imageId={imageId} playerColor="Red" maxWidth={44} maxHeight={44} autoCrop={true} animate={false} />
 }
+
+const MemoizedListItem = React.memo(({ item, isActive, onClick, userDataPath }) => (
+  <div
+    className={`list-item${isActive ? ' active' : ''}`}
+    onClick={() => onClick(item.id)}
+    style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px' }}
+  >
+    <div style={{ 
+      width: '44px', 
+      height: '44px', 
+      flexShrink: 0, 
+      backgroundColor: 'var(--ev-c-bg-mute)', 
+      borderRadius: '6px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      border: '1px solid var(--ev-c-divider)'
+    }}>
+      <ImagePreview 
+        imageId={item.id} 
+        name={item.name} 
+        userDataPath={userDataPath} 
+      />
+    </div>
+    
+    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ev-c-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', direction: 'rtl', textAlign: 'left' }}>
+        <bdi>{item.name}</bdi>
+      </div>
+      <div className="list-item-id" style={{ fontSize: '10px', color: 'var(--ev-c-text-3)', marginTop: '2px' }}>
+        ID: {item.id.toString().padStart(3, '0')}
+      </div>
+    </div>
+  </div>
+))
+
 
 function ImageTab({ mapData, projectData, datReady }) {
   const { t } = useI18n()
@@ -134,43 +171,20 @@ function ImageTab({ mapData, projectData, datReady }) {
   const header = iscriptData?.headers.find(h => h.is_id === iscriptId)
   const availableAnimations = header?.entry_points ? Object.keys(header.entry_points) : []
 
+  const handleItemClick = useCallback((id) => {
+    setSelectedItem(id)
+  }, [])
+
   const renderedList = useMemo(() => (
     <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
       {imageNames.map((item) => (
-        <div
+        <MemoizedListItem
           key={item.id}
-          className={`list-item${selectedItem === item.id ? ' active' : ''}`}
-          onClick={() => setSelectedItem(item.id)}
-          style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px' }}
-        >
-          <div style={{ 
-            width: '44px', 
-            height: '44px', 
-            flexShrink: 0, 
-            backgroundColor: 'var(--ev-c-bg-mute)', 
-            borderRadius: '6px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            border: '1px solid var(--ev-c-divider)'
-          }}>
-            <ImagePreview 
-              imageId={item.id} 
-              name={item.name} 
-              userDataPath={userDataPath} 
-            />
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ev-c-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', direction: 'rtl', textAlign: 'left' }}>
-              <bdi>{item.name}</bdi>
-            </div>
-            <div className="list-item-id" style={{ fontSize: '10px', color: 'var(--ev-c-text-3)', marginTop: '2px' }}>
-              ID: {item.id.toString().padStart(3, '0')}
-            </div>
-          </div>
-        </div>
+          item={item}
+          isActive={selectedItem === item.id}
+          onClick={handleItemClick}
+          userDataPath={userDataPath}
+        />
       ))}
     </div>
   ), [imageNames, selectedItem, listWidth, userDataPath])

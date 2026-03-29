@@ -5,7 +5,8 @@ AI랑 결합한 차세대 EUD 에디터를 목표로 하고 있지만, 취미로
 
 ![image](/md/image.png)
 
-<video src="/md/video.mp4" width="100%"></video>
+<video controls src="https://github.com/saebyeok0306/EUD-Editor/blob/main/md/video.mp4" title="/md/video.mp4"></video>
+
 
 ---
 

@@ -74,13 +74,15 @@ export async function generateAllUnitPreviews(onProgress) {
         offsetY = minY
       }
 
-      const paletteToUse = await loadPalette(targetPath, 'badlands')
+      const drawFunction = imagesData[imageId]['Draw Function'] || 0
+      const remappingNum = imagesData[imageId]['Remapping'] || 0
+      const paletteToUse = await loadPalette(targetPath, 'badlands', drawFunction, remappingNum)
 
       // Render to offscreen canvas
       const tempCanvas = document.createElement('canvas')
       tempCanvas.width = frameData.width
       tempCanvas.height = frameData.height
-      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS['Orange'])
+      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS['Orange'], drawFunction, remappingNum)
 
       // Prepare final preview canvas (max 44x44 for list)
       canvas.width = Math.min(cropWidth, 128)
@@ -161,13 +163,14 @@ export async function generateAllImagePreviews(onProgress) {
         offsetY = minY
       }
 
-      const paletteToUse = await loadPalette(targetPath, 'badlands')
-      const drawFunction = imagesData[imageId]['Draw Function']
+      const drawFunction = imagesData[imageId]['Draw Function'] || 0
+      const remappingNum = imagesData[imageId]['Remapping'] || 0
+      const paletteToUse = await loadPalette(targetPath, 'badlands', drawFunction, remappingNum)
 
       const tempCanvas = document.createElement('canvas')
       tempCanvas.width = frameData.width
       tempCanvas.height = frameData.height
-      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS['Orange'], drawFunction)
+      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS['Orange'], drawFunction, remappingNum)
 
       canvas.width = Math.min(cropWidth, 128)
       canvas.height = Math.min(cropHeight, 128)

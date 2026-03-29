@@ -71,11 +71,11 @@ export function decodeGRP(buffer, frameIndex = 0) {
     // console.log(`[GRP Decoder] Frame ${frameIndex} @ ${frameOffset} -> X:${fx} Y:${fy} W:${fw} H:${fh}`)
 
     // Basic heuristic: if width/height are unreasonable, fail early
-    if (fw > width || fh > height) {
-      throw new Error(`Frame dimensions (${fw}x${fh}) exceed GRP dimensions (${width}x${height})`)
-    }
+    // StarCraft frames sometimes exceed global width/height, so we adapt dynamically.
+    const actualWidth = Math.max(width, fx + fw);
+    const actualHeight = Math.max(height, fy + fh);
 
-    const canvasData = new Uint8Array(width * height)
+    const canvasData = new Uint8Array(actualWidth * actualHeight)
   
   for (let y = 0; y < fh; y++) {
     const lineOffset = view.getUint16(lineOffsets + y * 2, true)
@@ -97,8 +97,8 @@ export function decodeGRP(buffer, frameIndex = 0) {
         if (currentOffset >= buffer.byteLength) break
         const color = view.getUint8(currentOffset++)
         for (let i = 0; i < count; i++) {
-          if (x < fw && fy + y < height && fx + x < width) {
-            canvasData[(fy + y) * width + (fx + x)] = color
+          if (x < fw && fy + y < actualHeight && fx + x < actualWidth) {
+            canvasData[(fy + y) * actualWidth + (fx + x)] = color
           }
           x++
         }
@@ -108,8 +108,8 @@ export function decodeGRP(buffer, frameIndex = 0) {
         for (let i = 0; i < count; i++) {
           if (currentOffset >= buffer.byteLength) break
           const color = view.getUint8(currentOffset++)
-          if (x < fw && fy + y < height && fx + x < width) {
-            canvasData[(fy + y) * width + (fx + x)] = color
+          if (x < fw && fy + y < actualHeight && fx + x < actualWidth) {
+            canvasData[(fy + y) * actualWidth + (fx + x)] = color
           }
           x++
         }
@@ -117,7 +117,7 @@ export function decodeGRP(buffer, frameIndex = 0) {
     }
   }
 
-    return { width, height, data: canvasData, frameCount }
+    return { width: actualWidth, height: actualHeight, data: canvasData, frameCount }
   } catch (err) {
     console.error(`[GRP Decoder] Failed: ${err.message}`)
     throw err
@@ -149,14 +149,22 @@ export const PLAYER_COLORS = {
   Yellow: generateColorRamp(252, 252, 56)
 };
 
-export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null, drawFunction = 0) {
+export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null, drawFunction = 0, remappingNum = 0) {
   const { width, height, data } = decoded
   const imgData = ctx.createImageData(width, height)
   
   for (let i = 0; i < width * height; i++) {
     const colorIdx = data[i]
     const base = i * 4
-    if (colorIdx === 0) {
+
+    let isTransparent = colorIdx === 0;
+    if (drawFunction === 9) {
+      if ((remappingNum === 1 || remappingNum === 4) && colorIdx > 64) isTransparent = true;
+      else if (remappingNum === 3 && colorIdx > 41) isTransparent = true;
+      else if (remappingNum === 2 && colorIdx > 33) isTransparent = true;
+    }
+
+    if (isTransparent) {
       // transparent
       imgData.data[base + 0] = 0
       imgData.data[base + 1] = 0

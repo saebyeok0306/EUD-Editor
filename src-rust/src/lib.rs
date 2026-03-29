@@ -46,15 +46,13 @@ pub fn decode_grp_frame(buffer: &[u8], frame_index: u16) -> Result<Object, JsVal
         )));
     }
 
-    if fw > (width as usize) || fh > (height as usize) {
-        return Err(JsValue::from_str(&format!(
-            "Frame dimensions ({}x{}) exceed GRP dimensions ({}x{})",
-            fw, fh, width, height
-        )));
-    }
+    // StarCraft GRP frame width/height can legally exceed global bounding box limits.
+    // We adjust the canvas size dynamically instead of throwing an error.
+    let actual_width = std::cmp::max(width as usize, fx + fw);
+    let actual_height = std::cmp::max(height as usize, fy + fh);
 
     // Allocate frame
-    let mut canvas_data = vec![0u8; (width as usize) * (height as usize)];
+    let mut canvas_data = vec![0u8; actual_width * actual_height];
     let line_offsets = frame_offset;
 
     let buf_len = buffer.len();
@@ -85,8 +83,8 @@ pub fn decode_grp_frame(buffer: &[u8], frame_index: u16) -> Result<Object, JsVal
                 current_offset += 1;
 
                 for _ in 0..count {
-                    if x < fw && (fy + y) < (height as usize) && (fx + x) < (width as usize) {
-                        canvas_data[(fy + y) * (width as usize) + (fx + x)] = color;
+                    if x < fw && (fy + y) < actual_height && (fx + x) < actual_width {
+                        canvas_data[(fy + y) * actual_width + (fx + x)] = color;
                     }
                     x += 1;
                 }
@@ -99,8 +97,8 @@ pub fn decode_grp_frame(buffer: &[u8], frame_index: u16) -> Result<Object, JsVal
                     }
                     let color = buffer[current_offset];
                     current_offset += 1;
-                    if x < fw && (fy + y) < (height as usize) && (fx + x) < (width as usize) {
-                        canvas_data[(fy + y) * (width as usize) + (fx + x)] = color;
+                    if x < fw && (fy + y) < actual_height && (fx + x) < actual_width {
+                        canvas_data[(fy + y) * actual_width + (fx + x)] = color;
                     }
                     x += 1;
                 }
@@ -111,8 +109,8 @@ pub fn decode_grp_frame(buffer: &[u8], frame_index: u16) -> Result<Object, JsVal
     let obj = Object::new();
     let data_arr = Uint8Array::from(&canvas_data[..]);
     
-    Reflect::set(&obj, &JsValue::from_str("width"), &JsValue::from(width))?;
-    Reflect::set(&obj, &JsValue::from_str("height"), &JsValue::from(height))?;
+    Reflect::set(&obj, &JsValue::from_str("width"), &JsValue::from(actual_width as u16))?;
+    Reflect::set(&obj, &JsValue::from_str("height"), &JsValue::from(actual_height as u16))?;
     Reflect::set(&obj, &JsValue::from_str("frameCount"), &JsValue::from(frame_count))?;
     Reflect::set(&obj, &JsValue::from_str("data"), &JsValue::from(data_arr))?;
 

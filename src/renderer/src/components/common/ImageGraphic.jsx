@@ -58,7 +58,9 @@ export default function ImageGraphic({
           callbacksRef.current.onDebugInfo({ imageId, path: targetPath })
         }
 
-        const paletteToUse = await loadPalette(targetPath, tileset)
+        const drawFunction = imagesData[imageId]['Draw Function'] || 0
+        const remappingNum = imagesData[imageId]['Remapping'] || 0
+        const paletteToUse = await loadPalette(targetPath, tileset, drawFunction, remappingNum)
 
         // Load JSON Iscript only if animating
         if (animate && !sharedIscriptData) {
@@ -87,7 +89,6 @@ export default function ImageGraphic({
         if (!finalCtx) return
 
         const iscriptId = imagesData[imageId]['Iscript ID'] & 0xFFFF
-        const drawFunction = imagesData[imageId]['Draw Function']
 
         let currentScript = null
         let originalScript = null
@@ -98,7 +99,14 @@ export default function ImageGraphic({
           if (header && header.entry_points) {
             let entryPoint = header.entry_points[animationName]
             
-            if (header.entry_points.hasOwnProperty(animationName) && entryPoint === null) {
+            // Fallback if the requested animation (e.g. Walking) is explicitly null or undefined
+            if (!entryPoint) {
+              entryPoint = header.entry_points.Init || 
+                           header.entry_points.Walking || 
+                           Object.values(header.entry_points).find(v => v !== null)
+            }
+
+            if (!entryPoint) {
               if (active) {
                 setHasNoScript(true)
                 setLoading(false)
@@ -106,10 +114,7 @@ export default function ImageGraphic({
               return
             } else {
               if (active) setHasNoScript(false)
-              if (entryPoint === undefined) {
-                entryPoint = header.entry_points.Init || header.entry_points.Walking || Object.values(header.entry_points)[0]
-              }
-              if (entryPoint && sharedIscriptData.labels[entryPoint]) {
+              if (sharedIscriptData.labels[entryPoint]) {
                 currentScript = entryPoint
                 originalScript = entryPoint
               }
@@ -149,7 +154,7 @@ export default function ImageGraphic({
             const tempCanvas = document.createElement('canvas')
             tempCanvas.width = frameData.width
             tempCanvas.height = frameData.height
-            renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS[playerColor], drawFunction)
+            renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS[playerColor], drawFunction, remappingNum)
             
             cached = { tempCanvas, cropWidth, cropHeight, offsetX, offsetY }
             decodedFrameCache.set(fIdx, cached)

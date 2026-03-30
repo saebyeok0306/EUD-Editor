@@ -29,7 +29,9 @@ export function decodeGRP(buffer, frameIndex = 0) {
         frameCount: result.frameCount
       }
     } catch (err) {
-      console.error(`[WASM GRP Decoder] Failed: ${err}`)
+      if (!err.toString().includes("out of bounds")) {
+        console.error(`[WASM GRP Decoder] Failed: ${err}`)
+      }
       // Fallback to JS if WASM fails (e.g. out of bounds error from Rust)
     }
   }
@@ -44,7 +46,8 @@ export function decodeGRP(buffer, frameIndex = 0) {
     // console.log(`[GRP Decoder] Size: ${buffer.byteLength}, Frames: ${frameCount}, W: ${width}, H: ${height}`)
 
     if (frameIndex >= frameCount) {
-      throw new Error(`Frame index ${frameIndex} out of bounds (${frameCount})`)
+      if (frameIndex !== 65535) console.warn(`[GRP Decoder] Frame index ${frameIndex} out of bounds (${frameCount})`);
+      return null;
     }
 
     const frameTableOffset = 6 + frameIndex * 8

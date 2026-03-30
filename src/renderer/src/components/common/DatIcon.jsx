@@ -69,6 +69,10 @@ export default function DatIcon({
     return () => { active = false }
   }, [frameIndex, grfPath])
 
+  if (frameIndex === null || frameIndex === undefined || frameIndex >= 65535) {
+    return null
+  }
+
   return (
     <div
       className={`dat-icon-wrapper ${className}`}

@@ -1,11 +1,11 @@
 import { useState, useEffect, memo } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import unitsText from '../../../data/Units.txt?raw'
-import { 
-  getUnitsData, 
-  getWeaponsData, 
-  getUpgradesData, 
-  getStatTxt 
+import {
+  getUnitsData,
+  getWeaponsData,
+  getUpgradesData,
+  getStatTxt
 } from '../../../utils/datStore'
 import UnitGraphic from '../../common/UnitGraphic'
 
@@ -33,37 +33,37 @@ const SUB_TABS = [
 ]
 
 const UnitPreview = memo(function UnitPreview({ unitId, name, userDataPath }) {
-  const [hasError, setHasError] = useState(false)
-  const [loaded, setLoaded] = useState(false)
+  // const [hasError, setHasError] = useState(false)
+  // const [loaded, setLoaded] = useState(false)
 
-  // Construct local file URL
-  const previewUrl = userDataPath 
-    ? `file://${userDataPath}/unit_previews/${unitId}.webp`.replace(/\\/g, '/')
-    : null
+  // // Construct local file URL
+  // const previewUrl = userDataPath 
+  //   ? `file://${userDataPath}/unit_previews/${unitId}.webp`.replace(/\\/g, '/')
+  //   : null
 
-  if (previewUrl && !hasError) {
-    return (
-      <img 
-        src={previewUrl} 
-        alt={name} 
-        decoding="async"
-        loading="lazy"
-        onLoad={() => setLoaded(true)}
-        onError={() => setHasError(true)}
-        style={{ 
-          maxWidth: '100%', 
-          maxHeight: '100%', 
-          objectFit: 'contain',
-          imageRendering: 'pixelated',
-          opacity: loaded ? 1 : 0,
-          transition: 'opacity 0.2s ease-in-out'
-        }} 
-      />
-    )
-  }
+  // if (previewUrl && !hasError) {
+  //   return (
+  //     <img 
+  //       src={previewUrl} 
+  //       alt={name} 
+  //       decoding="async"
+  //       loading="lazy"
+  //       onLoad={() => setLoaded(true)}
+  //       onError={() => setHasError(true)}
+  //       style={{ 
+  //         maxWidth: '100%', 
+  //         maxHeight: '100%', 
+  //         objectFit: 'contain',
+  //         imageRendering: 'pixelated',
+  //         opacity: loaded ? 1 : 0,
+  //         transition: 'opacity 0.2s ease-in-out'
+  //       }} 
+  //     />
+  //   )
+  // }
 
   // Fallback if path not ready or error
-  return <UnitGraphic unitId={unitId} playerColor="Orange" maxWidth={44} maxHeight={44} autoCrop={true} />
+  return <UnitGraphic unitId={unitId} playerColor="Red" maxWidth={44} maxHeight={44} autoCrop={true} />
 })
 
 const UnitListItem = memo(({ i, name, isSelected, isModified, onClick, userDataPath }) => {
@@ -73,11 +73,11 @@ const UnitListItem = memo(({ i, name, isSelected, isModified, onClick, userDataP
       onClick={() => onClick(i)}
       style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px' }}
     >
-      <div style={{ 
-        width: '44px', 
-        height: '44px', 
-        flexShrink: 0, 
-        backgroundColor: 'var(--ev-c-bg-mute)', 
+      <div style={{
+        width: '44px',
+        height: '44px',
+        flexShrink: 0,
+        backgroundColor: 'var(--ev-c-bg-mute)',
         borderRadius: '6px',
         display: 'flex',
         alignItems: 'center',
@@ -87,7 +87,7 @@ const UnitListItem = memo(({ i, name, isSelected, isModified, onClick, userDataP
       }}>
         <UnitPreview unitId={i} name={name} userDataPath={userDataPath} />
       </div>
-      
+
       <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ev-c-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {name}
@@ -198,14 +198,14 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             {/* Header with Reset All */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
-              <button 
+              <button
                 className="btn-reset-unit"
                 onClick={() => {
                   if (confirm(t('unit.reset.confirmUnit'))) {
                     onResetProjectUnit(selectedItem, 'all')
                   }
                 }}
-                style={{ 
+                style={{
                   padding: '5px 12px',
                   fontSize: '11px',
                   backgroundColor: 'var(--ev-c-gray-3)',

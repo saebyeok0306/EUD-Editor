@@ -6,33 +6,33 @@ import imagesNamesData from '../../../data/Images.txt?raw'
 import iscriptJsonUrl from '../../../data/iscript_data.json?url'
 
 function ImagePreview({ imageId, name, userDataPath }) {
-  const [hasError, setHasError] = useState(false)
-  const [loaded, setLoaded] = useState(false)
+  // const [hasError, setHasError] = useState(false)
+  // const [loaded, setLoaded] = useState(false)
 
-  const previewUrl = userDataPath 
-    ? `file://${userDataPath}/image_previews/${imageId}.webp`.replace(/\\/g, '/')
-    : null
+  // const previewUrl = userDataPath 
+  //   ? `file://${userDataPath}/image_previews/${imageId}.webp`.replace(/\\/g, '/')
+  //   : null
 
-  if (previewUrl && !hasError) {
-    return (
-      <img 
-        src={previewUrl} 
-        alt={name} 
-        decoding="async"
-        loading="lazy"
-        onLoad={() => setLoaded(true)}
-        onError={() => setHasError(true)}
-        style={{ 
-          maxWidth: '100%', 
-          maxHeight: '100%', 
-          objectFit: 'contain',
-          imageRendering: 'pixelated',
-          opacity: loaded ? 1 : 0,
-          transition: 'opacity 0.2s ease-in-out'
-        }} 
-      />
-    )
-  }
+  // if (previewUrl && !hasError) {
+  //   return (
+  //     <img 
+  //       src={previewUrl} 
+  //       alt={name} 
+  //       decoding="async"
+  //       loading="lazy"
+  //       onLoad={() => setLoaded(true)}
+  //       onError={() => setHasError(true)}
+  //       style={{ 
+  //         maxWidth: '100%', 
+  //         maxHeight: '100%', 
+  //         objectFit: 'contain',
+  //         imageRendering: 'pixelated',
+  //         opacity: loaded ? 1 : 0,
+  //         transition: 'opacity 0.2s ease-in-out'
+  //       }} 
+  //     />
+  //   )
+  // }
 
   return <ImageGraphic imageId={imageId} playerColor="Red" maxWidth={44} maxHeight={44} autoCrop={true} animate={false} />
 }
@@ -43,11 +43,11 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick, userDataPath }) 
     onClick={() => onClick(item.id)}
     style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px' }}
   >
-    <div style={{ 
-      width: '44px', 
-      height: '44px', 
-      flexShrink: 0, 
-      backgroundColor: 'var(--ev-c-bg-mute)', 
+    <div style={{
+      width: '44px',
+      height: '44px',
+      flexShrink: 0,
+      backgroundColor: 'var(--ev-c-bg-mute)',
       borderRadius: '6px',
       display: 'flex',
       alignItems: 'center',
@@ -55,13 +55,13 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick, userDataPath }) 
       overflow: 'hidden',
       border: '1px solid var(--ev-c-divider)'
     }}>
-      <ImagePreview 
-        imageId={item.id} 
-        name={item.name} 
-        userDataPath={userDataPath} 
+      <ImagePreview
+        imageId={item.id}
+        name={item.name}
+        userDataPath={userDataPath}
       />
     </div>
-    
+
     <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ev-c-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', direction: 'rtl', textAlign: 'left' }}>
         <bdi>{item.name}</bdi>
@@ -206,29 +206,29 @@ function ImageTab({ mapData, projectData, datReady }) {
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             {/* Header */}
             <div style={{ display: 'flex', borderBottom: '1px solid var(--ev-c-divider)', paddingBottom: '15px', marginBottom: '15px' }}>
-              <div style={{ 
-                width: '128px', 
-                height: '128px', 
-                backgroundColor: 'var(--ev-c-bg-mute)', 
+              <div style={{
+                width: '128px',
+                height: '128px',
+                backgroundColor: 'var(--ev-c-bg-mute)',
                 border: '1px solid var(--ev-c-divider)',
-                borderRadius: '8px', 
-                display: 'flex', 
-                alignItems: 'center', 
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 marginRight: '20px',
                 overflow: 'hidden',
                 flexShrink: 0
               }}>
-                <ImageGraphic 
-                  imageId={selectedItem} 
-                  tileset={currentMapTileset} 
-                  animate={true} 
+                <ImageGraphic
+                  imageId={selectedItem}
+                  tileset={currentMapTileset}
+                  animate={true}
                   animationName={selectedAnimation}
                   direction={direction}
                   onFrameChange={setCurrentFrame}
-                  maxWidth={128} 
-                  maxHeight={128} 
-                  autoCrop={false} 
+                  maxWidth={128}
+                  maxHeight={128}
+                  autoCrop={false}
                   playerColor="Red"
                 />
               </div>
@@ -244,11 +244,11 @@ function ImageTab({ mapData, projectData, datReady }) {
                 </div>
                 {!!currentItemData?.['Gfx Turns'] && (
                   <div style={{ fontSize: '12px', color: 'var(--ev-c-text-2)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Direction: 
-                    <input 
-                      type="range" 
-                      min="0" max="31" 
-                      value={direction} 
+                    Direction:
+                    <input
+                      type="range"
+                      min="0" max="31"
+                      value={direction}
                       onChange={(e) => setDirection(parseInt(e.target.value, 10))}
                       style={{ width: '80px', margin: 0, height: '4px', cursor: 'pointer' }}
                     />
@@ -267,7 +267,7 @@ function ImageTab({ mapData, projectData, datReady }) {
 
             {/* Properties Content */}
             <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px', paddingTop: '15px' }}>
-              
+
               {/* Animations Section */}
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontWeight: '600', color: 'var(--ev-c-text-1)', marginBottom: '10px' }}>

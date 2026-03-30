@@ -7,15 +7,15 @@ import iscriptJsonUrl from '../../data/iscript_data.json?url'
 let sharedIscriptData = null
 const graphicCache = new Map()
 
-export default function ImageGraphic({ 
-  imageId, 
-  playerColor = 'Red', 
-  tileset = 'badlands', 
-  maxWidth = 64, 
-  maxHeight = 64, 
-  autoCrop = false, 
-  style = {}, 
-  onDebugInfo, 
+export default function ImageGraphic({
+  imageId,
+  playerColor = 'Red',
+  tileset = 'badlands',
+  maxWidth = 64,
+  maxHeight = 64,
+  autoCrop = false,
+  style = {},
+  onDebugInfo,
   animate = false,
   animationName = 'Init',
   direction = 0,
@@ -98,12 +98,12 @@ export default function ImageGraphic({
           const header = sharedIscriptData.headers.find(h => h.is_id === iscriptId)
           if (header && header.entry_points) {
             let entryPoint = header.entry_points[animationName]
-            
+
             // Fallback if the requested animation (e.g. Walking) is explicitly null or undefined
             if (!entryPoint) {
-              entryPoint = header.entry_points.Init || 
-                           header.entry_points.Walking || 
-                           Object.values(header.entry_points).find(v => v !== null)
+              entryPoint = header.entry_points.Init ||
+                header.entry_points.Walking ||
+                Object.values(header.entry_points).find(v => v !== null)
             }
 
             if (!entryPoint) {
@@ -155,7 +155,7 @@ export default function ImageGraphic({
             tempCanvas.width = frameData.width
             tempCanvas.height = frameData.height
             renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS[playerColor], drawFunction, remappingNum)
-            
+
             cached = { tempCanvas, cropWidth, cropHeight, offsetX, offsetY }
             decodedFrameCache.set(fIdx, cached)
           }
@@ -173,7 +173,7 @@ export default function ImageGraphic({
           }
           finalCtx.drawImage(tempCanvas, offsetX, offsetY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight)
           finalCtx.restore()
-          
+
           if (callbacksRef.current.onFrameChange) {
             callbacksRef.current.onFrameChange(fIdx)
           }
@@ -182,9 +182,9 @@ export default function ImageGraphic({
         let initialIdx = 0
         let initialFlip = false
         if (!animate && hasTurns) {
-           const dir = direction % 32
-           if (dir <= 16) initialIdx += dir
-           else { initialIdx += (32 - dir); initialFlip = true }
+          const dir = direction % 32
+          if (dir <= 16) initialIdx += dir
+          else { initialIdx += (32 - dir); initialFlip = true }
         }
         renderFrame(initialIdx, initialFlip)
 
@@ -248,12 +248,12 @@ export default function ImageGraphic({
                 waitTicks = 1
               }
               if (waitTicks > 0) {
-                timer = setTimeout(loop, waitTicks * (1000 / 12)) // 12 FPS for slower preview
+                timer = setTimeout(loop, waitTicks * (1000 / 24)) // 12 FPS for slower preview
               } else if (!currentScript && originalScript) {
                 // Animation ended, restart it after a brief delay
                 currentScript = originalScript
                 scriptIndex = 0
-                timer = setTimeout(loop, 1000 / 12)
+                timer = setTimeout(loop, 1000 / 24)
               }
             }
           }
@@ -285,6 +285,10 @@ export default function ImageGraphic({
     )
   }
 
+  if (imageId === null || imageId === undefined || imageId >= 65535) {
+    return null
+  }
+
   return (
     <div style={{ ...style, width: maxWidth, height: maxHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
       {loading && (
@@ -292,7 +296,7 @@ export default function ImageGraphic({
           Loading...
         </div>
       )}
-      
+
       {hasNoScript && animate && (
         <div style={{ position: 'absolute', color: 'var(--ev-c-text-3)', fontSize: '12px', zIndex: 5 }}>
           No Script

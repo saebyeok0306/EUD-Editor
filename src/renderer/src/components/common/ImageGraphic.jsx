@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
 import { getImagesData, getImagesTbl } from '../../utils/datStore'
 import { decodeGRP, renderToCanvas, PLAYER_COLORS } from '../../utils/grpDecoder'
 import { loadPalette } from '../../utils/paletteLoader'
@@ -7,7 +7,7 @@ import iscriptJsonUrl from '../../data/iscript_data.json?url'
 let sharedIscriptData = null
 const graphicCache = new Map()
 
-export default function ImageGraphic({
+const ImageGraphic = forwardRef(({
   imageId,
   playerColor = 'Red',
   tileset = 'badlands',
@@ -19,17 +19,45 @@ export default function ImageGraphic({
   animate = false,
   animationName = 'Init',
   direction = 0,
-  onFrameChange
-}) {
+  onFrameChange,
+  customData = null,
+  playbackSpeed = 1,
+  paused = false,
+  onAnimationEnd,
+  restartKey = 0
+}, ref) => {
   const canvasRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [hasNoScript, setHasNoScript] = useState(false)
+  const [invalidFrame, setInvalidFrame] = useState(false)
 
-  const callbacksRef = useRef({ onDebugInfo, onFrameChange })
+  const callbacksRef = useRef({ onDebugInfo, onFrameChange, onAnimationEnd })
   useEffect(() => {
-    callbacksRef.current = { onDebugInfo, onFrameChange }
-  }, [onDebugInfo, onFrameChange])
+    callbacksRef.current = { onDebugInfo, onFrameChange, onAnimationEnd }
+  }, [onDebugInfo, onFrameChange, onAnimationEnd])
+
+  const currentRawFrameRef = useRef(0)
+  const currentFlipRef = useRef(false)
+  const manualRenderRef = useRef(null)
+
+  useImperativeHandle(ref, () => ({
+    stepFrame: (delta) => {
+      if (manualRenderRef.current) {
+        manualRenderRef.current(delta)
+      }
+    }
+  }))
+
+  const speedRef = useRef(playbackSpeed)
+  useEffect(() => {
+    speedRef.current = playbackSpeed
+  }, [playbackSpeed])
+
+  const pausedRef = useRef(paused)
+  useEffect(() => {
+    pausedRef.current = paused
+  }, [paused])
 
   useEffect(() => {
     let active = true
@@ -47,7 +75,9 @@ export default function ImageGraphic({
 
         if (!imagesData?.[imageId]) throw new Error('Image data not found for ID: ' + imageId)
 
-        let targetPath = imagesTbl[imagesData[imageId]['GRP File'] - 1]
+        const itemData = { ...imagesData[imageId], ...(customData || {}) }
+
+        let targetPath = imagesTbl[itemData['GRP File'] - 1]
         if (!targetPath) throw new Error('images.tbl path not found')
 
         targetPath = targetPath.replace(/\\/g, '/').replace(/^SD\//i, '').replace(/^SD\\/i, '')
@@ -58,8 +88,8 @@ export default function ImageGraphic({
           callbacksRef.current.onDebugInfo({ imageId, path: targetPath })
         }
 
-        const drawFunction = imagesData[imageId]['Draw Function'] || 0
-        const remappingNum = imagesData[imageId]['Remapping'] || 0
+        const drawFunction = itemData['Draw Function'] || 0
+        const remappingNum = itemData['Remapping'] || 0
         const paletteToUse = await loadPalette(targetPath, tileset, drawFunction, remappingNum)
 
         // Load JSON Iscript only if animating
@@ -88,7 +118,7 @@ export default function ImageGraphic({
         const finalCtx = canvasRef.current?.getContext('2d')
         if (!finalCtx) return
 
-        const iscriptId = imagesData[imageId]['Iscript ID'] & 0xFFFF
+        const iscriptId = itemData['Iscript ID'] & 0xFFFF
 
         let currentScript = null
         let originalScript = null
@@ -122,16 +152,32 @@ export default function ImageGraphic({
           }
         }
 
-        const hasTurns = !!imagesData[imageId]['Gfx Turns']
+        const hasTurns = !!itemData['Gfx Turns']
         const decodedFrameCache = new Map()
+
+        let lastRenderState = null
 
         const renderFrame = (fIdx, flip = false) => {
           if (!active || !grpBuffer || !canvasRef.current) return
+          
+          currentRawFrameRef.current = fIdx
+          currentFlipRef.current = flip
+          lastRenderState = { fIdx, flip }
+
           let cached = decodedFrameCache.get(fIdx)
 
           if (!cached) {
             const frameData = decodeGRP(grpBuffer, fIdx)
-            if (!frameData) return
+            if (!frameData) {
+               if (active) setInvalidFrame(true)
+               canvasRef.current.width = maxWidth || 100
+               canvasRef.current.height = maxHeight || 100
+               finalCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+               if (callbacksRef.current.onFrameChange) {
+                 callbacksRef.current.onFrameChange(fIdx)
+               }
+               return
+            }
 
             let cropWidth = frameData.width, cropHeight = frameData.height, offsetX = 0, offsetY = 0
             if (autoCrop) {
@@ -159,6 +205,8 @@ export default function ImageGraphic({
             cached = { tempCanvas, cropWidth, cropHeight, offsetX, offsetY }
             decodedFrameCache.set(fIdx, cached)
           }
+
+          if (active) setInvalidFrame(false)
 
           const { tempCanvas, cropWidth, cropHeight, offsetX, offsetY } = cached
 
@@ -188,72 +236,109 @@ export default function ImageGraphic({
         }
         renderFrame(initialIdx, initialFlip)
 
+        let iscriptHistory = []
+
+        const processIScriptBlock = () => {
+          iscriptHistory.push({
+            currentScript,
+            originalScript,
+            scriptIndex,
+            renderState: { ...lastRenderState }
+          })
+
+          let waitTicks = 0
+          let executionCount = 0
+          while (waitTicks === 0 && currentScript && executionCount < 100) {
+            executionCount++
+            const script = sharedIscriptData.labels[currentScript]
+            if (!script || scriptIndex >= script.length) break
+
+            const instr = script[scriptIndex]
+            const { opcode, args } = instr
+
+            if (opcode === 'playfram') {
+              let fIdx = parseInt(args[0], args[0].startsWith('0x') ? 16 : 10)
+              let flip = false
+              if (hasTurns) {
+                const dir = direction % 32
+                if (dir <= 16) {
+                  fIdx += dir
+                } else {
+                  fIdx += (32 - dir)
+                  flip = true
+                }
+              }
+              renderFrame(fIdx, flip)
+              scriptIndex++
+            } else if (opcode === 'wait') {
+              waitTicks = parseInt(args[0]) || 1
+              scriptIndex++
+            } else if (opcode === 'imgul') {
+              // Usually means render another layer, but we skip for simple preview
+              scriptIndex++
+            } else if (opcode === 'turncwise' || opcode === 'turnccwise' || opcode === 'turn1cwise') {
+              // Turn logic
+              scriptIndex++
+            } else if (opcode === 'goto') {
+              const targetLabel = args[0]
+              if (sharedIscriptData.labels[targetLabel]) {
+                currentScript = targetLabel
+                scriptIndex = 0
+              } else {
+                currentScript = null
+              }
+            } else if (opcode === 'gotorepeatattk') {
+              scriptIndex = 0
+            } else if (opcode === 'end') {
+              currentScript = null
+            } else {
+              scriptIndex++
+            }
+          }
+
+          if (waitTicks === 0 && currentScript) {
+            waitTicks = 1
+          }
+
+          return waitTicks
+        }
+
+        manualRenderRef.current = (delta) => {
+          if (delta > 0) {
+            if (currentScript) {
+              processIScriptBlock()
+            }
+          } else if (delta < 0) {
+            if (iscriptHistory.length > 0) {
+              const state = iscriptHistory.pop()
+              currentScript = state.currentScript
+              originalScript = state.originalScript
+              scriptIndex = state.scriptIndex
+              renderFrame(state.renderState.fIdx, state.renderState.flip)
+            }
+          }
+        }
+
         // Animation loop
         if (animate && currentScript) {
           const loop = () => {
             if (!active) return
 
-            let waitTicks = 0
-            let executionCount = 0
-            while (waitTicks === 0 && currentScript && executionCount < 100) {
-              executionCount++
-              const script = sharedIscriptData.labels[currentScript]
-              if (!script || scriptIndex >= script.length) break
-
-              const instr = script[scriptIndex]
-              const { opcode, args } = instr
-
-              if (opcode === 'playfram') {
-                let fIdx = parseInt(args[0], args[0].startsWith('0x') ? 16 : 10)
-                let flip = false
-                if (hasTurns) {
-                  const dir = direction % 32
-                  if (dir <= 16) {
-                    fIdx += dir
-                  } else {
-                    fIdx += (32 - dir)
-                    flip = true
-                  }
-                }
-                renderFrame(fIdx, flip)
-                scriptIndex++
-              } else if (opcode === 'wait') {
-                waitTicks = parseInt(args[0]) || 1
-                scriptIndex++
-              } else if (opcode === 'imgul') {
-                // Usually means render another layer, but we skip for simple preview
-                scriptIndex++
-              } else if (opcode === 'turncwise' || opcode === 'turnccwise' || opcode === 'turn1cwise') {
-                // Turn logic
-                scriptIndex++
-              } else if (opcode === 'goto') {
-                const targetLabel = args[0]
-                if (sharedIscriptData.labels[targetLabel]) {
-                  currentScript = targetLabel
-                  scriptIndex = 0
-                } else {
-                  currentScript = null
-                }
-              } else if (opcode === 'gotorepeatattk') {
-                scriptIndex = 0
-              } else if (opcode === 'end') {
-                currentScript = null
-              } else {
-                scriptIndex++
-              }
+            if (pausedRef.current) {
+              timer = setTimeout(loop, 1000 / 24)
+              return
             }
 
+            const waitTicks = processIScriptBlock()
+
             if (active) {
-              if (waitTicks === 0 && currentScript) {
-                waitTicks = 1
-              }
               if (waitTicks > 0) {
-                timer = setTimeout(loop, waitTicks * (1000 / 24)) // 12 FPS for slower preview
+                timer = setTimeout(loop, waitTicks * (1000 / 24) * (1 / speedRef.current))
               } else if (!currentScript && originalScript) {
-                // Animation ended, restart it after a brief delay
-                currentScript = originalScript
-                scriptIndex = 0
-                timer = setTimeout(loop, 1000 / 24)
+                // Animation ended
+                if (callbacksRef.current.onAnimationEnd) {
+                  callbacksRef.current.onAnimationEnd()
+                }
               }
             }
           }
@@ -275,7 +360,7 @@ export default function ImageGraphic({
       active = false
       if (timer) clearTimeout(timer)
     }
-  }, [imageId, animate, animationName, direction, playerColor, autoCrop, tileset])
+  }, [imageId, animate, animationName, direction, playerColor, autoCrop, tileset, customData, restartKey])
 
   if (errorMsg) {
     return (
@@ -313,6 +398,14 @@ export default function ImageGraphic({
           display: (loading || (hasNoScript && animate)) ? 'none' : 'block'
         }}
       ></canvas>
+
+      {invalidFrame && !loading && (
+        <div style={{ position: 'absolute', color: '#ff5555', fontWeight: 'bold', fontSize: '14px', zIndex: 11, background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: '4px', border: '1px solid #ff5555' }}>
+          No Frame
+        </div>
+      )}
     </div>
   )
-}
+})
+
+export default ImageGraphic

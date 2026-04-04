@@ -1,9 +1,142 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { getImagesData, getImagesTbl } from '../../../utils/datStore'
 import ImageGraphic from '../../common/ImageGraphic'
 import imagesNamesData from '../../../data/Images.txt?raw'
 import iscriptJsonUrl from '../../../data/iscript_data.json?url'
+import '../UnitTab/UnitTab.css'
+
+function Field({ label, value, onChange, type = "number", className = "" }) {
+  return (
+    <div className={`field-group ${className}`}>
+      <label className="field-label" style={{ minWidth: '100px', flexShrink: 0 }}>{label}</label>
+      <div className="value-row">
+        {type === 'select' ? (
+           <select className="modern-input" value={value ?? 0} onChange={(e) => onChange(parseInt(e.target.value))}>
+             <option value={value ?? 0}>{value ?? 0}</option>
+           </select>
+        ) : (
+          <input
+            type={type}
+            className="modern-input"
+            value={value ?? ''}
+            onChange={(e) => onChange(type === "number" ? (parseInt(e.target.value) || 0) : e.target.value)}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Card({ title, children, style }) {
+  return (
+    <div className="info-card" style={style}>
+      <div className="card-header">
+        <span className="card-title">{title}</span>
+      </div>
+      <div className="card-content">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+const GraphicRenderer = React.memo(({ imageId, tileset, selectedAnimation, autoCrop, customData }) => {
+  const [currentFrame, setCurrentFrame] = useState(0)
+  const [direction, setDirection] = useState(0)
+  const [playbackSpeed, setPlaybackSpeed] = useState(1)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [restartKey, setRestartKey] = useState(0)
+  const graphicRef = useRef(null)
+
+  const handleReplay = useCallback(() => {
+    setRestartKey(k => k + 1)
+    if (!isPlaying) setIsPlaying(true)
+  }, [isPlaying])
+
+  const handleStep = useCallback((delta) => {
+    if (isPlaying) setIsPlaying(false)
+    if (graphicRef.current) graphicRef.current.stepFrame(delta)
+  }, [isPlaying])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--ev-c-divider)' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.1)', backgroundImage: 'radial-gradient(var(--ev-c-divider) 1px, transparent 1px)', backgroundSize: '20px 20px', backgroundPosition: '10px 10px', minHeight: '200px', padding: '20px' }}>
+        <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', zIndex: 10 }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <button 
+              onClick={() => handleStep(-1)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
+              title="이전 프레임 (-1)"
+            >
+              ⏮
+            </button>
+            <button 
+              onClick={() => setIsPlaying(!isPlaying)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
+              title={isPlaying ? "일시정지" : "재생"}
+            >
+              {isPlaying ? '⏸' : '▶'}
+            </button>
+            <button 
+              onClick={() => handleStep(1)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
+              title="다음 프레임 (+1)"
+            >
+              ⏭
+            </button>
+            <button 
+              onClick={handleReplay}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
+              title="처음부터 다시 재생"
+            >
+              🔄
+            </button>
+          </div>
+
+          <select value={playbackSpeed} onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))} style={{ background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', fontSize: '11px', padding: '4px', cursor: 'pointer', outline: 'none' }}>
+            <option value={0.01}>0.01x</option>
+            <option value={0.05}>0.05x</option>
+            <option value={0.1}>0.1x</option>
+            <option value={0.25}>0.25x</option>
+            <option value={0.5}>0.5x</option>
+            <option value={1}>1.0x (기본)</option>
+          </select>
+
+          <div style={{ background: 'rgba(0,0,0,0.7)', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--ev-c-divider)', display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <span style={{ color: 'var(--ev-c-text-2)', fontSize: '11px' }}>FRAME</span>
+            <span style={{ color: 'var(--ev-c-brand)', fontFamily: 'monospace', fontSize: '13px', fontWeight: 'bold' }}>{currentFrame.toString().padStart(4, '0')}</span>
+          </div>
+        </div>
+        <ImageGraphic
+          ref={graphicRef}
+          imageId={imageId}
+          tileset={tileset}
+          animate={true}
+          animationName={selectedAnimation}
+          direction={direction}
+          onFrameChange={setCurrentFrame}
+          maxWidth={300}
+          maxHeight={300}
+          autoCrop={autoCrop}
+          playerColor="Red"
+          customData={customData}
+          playbackSpeed={playbackSpeed}
+          paused={!isPlaying}
+          onAnimationEnd={() => setIsPlaying(false)}
+          restartKey={restartKey}
+        />
+      </div>
+      {autoCrop && (
+        <div style={{ padding: '12px 16px', backgroundColor: 'var(--ev-c-bg)', borderTop: '1px solid var(--ev-c-divider)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <span style={{ color: 'var(--ev-c-text-2)', fontSize: '13px' }}>방향:</span>
+          <input type="range" min="0" max="31" value={direction} onChange={(e) => setDirection(parseInt(e.target.value, 10))} style={{ flex: 1, margin: 0, accentColor: 'var(--ev-c-brand)', cursor: 'pointer' }} />
+          <span style={{ color: 'var(--ev-c-text-1)', fontFamily: 'monospace', fontSize: '14px', width: '20px', textAlign: 'right' }}>{direction}</span>
+        </div>
+      )}
+    </div>
+  )
+})
 
 function ImagePreview({ imageId, name, userDataPath }) {
   // const [hasError, setHasError] = useState(false)
@@ -74,7 +207,7 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick, userDataPath }) 
 ))
 
 
-function ImageTab({ mapData, projectData, datReady }) {
+function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
   const [listWidth, setListWidth] = useState(300)
@@ -82,8 +215,6 @@ function ImageTab({ mapData, projectData, datReady }) {
   const [imageNames, setImageNames] = useState([])
   const [iscriptData, setIscriptData] = useState(null)
   const [selectedAnimation, setSelectedAnimation] = useState('Init')
-  const [currentFrame, setCurrentFrame] = useState(0)
-  const [direction, setDirection] = useState(0)
   const [userDataPath, setUserDataPath] = useState(null)
 
   useEffect(() => {
@@ -110,8 +241,6 @@ function ImageTab({ mapData, projectData, datReady }) {
       }
     }
     setSelectedAnimation(defaultAnim)
-    setCurrentFrame(0)
-    setDirection(0)
   }, [selectedItem, iscriptData])
 
   useEffect(() => {
@@ -165,7 +294,11 @@ function ImageTab({ mapData, projectData, datReady }) {
 
   const currentMapTileset = mapData?.tileset || 'badlands'
   const currentImagesData = getImagesData()
-  const currentItemData = (currentImagesData && selectedItem !== null) ? currentImagesData[selectedItem] : null
+  const baseItemData = (currentImagesData && selectedItem !== null) ? currentImagesData[selectedItem] : null
+  const currentItemData = useMemo(() => {
+    if (!baseItemData) return null
+    return { ...baseItemData, ...(projectData?.images?.[selectedItem] || {}) }
+  }, [baseItemData, projectData, selectedItem])
 
   const iscriptId = currentItemData ? (currentItemData['Iscript ID'] & 0xFFFF) : null
   const header = iscriptData?.headers.find(h => h.is_id === iscriptId)
@@ -189,6 +322,12 @@ function ImageTab({ mapData, projectData, datReady }) {
     </div>
   ), [imageNames, selectedItem, listWidth, userDataPath])
 
+  const handleUpdate = useCallback((key, value) => {
+    if (onUpdateProjectImage) {
+      onUpdateProjectImage('images', selectedItem, key, value)
+    }
+  }, [onUpdateProjectImage, selectedItem])
+
   return (
     <div className="content-body">
       {/* Left Pane: Items List */}
@@ -203,112 +342,83 @@ function ImageTab({ mapData, projectData, datReady }) {
       {/* Right Pane: Properties */}
       <div className="properties-pane">
         {selectedItem !== null ? (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            {/* Header */}
-            <div style={{ display: 'flex', borderBottom: '1px solid var(--ev-c-divider)', paddingBottom: '15px', marginBottom: '15px' }}>
-              <div style={{
-                width: '128px',
-                height: '128px',
-                backgroundColor: 'var(--ev-c-bg-mute)',
-                border: '1px solid var(--ev-c-divider)',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: '20px',
-                overflow: 'hidden',
-                flexShrink: 0
-              }}>
-                <ImageGraphic
+          <div className="unit-detail-container" style={{ height: '100%', overflowY: 'auto' }}>
+            
+
+
+            <div className="unit-detail-grid">
+              {/* Image Preview & Controls (Left column) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <GraphicRenderer
+                  key={`${selectedItem}-${selectedAnimation}`}
                   imageId={selectedItem}
                   tileset={currentMapTileset}
-                  animate={true}
-                  animationName={selectedAnimation}
-                  direction={direction}
-                  onFrameChange={setCurrentFrame}
-                  maxWidth={128}
-                  maxHeight={128}
-                  autoCrop={false}
-                  playerColor="Red"
+                  selectedAnimation={selectedAnimation}
+                  autoCrop={!!currentItemData?.['Gfx Turns']}
+                  customData={currentItemData}
                 />
-              </div>
-              <div>
-                <h3 style={{ margin: '0 0 10px 0', color: 'var(--ev-c-text-1)', fontSize: '18px' }}>
-                  {imageNames.find(i => i.id === selectedItem)?.name || `Image ${selectedItem}`}
-                </h3>
-                <div style={{ fontSize: '12px', color: 'var(--ev-c-text-2)', marginBottom: '4px' }}>
-                  ID: {selectedItem}
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--ev-c-text-2)', marginBottom: '6px' }}>
-                  Current Frame: <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{currentFrame}</span>
-                </div>
-                {!!currentItemData?.['Gfx Turns'] && (
-                  <div style={{ fontSize: '12px', color: 'var(--ev-c-text-2)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Direction:
-                    <input
-                      type="range"
-                      min="0" max="31"
-                      value={direction}
-                      onChange={(e) => setDirection(parseInt(e.target.value, 10))}
-                      style={{ width: '80px', margin: 0, height: '4px', cursor: 'pointer' }}
-                    />
-                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', width: '16px' }}>{direction}</span>
+                
+                <Card title="이미지 스크립트 (애니메이션)">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '250px', overflowY: 'auto' }} className="custom-scrollbar">
+                    {availableAnimations.length > 0 ? availableAnimations.map((anim, idx) => {
+                       const isSelected = selectedAnimation === anim;
+                       return (
+                         <div
+                           key={anim}
+                           onClick={() => setSelectedAnimation(anim)}
+                           style={{
+                             padding: '10px 12px', fontSize: '13px', borderRadius: '6px', cursor: 'pointer',
+                             backgroundColor: isSelected ? 'var(--ev-c-brand)' : 'var(--ev-c-bg-mute)',
+                             color: isSelected ? 'white' : 'var(--ev-c-text-1)',
+                             display: 'flex', alignItems: 'center', gap: '10px',
+                             fontWeight: isSelected ? 'bold' : 'normal',
+                             transition: 'all 0.15s'
+                           }}
+                         >
+                           <span style={{ color: isSelected ? 'rgba(255,255,255,0.7)' : 'var(--ev-c-text-3)', fontSize: '11px', minWidth: '20px' }}>{String(idx).padStart(2, '0')}</span>
+                           {anim}
+                         </div>
+                       )
+                    }) : (
+                       <div style={{ padding: '10px', color: 'var(--ev-c-text-3)', fontSize: '12px', textAlign: 'center' }}>데이터 없음</div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Sub Tabs Navigation */}
-            <div className="sub-tabs">
-              <div className="sub-tab-item active">
-                Basic Info
-              </div>
-            </div>
-
-            {/* Properties Content */}
-            <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px', paddingTop: '15px' }}>
-
-              {/* Animations Section */}
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ fontWeight: '600', color: 'var(--ev-c-text-1)', marginBottom: '10px' }}>
-                  Animations <span style={{ fontSize: '11px', color: 'var(--ev-c-text-3)', fontWeight: 'normal' }}>(Iscript ID: {iscriptId})</span>
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {availableAnimations.length > 0 ? availableAnimations.map(anim => (
-                    <button
-                      key={anim}
-                      onClick={() => setSelectedAnimation(anim)}
-                      style={{
-                        padding: '4px 8px',
-                        fontSize: '11px',
-                        borderRadius: '4px',
-                        border: selectedAnimation === anim ? '1px solid var(--ev-c-brand)' : '1px solid var(--ev-c-divider)',
-                        backgroundColor: selectedAnimation === anim ? 'rgba(0, 119, 255, 0.1)' : 'var(--ev-c-bg-mute)',
-                        color: selectedAnimation === anim ? 'var(--ev-c-brand)' : 'var(--ev-c-text-2)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      {anim}
-                    </button>
-                  )) : (
-                    <div style={{ color: 'var(--ev-c-text-3)', fontSize: '12px' }}>No animations found</div>
-                  )}
-                </div>
+                </Card>
               </div>
 
-              <div style={{ fontWeight: '600', color: 'var(--ev-c-text-1)', marginBottom: '10px' }}>Data Properties</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, auto) 1fr', gap: '8px 15px', fontSize: '13px' }}>
-                {Object.keys(currentItemData || {}).map(k => (
-                  <div key={k} style={{ display: 'contents' }}>
-                    <div style={{ color: 'var(--ev-c-text-2)', padding: '6px 0', borderBottom: '1px solid var(--ev-c-divider-light)' }}>
-                      {k}
-                    </div>
-                    <div style={{ color: 'var(--ev-c-text-1)', padding: '6px 0', borderBottom: '1px solid var(--ev-c-divider-light)', fontWeight: '500' }}>
-                      {currentItemData[k]}
-                    </div>
+              {/* Data Properties (Right column) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <Card title="일반 정보">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    {['Gfx Turns', 'Clickable', 'Use Full Iscript', 'Draw If Cloaked'].map(key => (
+                      <label key={key} className="checkbox-label" style={{ padding: '8px 12px', backgroundColor: 'var(--ev-c-bg-mute)', borderRadius: '6px' }}>
+                        <input
+                          type="checkbox"
+                          checked={!!currentItemData?.[key]}
+                          onChange={(e) => handleUpdate(key, e.target.checked ? 1 : 0)}
+                        />
+                        {key === 'Gfx Turns' ? '그래픽 회전' : key === 'Clickable' ? '클릭 가능' : key === 'Use Full Iscript' ? '모든 스크립트' : key === 'Draw If Cloaked' ? '클로킹시 표시' : key}
+                      </label>
+                    ))}
                   </div>
-                ))}
+                </Card>
+
+                <Card title="화면 출력 정보">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <Field label="기능 (Draw)" type="select" value={currentItemData?.['Draw Function']} onChange={(v) => handleUpdate('Draw Function', v)} />
+                    <Field label="색상표 (Remap)" type="select" value={currentItemData?.['Remapping']} onChange={(v) => handleUpdate('Remapping', v)} />
+                  </div>
+                </Card>
+
+                <Card title="추가 데이터">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <Field label="IScript ID" type="number" value={currentItemData?.['Iscript ID']} onChange={(v) => handleUpdate('Iscript ID', v)} />
+                    <Field label="GRP File" type="number" value={currentItemData?.['GRP File']} onChange={(v) => handleUpdate('GRP File', v)} />
+                    {Object.keys(currentItemData || {}).filter(k => !['Gfx Turns', 'Clickable', 'Use Full Iscript', 'Draw If Cloaked', 'Draw Function', 'Remapping', 'Iscript ID', 'GRP File'].includes(k)).map(k => (
+                      <Field key={k} label={k} type="number" value={currentItemData[k]} onChange={(v) => handleUpdate(k, v)} />
+                    ))}
+                  </div>
+                </Card>
               </div>
 
             </div>

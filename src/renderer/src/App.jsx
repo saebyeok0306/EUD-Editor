@@ -37,12 +37,13 @@ function App() {
   const [projectData, setProjectData] = useState({
     units: {},
     weapons: {},
-    upgrades: {}
+    upgrades: {},
+    images: {}
   })
 
   const handleCloseMap = () => {
     setMapData(null)
-    setProjectData({ units: {}, weapons: {}, upgrades: {} })
+    setProjectData({ units: {}, weapons: {}, upgrades: {}, images: {} })
   }
 
   const updateProjectUnit = (unitId, field, value) => {
@@ -52,6 +53,19 @@ function App() {
         ...prev.units,
         [unitId]: {
           ...(prev.units[unitId] || {}),
+          [field]: value
+        }
+      }
+    }))
+  }
+
+  const updateProjectData = (category, id, field, value) => {
+    setProjectData(prev => ({
+      ...prev,
+      [category]: {
+        ...(prev[category] || {}),
+        [id]: {
+          ...(prev[category]?.[id] || {}),
           [field]: value
         }
       }
@@ -99,6 +113,7 @@ function App() {
           onCloseMap={handleCloseMap} 
           onUpdateProjectUnit={updateProjectUnit}
           onResetProjectUnit={resetProjectUnit}
+          onUpdateProjectData={updateProjectData}
         />
       ) : (
         <StartScreen onOpenScx={handleOpenScx} />

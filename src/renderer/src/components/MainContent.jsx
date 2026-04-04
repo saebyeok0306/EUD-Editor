@@ -15,7 +15,8 @@ function MainContent({
   projectData, 
   datReady, 
   onUpdateProjectUnit,
-  onResetProjectUnit
+  onResetProjectUnit,
+  onUpdateProjectData
 }) {
   const { t } = useI18n()
 
@@ -31,7 +32,7 @@ function MainContent({
       case 'Flingy': return <FlingyTab mapData={mapData} datReady={datReady} />
       case 'Sprite': return <SpriteTab mapData={mapData} datReady={datReady} />
       case 'Weapon': return <WeaponTab mapData={mapData} datReady={datReady} />
-      case 'Image': return <ImageTab mapData={mapData} projectData={projectData} datReady={datReady} />
+      case 'Image': return <ImageTab mapData={mapData} projectData={projectData} datReady={datReady} onUpdateProjectImage={onUpdateProjectData} />
       case 'Upgrade': return <UpgradeTab mapData={mapData} datReady={datReady} />
       case 'Tech': return <TechTab mapData={mapData} datReady={datReady} />
       case 'Order': return <OrderTab mapData={mapData} datReady={datReady} />

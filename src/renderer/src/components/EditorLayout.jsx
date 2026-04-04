@@ -12,7 +12,8 @@ function EditorLayout({
   datReady, 
   onCloseMap, 
   onUpdateProjectUnit,
-  onResetProjectUnit
+  onResetProjectUnit,
+  onUpdateProjectData
 }) {
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0])
 
@@ -32,6 +33,7 @@ function EditorLayout({
         datReady={datReady} 
         onUpdateProjectUnit={onUpdateProjectUnit}
         onResetProjectUnit={onResetProjectUnit}
+        onUpdateProjectData={onUpdateProjectData}
       />
     </div>
   )

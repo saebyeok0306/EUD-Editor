@@ -117,7 +117,7 @@ export default function SetupScreen({ onCompleted }) {
           const ctx = canvasRef.current.getContext('2d')
           canvasRef.current.width = decoded.width
           canvasRef.current.height = decoded.height
-          renderToCanvas(ctx, decoded, palBuffer, PLAYER_COLORS[playerColor])
+          renderToCanvas(ctx, decoded, palBuffer, playerColor)
         } catch (e) {
           console.error(`Failed to render frame ${fIdx}:`, e)
         }

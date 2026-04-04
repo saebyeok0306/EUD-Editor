@@ -155,7 +155,7 @@ function FlingyTab({ mapData, datReady }) {
                     imageId={imageId} 
                     tileset={currentMapTileset} 
                     animate={true} 
-                    animationName="Init"
+                    animationName={currentItemData?.['Movement Control'] === 0 ? "Walking" : "Init"}
                     maxWidth={128} 
                     maxHeight={128} 
                     autoCrop={false} 

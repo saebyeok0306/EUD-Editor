@@ -4,23 +4,38 @@ import { getImagesData, getImagesTbl } from '../../../utils/datStore'
 import ImageGraphic from '../../common/ImageGraphic'
 import imagesNamesData from '../../../data/Images.txt?raw'
 import iscriptJsonUrl from '../../../data/iscript_data.json?url'
+import SearchableSelect from '../../common/SearchableSelect'
 import '../UnitTab/UnitTab.css'
 
-function Field({ label, value, onChange, type = "number", className = "" }) {
+function Field({ label, value, onChange, type = "number", className = "", disabled = false, options = [] }) {
   return (
-    <div className={`field-group ${className}`}>
+    <div className={`field-group ${className}`} style={{ opacity: disabled ? 0.6 : 1 }}>
       <label className="field-label" style={{ minWidth: '100px', flexShrink: 0 }}>{label}</label>
       <div className="value-row">
-        {type === 'select' ? (
-           <select className="modern-input" value={value ?? 0} onChange={(e) => onChange(parseInt(e.target.value))}>
-             <option value={value ?? 0}>{value ?? 0}</option>
-           </select>
+        {type === 'searchable' ? (
+          <SearchableSelect
+            className="modern-input"
+            options={options}
+            value={value ?? 0}
+            onChange={(v) => onChange(v)}
+            style={{ width: '100%', height: '30px', backgroundColor: 'rgba(255,255,255,0.05)' }}
+          />
+        ) : type === 'select' ? (
+          <select className="modern-input" value={value ?? 0} onChange={(e) => onChange(parseInt(e.target.value))} disabled={disabled} style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}>
+            {options.length > 0 ? options.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            )) : (
+              <option value={value ?? 0}>{value ?? 0}</option>
+            )}
+          </select>
         ) : (
           <input
             type={type}
             className="modern-input"
             value={value ?? ''}
             onChange={(e) => onChange(type === "number" ? (parseInt(e.target.value) || 0) : e.target.value)}
+            disabled={disabled}
+            style={{ cursor: disabled ? 'not-allowed' : 'text' }}
           />
         )}
       </div>
@@ -64,33 +79,37 @@ const GraphicRenderer = React.memo(({ imageId, tileset, selectedAnimation, autoC
       <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.1)', backgroundImage: 'radial-gradient(var(--ev-c-divider) 1px, transparent 1px)', backgroundSize: '20px 20px', backgroundPosition: '10px 10px', minHeight: '200px', padding: '20px' }}>
         <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', zIndex: 10 }}>
           <div style={{ display: 'flex', gap: '4px' }}>
-            <button 
+            <button
               onClick={() => handleStep(-1)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
-              title="이전 프레임 (-1)"
+              title="이전 시퀀스 (-1)"
             >
-              ⏮
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
             </button>
-            <button 
+            <button
               onClick={() => setIsPlaying(!isPlaying)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
               title={isPlaying ? "일시정지" : "재생"}
             >
-              {isPlaying ? '⏸' : '▶'}
+              {isPlaying ? (
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z" /></svg>
+              )}
             </button>
-            <button 
+            <button
               onClick={() => handleStep(1)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
-              title="다음 프레임 (+1)"
+              title="다음 시퀀스 (+1)"
             >
-              ⏭
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
             </button>
-            <button 
+            <button
               onClick={handleReplay}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', padding: 0, background: 'rgba(0,0,0,0.7)', border: '1px solid var(--ev-c-divider)', color: 'var(--ev-c-text-1)', borderRadius: '4px', cursor: 'pointer', outline: 'none' }}
               title="처음부터 다시 재생"
             >
-              🔄
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.65 6.35A7.95 7.95 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" /></svg>
             </button>
           </div>
 
@@ -112,7 +131,7 @@ const GraphicRenderer = React.memo(({ imageId, tileset, selectedAnimation, autoC
           ref={graphicRef}
           imageId={imageId}
           tileset={tileset}
-          animate={true}
+          animate={isPlaying}
           animationName={selectedAnimation}
           direction={direction}
           onFrameChange={setCurrentFrame}
@@ -304,6 +323,21 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
   const header = iscriptData?.headers.find(h => h.is_id === iscriptId)
   const availableAnimations = header?.entry_points ? Object.keys(header.entry_points) : []
 
+  const drawOptions = useMemo(() => {
+    return Array.from({ length: 18 }).map((_, i) => ({
+      value: i, label: `[${i}] ${t(`image.draw.${i}`)}`
+    }))
+  }, [t])
+
+  const iscriptOptions = useMemo(() => {
+    if (!iscriptData) return []
+    return iscriptData.headers.map(h => {
+      let name = h.entry_points.Init || h.entry_points.Walking || `IScript ${h.is_id}`
+      if (typeof name === 'string' && name.endsWith('Init')) name = name.replace(/Init$/, '')
+      return { value: h.is_id, label: `[${h.is_id.toString().padStart(3, '0')}] ${name}` }
+    })
+  }, [iscriptData])
+
   const handleItemClick = useCallback((id) => {
     setSelectedItem(id)
   }, [])
@@ -343,7 +377,7 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
       <div className="properties-pane">
         {selectedItem !== null ? (
           <div className="unit-detail-container" style={{ height: '100%', overflowY: 'auto' }}>
-            
+
 
 
             <div className="unit-detail-grid">
@@ -357,30 +391,30 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
                   autoCrop={!!currentItemData?.['Gfx Turns']}
                   customData={currentItemData}
                 />
-                
+
                 <Card title="이미지 스크립트 (애니메이션)">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '250px', overflowY: 'auto' }} className="custom-scrollbar">
                     {availableAnimations.length > 0 ? availableAnimations.map((anim, idx) => {
-                       const isSelected = selectedAnimation === anim;
-                       return (
-                         <div
-                           key={anim}
-                           onClick={() => setSelectedAnimation(anim)}
-                           style={{
-                             padding: '10px 12px', fontSize: '13px', borderRadius: '6px', cursor: 'pointer',
-                             backgroundColor: isSelected ? 'var(--ev-c-brand)' : 'var(--ev-c-bg-mute)',
-                             color: isSelected ? 'white' : 'var(--ev-c-text-1)',
-                             display: 'flex', alignItems: 'center', gap: '10px',
-                             fontWeight: isSelected ? 'bold' : 'normal',
-                             transition: 'all 0.15s'
-                           }}
-                         >
-                           <span style={{ color: isSelected ? 'rgba(255,255,255,0.7)' : 'var(--ev-c-text-3)', fontSize: '11px', minWidth: '20px' }}>{String(idx).padStart(2, '0')}</span>
-                           {anim}
-                         </div>
-                       )
+                      const isSelected = selectedAnimation === anim;
+                      return (
+                        <div
+                          key={anim}
+                          onClick={() => setSelectedAnimation(anim)}
+                          style={{
+                            padding: '10px 12px', fontSize: '13px', borderRadius: '6px', cursor: 'pointer',
+                            backgroundColor: isSelected ? 'var(--ev-c-brand)' : 'var(--ev-c-bg-mute)',
+                            color: isSelected ? 'white' : 'var(--ev-c-text-1)',
+                            display: 'flex', alignItems: 'center', gap: '10px',
+                            fontWeight: isSelected ? 'bold' : 'normal',
+                            transition: 'all 0.15s'
+                          }}
+                        >
+                          <span style={{ color: isSelected ? 'rgba(255,255,255,0.7)' : 'var(--ev-c-text-3)', fontSize: '11px', minWidth: '20px' }}>{String(idx).padStart(2, '0')}</span>
+                          {anim}
+                        </div>
+                      )
                     }) : (
-                       <div style={{ padding: '10px', color: 'var(--ev-c-text-3)', fontSize: '12px', textAlign: 'center' }}>데이터 없음</div>
+                      <div style={{ padding: '10px', color: 'var(--ev-c-text-3)', fontSize: '12px', textAlign: 'center' }}>데이터 없음</div>
                     )}
                   </div>
                 </Card>
@@ -405,18 +439,20 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
 
                 <Card title="화면 출력 정보">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <Field label="기능 (Draw)" type="select" value={currentItemData?.['Draw Function']} onChange={(v) => handleUpdate('Draw Function', v)} />
-                    <Field label="색상표 (Remap)" type="select" value={currentItemData?.['Remapping']} onChange={(v) => handleUpdate('Remapping', v)} />
+                    <Field label={t('image.prop.drawFunction', { defaultValue: '기능 (Draw)' })} type="select" options={drawOptions} value={currentItemData?.['Draw Function']} onChange={(v) => handleUpdate('Draw Function', v)} />
+                    <Field label={t('image.prop.remapping', { defaultValue: '색상표 (Remap)' })} type="select" value={currentItemData?.['Remapping']} onChange={(v) => handleUpdate('Remapping', v)} />
                   </div>
                 </Card>
 
-                <Card title="추가 데이터">
+                <Card title="스크립트 정보">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <Field label="IScript ID" type="number" value={currentItemData?.['Iscript ID']} onChange={(v) => handleUpdate('Iscript ID', v)} />
-                    <Field label="GRP File" type="number" value={currentItemData?.['GRP File']} onChange={(v) => handleUpdate('GRP File', v)} />
-                    {Object.keys(currentItemData || {}).filter(k => !['Gfx Turns', 'Clickable', 'Use Full Iscript', 'Draw If Cloaked', 'Draw Function', 'Remapping', 'Iscript ID', 'GRP File'].includes(k)).map(k => (
-                      <Field key={k} label={k} type="number" value={currentItemData[k]} onChange={(v) => handleUpdate(k, v)} />
-                    ))}
+                    <Field
+                      label="IScript ID"
+                      type="searchable"
+                      options={iscriptOptions}
+                      value={currentItemData?.['Iscript ID'] & 0xFFFF}
+                      onChange={(v) => handleUpdate('Iscript ID', v)}
+                    />
                   </div>
                 </Card>
               </div>

@@ -1,6 +1,20 @@
+/**
+ * ImageGraphic - StarCraft GRP/IScript Rendering Engine
+ * 
+ * Rewritten based on the original Visual Basic IscriptModule.vb & GRPModule.vb logic.
+ * Core design: "Base Frame + Direction Offset" model.
+ * 
+ * Key concepts from VB source:
+ * - currentFrame: base frame index set by playfram/engframe/engset
+ * - GetFrameNum(): applies direction offset (0-16 range + flip for 17-31)
+ * - engframe: currentFrame += 17 (next direction set)
+ * - engset: currentFrame += value * 17 (jump to Nth direction set)
+ * - followmaingraphic: child uses parent's current rendered frame
+ */
+
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
 import { getImagesData, getImagesTbl } from '../../utils/datStore'
-import { decodeGRP, renderToCanvas, PLAYER_COLORS } from '../../utils/grpDecoder'
+import { decodeGRP, renderToCanvas } from '../../utils/grpDecoder'
 import { loadPalette } from '../../utils/paletteLoader'
 import iscriptJsonUrl from '../../data/iscript_data.json?url'
 
@@ -24,19 +38,27 @@ const ImageGraphic = forwardRef(({
   playbackSpeed = 1,
   paused = false,
   onAnimationEnd,
-  restartKey = 0
+  restartKey = 0,
+  parentFrameInfo
 }, ref) => {
   const canvasRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [hasNoScript, setHasNoScript] = useState(false)
   const [invalidFrame, setInvalidFrame] = useState(false)
+  const [overlays, setOverlays] = useState([])
 
+  // Refs for callbacks (avoid re-render dependency)
   const callbacksRef = useRef({ onDebugInfo, onFrameChange, onAnimationEnd })
+  const prevImageIdRef = useRef(null)
+  // Expose current frame info for child overlays (followmaingraphic)
+  const currentFrameInfo = useRef({ fIdx: 0, flip: false })
+
   useEffect(() => {
     callbacksRef.current = { onDebugInfo, onFrameChange, onAnimationEnd }
   }, [onDebugInfo, onFrameChange, onAnimationEnd])
 
+  // For manual step control
   const currentRawFrameRef = useRef(0)
   const currentFlipRef = useRef(false)
   const manualRenderRef = useRef(null)
@@ -49,16 +71,14 @@ const ImageGraphic = forwardRef(({
     }
   }))
 
+  // Playback refs (avoid re-render for these)
   const speedRef = useRef(playbackSpeed)
-  useEffect(() => {
-    speedRef.current = playbackSpeed
-  }, [playbackSpeed])
+  useEffect(() => { speedRef.current = playbackSpeed }, [playbackSpeed])
 
   const pausedRef = useRef(paused)
-  useEffect(() => {
-    pausedRef.current = paused
-  }, [paused])
+  useEffect(() => { pausedRef.current = paused }, [paused])
 
+  // ===== MAIN EFFECT =====
   useEffect(() => {
     let active = true
     let timer = null
@@ -92,7 +112,13 @@ const ImageGraphic = forwardRef(({
         const remappingNum = itemData['Remapping'] || 0
         const paletteToUse = await loadPalette(targetPath, tileset, drawFunction, remappingNum)
 
-        // Load JSON Iscript only if animating
+        // Only clear overlays when switching to a different image
+        if (prevImageIdRef.current !== imageId) {
+          setOverlays([])
+          prevImageIdRef.current = imageId
+        }
+
+        // Load IScript data (shared singleton)
         if (animate && !sharedIscriptData) {
           try {
             const response = await fetch(iscriptJsonUrl)
@@ -104,6 +130,7 @@ const ImageGraphic = forwardRef(({
           }
         }
 
+        // Load GRP buffer (cached)
         let grpBuffer = graphicCache.get(targetPath)
         if (!grpBuffer) {
           grpBuffer = await window.api.getDatapackFile(targetPath)
@@ -118,48 +145,57 @@ const ImageGraphic = forwardRef(({
         const finalCtx = canvasRef.current?.getContext('2d')
         if (!finalCtx) return
 
-        const iscriptId = itemData['Iscript ID'] & 0xFFFF
+        // ===== IScript State Machine (mirrors VB CIscript class) =====
+        const hasTurns = !!itemData['Gfx Turns']
+        const decodedFrameCache = new Map()
+        let lastRenderState = null
 
-        let currentScript = null
-        let originalScript = null
-        let scriptIndex = 0
+        // Get GRP frame count for bounds checking (VB: curretgrpMaxFrame)
+        const grpView = new DataView(grpBuffer.buffer, grpBuffer.byteOffset, grpBuffer.byteLength)
+        const grpFrameCount = grpView.getUint16(0, true)
 
-        if (animate && sharedIscriptData) {
-          const header = sharedIscriptData.headers.find(h => h.is_id === iscriptId)
-          if (header && header.entry_points) {
-            let entryPoint = header.entry_points[animationName]
+        // VB: currentFrame (base frame index, NOT the final displayed frame)
+        let currentFrame = 0
+        // VB: x, y offsets controlled by sethorpos/setvertpos/setpos
+        let posX = 0
+        let posY = 0
 
-            // Fallback if the requested animation (e.g. Walking) is explicitly null or undefined
-            if (!entryPoint) {
-              entryPoint = header.entry_points.Init ||
-                header.entry_points.Walking ||
-                Object.values(header.entry_points).find(v => v !== null)
-            }
-
-            if (!entryPoint) {
-              if (active) {
-                setHasNoScript(true)
-                setLoading(false)
-              }
-              return
-            } else {
-              if (active) setHasNoScript(false)
-              if (sharedIscriptData.labels[entryPoint]) {
-                currentScript = entryPoint
-                originalScript = entryPoint
-              }
-            }
+        /**
+         * GetFrameNum - mirrors VB's GetFrameNum()
+         * 
+         * VB source (IscriptModule.vb line 588-605):
+         *   If gfxturn = True Then
+         *     If direction > 16 Then
+         *       ReturnFrame = currentFrame + 33 - direction  (flip = true)
+         *     Else
+         *       ReturnFrame = currentFrame + direction       (flip = false)
+         *     End If
+         *   Else
+         *     ReturnFrame = currentFrame (flip = false)
+         *   End If
+         * 
+         * Note: VB uses 33 directions (0-32), we use 32 (0-31).
+         * Adjusted: 33 -> 32 for our 32-direction system.
+         */
+        const getFrameNum = (dir) => {
+          if (!hasTurns) {
+            return { fIdx: currentFrame, flip: false }
+          }
+          const d = dir % 32
+          if (d > 16) {
+            return { fIdx: currentFrame + (32 - d), flip: true }
+          } else {
+            return { fIdx: currentFrame + d, flip: false }
           }
         }
 
-        const hasTurns = !!itemData['Gfx Turns']
-        const decodedFrameCache = new Map()
-
-        let lastRenderState = null
-
+        /**
+         * renderFrame - decode GRP frame and paint to canvas
+         */
         const renderFrame = (fIdx, flip = false) => {
+          currentFrameInfo.current = { fIdx, flip }
           if (!active || !grpBuffer || !canvasRef.current) return
-          
+
           currentRawFrameRef.current = fIdx
           currentFlipRef.current = flip
           lastRenderState = { fIdx, flip }
@@ -169,30 +205,30 @@ const ImageGraphic = forwardRef(({
           if (!cached) {
             const frameData = decodeGRP(grpBuffer, fIdx)
             if (!frameData) {
-               if (active) setInvalidFrame(true)
-               canvasRef.current.width = maxWidth || 100
-               canvasRef.current.height = maxHeight || 100
-               finalCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-               if (callbacksRef.current.onFrameChange) {
-                 callbacksRef.current.onFrameChange(fIdx)
-               }
-               return
+              if (active) setInvalidFrame(true)
+              canvasRef.current.width = maxWidth || 100
+              canvasRef.current.height = maxHeight || 100
+              finalCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+              if (callbacksRef.current.onFrameChange) {
+                callbacksRef.current.onFrameChange(fIdx)
+              }
+              return
             }
 
             let cropWidth = frameData.width, cropHeight = frameData.height, offsetX = 0, offsetY = 0
             if (autoCrop) {
-              let minX = frameData.width, minY = frameData.height, maxX = 0, maxY = 0
+              let minX = frameData.width, minY = frameData.height, maxXb = 0, maxYb = 0
               const pixels = frameData.data
               for (let y = 0; y < frameData.height; y++) {
                 for (let x = 0; x < frameData.width; x++) {
                   if (pixels[y * frameData.width + x] !== 0) {
                     if (x < minX) minX = x; if (y < minY) minY = y
-                    if (x > maxX) maxX = x; if (y > maxY) maxY = y
+                    if (x > maxXb) maxXb = x; if (y > maxYb) maxYb = y
                   }
                 }
               }
-              if (minX <= maxX && minY <= maxY) {
-                cropWidth = maxX - minX + 1; cropHeight = maxY - minY + 1
+              if (minX <= maxXb && minY <= maxYb) {
+                cropWidth = maxXb - minX + 1; cropHeight = maxYb - minY + 1
                 offsetX = minX; offsetY = minY
               }
             }
@@ -200,7 +236,7 @@ const ImageGraphic = forwardRef(({
             const tempCanvas = document.createElement('canvas')
             tempCanvas.width = frameData.width
             tempCanvas.height = frameData.height
-            renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS[playerColor], drawFunction, remappingNum)
+            renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, playerColor, drawFunction, remappingNum)
 
             cached = { tempCanvas, cropWidth, cropHeight, offsetX, offsetY }
             decodedFrameCache.set(fIdx, cached)
@@ -227,100 +263,410 @@ const ImageGraphic = forwardRef(({
           }
         }
 
-        let initialIdx = 0
-        let initialFlip = false
-        if (!animate && hasTurns) {
-          const dir = direction % 32
-          if (dir <= 16) initialIdx += dir
-          else { initialIdx += (32 - dir); initialFlip = true }
+        /**
+         * drawWithDirection - convenience: set currentFrame, compute direction, render
+         */
+        const drawWithDirection = () => {
+          const { fIdx, flip } = getFrameNum(direction)
+          renderFrame(fIdx, flip)
         }
-        renderFrame(initialIdx, initialFlip)
 
+        // ===== IScript resolution =====
+        const iscriptId = itemData['Iscript ID'] & 0xFFFF
+        let currentScriptLabel = null
+        let originalScriptLabel = null
+        let scriptIndex = 0
+        // For call/return stack (VB: Case &H35 call, Case &H36 return)
+        let callStack = []
+
+        if (animate && sharedIscriptData) {
+          const header = sharedIscriptData.headers.find(h => h.is_id === iscriptId)
+          if (header && header.entry_points) {
+            let entryPoint = header.entry_points[animationName]
+
+            // Fallback chain
+            if (!entryPoint) {
+              entryPoint = header.entry_points.Init ||
+                header.entry_points.Walking ||
+                Object.values(header.entry_points).find(v => v !== null)
+            }
+
+            if (!entryPoint) {
+              if (active) { setHasNoScript(true); setLoading(false) }
+              return
+            } else {
+              if (active) setHasNoScript(false)
+              if (sharedIscriptData.labels[entryPoint]) {
+                currentScriptLabel = entryPoint
+                originalScriptLabel = entryPoint
+              }
+            }
+          }
+        }
+
+        // ===== Initial static render (non-animated or first frame) =====
+        currentFrame = 0
+        drawWithDirection()
+
+        // ===== IScript execution history for manual stepping =====
         let iscriptHistory = []
 
+        /**
+         * processIScriptBlock - Execute script until a wait/end is hit
+         * 
+         * Mirrors VB's playScript() (IscriptModule.vb line 294-585)
+         * Each call processes opcodes until 'wait' pauses or 'end' terminates.
+         */
         const processIScriptBlock = () => {
           iscriptHistory.push({
-            currentScript,
-            originalScript,
+            currentScriptLabel,
+            originalScriptLabel,
             scriptIndex,
-            renderState: { ...lastRenderState }
+            currentFrame,
+            posX, posY,
+            renderState: lastRenderState ? { ...lastRenderState } : { fIdx: 0, flip: false }
           })
 
           let waitTicks = 0
           let executionCount = 0
-          while (waitTicks === 0 && currentScript && executionCount < 100) {
+
+          while (waitTicks === 0 && currentScriptLabel && executionCount < 200) {
             executionCount++
-            const script = sharedIscriptData.labels[currentScript]
+            const script = sharedIscriptData.labels[currentScriptLabel]
             if (!script || scriptIndex >= script.length) break
 
             const instr = script[scriptIndex]
             const { opcode, args } = instr
 
-            if (opcode === 'playfram') {
-              let fIdx = parseInt(args[0], args[0].startsWith('0x') ? 16 : 10)
-              let flip = false
-              if (hasTurns) {
-                const dir = direction % 32
-                if (dir <= 16) {
-                  fIdx += dir
-                } else {
-                  fIdx += (32 - dir)
-                  flip = true
+            switch (opcode) {
+              // ===== 0x00: playfram =====
+              // VB: currentFrame = values(0); drawImageGRP(GetFrameNum, ...)
+              case 'playfram': {
+                currentFrame = parseInt(args[0], args[0].startsWith('0x') ? 16 : 10)
+                // Bounds check
+                if (grpFrameCount > 0 && currentFrame >= grpFrameCount) {
+                  currentFrame = currentFrame % grpFrameCount
                 }
+                drawWithDirection()
+                scriptIndex++
+                break
               }
-              renderFrame(fIdx, flip)
-              scriptIndex++
-            } else if (opcode === 'wait') {
-              waitTicks = parseInt(args[0]) || 1
-              scriptIndex++
-            } else if (opcode === 'imgul') {
-              // Usually means render another layer, but we skip for simple preview
-              scriptIndex++
-            } else if (opcode === 'turncwise' || opcode === 'turnccwise' || opcode === 'turn1cwise') {
-              // Turn logic
-              scriptIndex++
-            } else if (opcode === 'goto') {
-              const targetLabel = args[0]
-              if (sharedIscriptData.labels[targetLabel]) {
-                currentScript = targetLabel
+
+              // ===== 0x01: playframtile =====
+              // VB: NOT handled (no Case &H1 in Select Case) → NO-OP
+              // This command is tileset-dependent and not relevant for previewer
+              case 'playframtile': {
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x02: sethorpos =====
+              // VB: x = values(0); drawImageGRP(GetFrameNum, turnStatus, x, y)
+              case 'sethorpos': {
+                let val = parseInt(args[0])
+                if (val > 127) val -= 256  // signed byte
+                posX = val
+                drawWithDirection()
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x03: setvertpos =====
+              // VB: y = values(0); drawImageGRP(GetFrameNum, turnStatus, x, y)
+              case 'setvertpos': {
+                let val = parseInt(args[0])
+                if (val > 127) val -= 256  // signed byte
+                posY = val
+                drawWithDirection()
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x04: setpos =====
+              // VB: x = values(0); y = values(1); drawImageGRP(...)
+              case 'setpos': {
+                let vx = parseInt(args[0])
+                let vy = parseInt(args[1])
+                if (vx > 127) vx -= 256
+                if (vy > 127) vy -= 256
+                posX = vx
+                posY = vy
+                drawWithDirection()
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x05: wait =====
+              // VB: iscirpt_wait = values(0)
+              case 'wait': {
+                waitTicks = parseInt(args[0]) || 1
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x06: waitrand =====
+              // VB: selectv = random.Next(values(0), values(1)); iscirpt_wait = selectv
+              case 'waitrand': {
+                const min = parseInt(args[0]) || 1
+                const max = parseInt(args[1]) || min
+                waitTicks = min + Math.floor(Math.random() * (max - min + 1))
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x07: goto =====
+              // VB: currentHeader = values(0)
+              case 'goto': {
+                const targetLabel = args[0]
+                if (sharedIscriptData.labels[targetLabel]) {
+                  currentScriptLabel = targetLabel
+                  scriptIndex = 0
+                } else {
+                  currentScriptLabel = null
+                }
+                break
+              }
+
+              // ===== 0x08: imgol (image overlay, above) =====
+              // ===== 0x09: imgul (image overlay, below) =====
+              // ===== 0x0F: sprol (sprite overlay, above) =====
+              // ===== 0x10: highsprol (sprite overlay, highest) =====
+              // ===== 0x14: sprul (sprite overlay, below) =====
+              case 'imgol':
+              case 'imgul':
+              case 'sprol':
+              case 'highsprol':
+              case 'sprul': {
+                const overlayId = parseInt(args[0])
+                let oX = parseInt(args[1] || 0)
+                let oY = parseInt(args[2] || 0)
+                // Signed byte conversion
+                if (oX > 127) oX -= 256
+                if (oY > 127) oY -= 256
+                setOverlays(prev => {
+                  // Prevent duplicate spawning of same overlay type+id
+                  if (prev.find(o => o.imageId === overlayId && o.type === opcode)) return prev
+                  return [...prev, { imageId: overlayId, x: oX, y: oY, type: opcode, key: `${opcode}_${overlayId}_${Date.now()}` }]
+                })
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x0A: imgolorig =====
+              case 'imgolorig': {
+                const overlayId = parseInt(args[0])
+                setOverlays(prev => {
+                  if (prev.find(o => o.imageId === overlayId && o.type === opcode)) return prev
+                  return [...prev, { imageId: overlayId, x: 0, y: 0, type: opcode, key: `${opcode}_${overlayId}_${Date.now()}` }]
+                })
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x0D: imgoluselo, 0x0E: imguluselo, 0x13: spruluselo, 0x15: sproluselo =====
+              // These require LO* files which we don't have - skip gracefully
+              case 'imgoluselo':
+              case 'imguluselo':
+              case 'spruluselo':
+              case 'sproluselo': {
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x3D: imgulnextid =====
+              case 'imgulnextid': {
+                const nextImageId = imageId + 1
+                let oX = parseInt(args[0] || 0)
+                let oY = parseInt(args[1] || 0)
+                if (oX > 127) oX -= 256
+                if (oY > 127) oY -= 256
+                setOverlays(prev => {
+                  if (prev.find(o => o.imageId === nextImageId && o.type === opcode)) return prev
+                  return [...prev, { imageId: nextImageId, x: oX, y: oY, type: opcode, key: `${opcode}_${nextImageId}_${Date.now()}` }]
+                })
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x16: end =====
+              // VB: Script stops
+              case 'end': {
+                currentScriptLabel = null
+                break
+              }
+
+              // ===== 0x1D: followmaingraphic =====
+              // VB: drawImageGRP(GetFrameNum, turnStatus, x, y) — uses parent's frame
+              case 'followmaingraphic': {
+                if (parentFrameInfo && parentFrameInfo.current) {
+                  renderFrame(parentFrameInfo.current.fIdx, parentFrameInfo.current.flip)
+                } else {
+                  drawWithDirection()
+                }
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x1E: randcondjmp =====
+              // VB: If random <= values(0) Then currentHeader = values(1)
+              case 'randcondjmp': {
+                const chance = parseInt(args[0])
+                const targetLabel = args[1]
+                if (Math.floor(Math.random() * 256) <= chance) {
+                  if (sharedIscriptData.labels[targetLabel]) {
+                    currentScriptLabel = targetLabel
+                    scriptIndex = 0
+                  }
+                } else {
+                  scriptIndex++
+                }
+                break
+              }
+
+              // ===== 0x1F: turnccwise =====
+              // VB: TrackBar1.Value = TrackBar1.Value - values(0), wrapping
+              case 'turnccwise':
+              case 'turncwise':
+              case 'turn1cwise':
+              case 'turnrand': {
+                // Turn commands: skip in previewer (direction is user-controlled)
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x2A: gotorepeatattk =====
+              // VB: loops back to GndAttkRpt/AirAttkRpt
+              case 'gotorepeatattk': {
+                // In previewer, just loop current script back to start
                 scriptIndex = 0
-              } else {
-                currentScript = null
+                break
               }
-            } else if (opcode === 'gotorepeatattk') {
-              scriptIndex = 0
-            } else if (opcode === 'end') {
-              currentScript = null
-            } else {
-              scriptIndex++
+
+              // ===== 0x2B: engframe =====
+              // Sets the base frame directly (like playfram, but for engine glows)
+              // Data shows values like 0, 17 — these are direct set points
+              // E.g. WraithAfterburnersInit: engframe 0, wait, engframe 17, wait, goto loop
+              case 'engframe': {
+                currentFrame = parseInt(args[0])
+                // VB bounds check: If curretgrpMaxFrame <= currentFrame Then currentFrame = 0
+                if (grpFrameCount > 0 && currentFrame >= grpFrameCount) {
+                  currentFrame = currentFrame % grpFrameCount
+                }
+                drawWithDirection()
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x2C: engset =====
+              // Sets the base frame to frameset# * 17
+              // E.g. engset 1280 → 1280 * 17 = 21760 → exceeds GRP → wraps to 0
+              case 'engset': {
+                const setNum = parseInt(args[0])
+                currentFrame = setNum * 17
+                // VB bounds check: If curretgrpMaxFrame <= currentFrame Then currentFrame = 0
+                if (grpFrameCount > 0 && currentFrame >= grpFrameCount) {
+                  currentFrame = currentFrame % grpFrameCount
+                }
+                drawWithDirection()
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x30: ignorerest =====
+              case 'ignorerest': {
+                currentScriptLabel = null
+                break
+              }
+
+              // ===== 0x34: setfldirect =====
+              // VB: gfxturn = False
+              case 'setfldirect': {
+                // In preview mode, we just ignore this
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x35: call =====
+              // VB: currentHeader = values(0)
+              case 'call': {
+                const targetLabel = args[0]
+                if (sharedIscriptData.labels[targetLabel]) {
+                  callStack.push({ label: currentScriptLabel, index: scriptIndex + 1 })
+                  currentScriptLabel = targetLabel
+                  scriptIndex = 0
+                } else {
+                  scriptIndex++
+                }
+                break
+              }
+
+              // ===== 0x36: return =====
+              // VB: currentHeader = iscriptEntry(...).AnimHeader(currentAnimHeaderID)
+              case 'return': {
+                if (callStack.length > 0) {
+                  const ret = callStack.pop()
+                  currentScriptLabel = ret.label
+                  scriptIndex = ret.index
+                } else {
+                  scriptIndex++
+                }
+                break
+              }
+
+              // ===== 0x40: warpoverlay =====
+              // VB: currentFrame = values(0); drawImageGRP(GetFrameNum, ...)
+              case 'warpoverlay': {
+                currentFrame = parseInt(args[0])
+                drawWithDirection()
+                scriptIndex++
+                break
+              }
+
+              // ===== All other opcodes: skip =====
+              // This covers playsnd, playsndrand, playsndbtwn, domissiledmg,
+              // attackmelee, attackwith, attack, castspell, useweapon, move,
+              // sigorder, nobrkcodestart, nobrkcodeend, attkshiftproj,
+              // tmprmgraphicstart, tmprmgraphicend, setflspeed,
+              // creategasoverlays, pwrupcondjmp, etc.
+              default: {
+                scriptIndex++
+                break
+              }
             }
           }
 
-          if (waitTicks === 0 && currentScript) {
+          // Safety: if we ran out of opcodes without wait, default to 1 tick
+          if (waitTicks === 0 && currentScriptLabel) {
             waitTicks = 1
           }
 
           return waitTicks
         }
 
+        // ===== Manual stepping (for step buttons) =====
         manualRenderRef.current = (delta) => {
           if (delta > 0) {
-            if (currentScript) {
+            if (currentScriptLabel) {
               processIScriptBlock()
             }
           } else if (delta < 0) {
             if (iscriptHistory.length > 0) {
               const state = iscriptHistory.pop()
-              currentScript = state.currentScript
-              originalScript = state.originalScript
+              currentScriptLabel = state.currentScriptLabel
+              originalScriptLabel = state.originalScriptLabel
               scriptIndex = state.scriptIndex
-              renderFrame(state.renderState.fIdx, state.renderState.flip)
+              currentFrame = state.currentFrame
+              posX = state.posX
+              posY = state.posY
+              if (state.renderState) {
+                renderFrame(state.renderState.fIdx, state.renderState.flip)
+              }
             }
           }
         }
 
-        // Animation loop
-        if (animate && currentScript) {
+        // ===== Animation loop =====
+        if (animate && currentScriptLabel) {
           const loop = () => {
             if (!active) return
 
@@ -334,7 +680,7 @@ const ImageGraphic = forwardRef(({
             if (active) {
               if (waitTicks > 0) {
                 timer = setTimeout(loop, waitTicks * (1000 / 24) * (1 / speedRef.current))
-              } else if (!currentScript && originalScript) {
+              } else if (!currentScriptLabel && originalScriptLabel) {
                 // Animation ended
                 if (callbacksRef.current.onAnimationEnd) {
                   callbacksRef.current.onAnimationEnd()
@@ -362,6 +708,7 @@ const ImageGraphic = forwardRef(({
     }
   }, [imageId, animate, animationName, direction, playerColor, autoCrop, tileset, customData, restartKey])
 
+  // ===== RENDER =====
   if (errorMsg) {
     return (
       <div style={{ ...style, width: maxWidth, height: maxHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#333', color: '#ff5555', fontSize: '10px', textAlign: 'center', padding: '4px' }}>
@@ -375,7 +722,7 @@ const ImageGraphic = forwardRef(({
   }
 
   return (
-    <div style={{ ...style, width: maxWidth, height: maxHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: maxWidth || 'auto', height: maxHeight || 'auto', ...style }}>
       {loading && (
         <div style={{ position: 'absolute', color: '#aaa', fontSize: '10px', zIndex: 10 }}>
           Loading...
@@ -395,9 +742,33 @@ const ImageGraphic = forwardRef(({
           maxHeight: '100%',
           objectFit: 'contain',
           imageRendering: 'pixelated',
-          display: (loading || (hasNoScript && animate)) ? 'none' : 'block'
+          display: (loading || (hasNoScript && animate)) ? 'none' : 'block',
+          zIndex: 2
         }}
       ></canvas>
+
+      {overlays.map(ov => (
+        <ImageGraphic
+          key={ov.key}
+          imageId={ov.imageId}
+          animate={true}
+          animationName="Init"
+          direction={direction}
+          playerColor={playerColor}
+          tileset={tileset}
+          parentFrameInfo={currentFrameInfo}
+          maxWidth={2000}
+          maxHeight={2000}
+          style={{
+            position: 'absolute',
+            left: `calc(50% + ${ov.x}px)`,
+            top: `calc(50% + ${ov.y}px)`,
+            transform: 'translate(-50%, -50%)',
+            zIndex: (ov.type === 'imgul' || ov.type === 'sprul') ? 1 : 3,
+            pointerEvents: 'none'
+          }}
+        />
+      ))}
 
       {invalidFrame && !loading && (
         <div style={{ position: 'absolute', color: '#ff5555', fontWeight: 'bold', fontSize: '14px', zIndex: 11, background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: '4px', border: '1px solid #ff5555' }}>

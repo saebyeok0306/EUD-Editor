@@ -82,7 +82,7 @@ export async function generateAllUnitPreviews(onProgress) {
       const tempCanvas = document.createElement('canvas')
       tempCanvas.width = frameData.width
       tempCanvas.height = frameData.height
-      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS['Orange'], drawFunction, remappingNum)
+      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, 'Orange', drawFunction, remappingNum)
 
       // Prepare final preview canvas (max 44x44 for list)
       canvas.width = Math.min(cropWidth, 128)
@@ -170,7 +170,7 @@ export async function generateAllImagePreviews(onProgress) {
       const tempCanvas = document.createElement('canvas')
       tempCanvas.width = frameData.width
       tempCanvas.height = frameData.height
-      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, PLAYER_COLORS['Orange'], drawFunction, remappingNum)
+      renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, 'Orange', drawFunction, remappingNum)
 
       canvas.width = Math.min(cropWidth, 128)
       canvas.height = Math.min(cropHeight, 128)

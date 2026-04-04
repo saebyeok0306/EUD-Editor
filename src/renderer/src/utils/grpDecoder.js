@@ -45,9 +45,10 @@ export function decodeGRP(buffer, frameIndex = 0) {
     
     // console.log(`[GRP Decoder] Size: ${buffer.byteLength}, Frames: ${frameCount}, W: ${width}, H: ${height}`)
 
-    if (frameIndex >= frameCount) {
-      if (frameIndex !== 65535) console.warn(`[GRP Decoder] Frame index ${frameIndex} out of bounds (${frameCount})`);
-      return null;
+    // VB: frame = frame Mod framecount (GRPModule.vb line 536)
+    // Silently wrap out-of-bounds frames instead of failing
+    if (frameCount > 0 && frameIndex >= frameCount) {
+      frameIndex = frameIndex % frameCount
     }
 
     const frameTableOffset = 6 + frameIndex * 8
@@ -127,14 +128,9 @@ export function decodeGRP(buffer, frameIndex = 0) {
   }
 }
 
-
-
-
 function generateColorRamp(r, g, b) {
-  // SC palette: index 8 is lightest, 15 is darkest
   const ramp = [];
   for(let i = 0; i < 8; i++) {
-    // scale brightness from ~1.0 down to ~0.25
     const f = 1.0 - (i / 7) * 0.75; 
     ramp.push([Math.round(r * f), Math.round(g * f), Math.round(b * f)]);
   }
@@ -152,54 +148,92 @@ export const PLAYER_COLORS = {
   Yellow: generateColorRamp(252, 252, 56)
 };
 
-export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null, drawFunction = 0, remappingNum = 0) {
+/**
+ * Render decoded GRP frame to canvas
+ * 
+ * VB logic (GRPModule.vb DrawGRP, lines 576-614):
+ *   - Player color: palette indices 8-15 remapped (only when isremapping = False)
+ *   - RemappingNum: fire/explosion transparency cutoffs
+ *   - DrawFunction 10: shadow rendering
+ * 
+ * @param playerColor - string name (e.g. "Red") or legacy ramp array
+ */
+export function renderToCanvas(ctx, decoded, palette, playerColor = null, drawFunction = 0, remappingNum = 0) {
   const { width, height, data } = decoded
   const imgData = ctx.createImageData(width, height)
   
+  // VB: isremapping flag (GRPModule.vb line 579)
+  // fire/explosion palettes should NOT have player color applied
+  const isRemapping = (drawFunction === 9 && remappingNum >= 1 && remappingNum <= 4)
+
+  // Resolve player color ramp (accept both string name and array)
+  let playerColorRamp = null
+  if (playerColor && !isRemapping) {
+    if (typeof playerColor === 'string') {
+      playerColorRamp = PLAYER_COLORS[playerColor] || null
+    } else if (Array.isArray(playerColor)) {
+      playerColorRamp = playerColor
+    }
+  }
+
+  const isWpe = palette && palette.length >= 1024
+  const paletteStride = isWpe ? 4 : 3
+
   for (let i = 0; i < width * height; i++) {
     const colorIdx = data[i]
     const base = i * 4
 
-    let isTransparent = colorIdx === 0;
+    // Transparency check
+    let isTransparent = colorIdx === 0
+    // VB: RemappingNum-specific transparency (lines 587-599)
     if (drawFunction === 9) {
-      if ((remappingNum === 1 || remappingNum === 4) && colorIdx > 64) isTransparent = true;
-      else if (remappingNum === 3 && colorIdx > 41) isTransparent = true;
-      else if (remappingNum === 2 && colorIdx > 33) isTransparent = true;
+      if ((remappingNum === 1 || remappingNum === 4) && colorIdx > 64) isTransparent = true
+      else if (remappingNum === 3 && colorIdx > 41) isTransparent = true
+      else if (remappingNum === 2 && colorIdx > 33) isTransparent = true
     }
 
     if (isTransparent) {
-      // transparent
       imgData.data[base + 0] = 0
       imgData.data[base + 1] = 0
       imgData.data[base + 2] = 0
       imgData.data[base + 3] = 0
     } else if (drawFunction === 10) {
-      // shadow: black with 50% opacity
+      // Shadow: black with 50% opacity
       imgData.data[base + 0] = 0
       imgData.data[base + 1] = 0
       imgData.data[base + 2] = 0
       imgData.data[base + 3] = 128
+    } else if (drawFunction === 9) {
+      // Engine glow / fire effects: additive blending approximation
+      // In StarCraft, these use additive blend mode (colors ADD to background)
+      // We approximate by using the palette color with alpha proportional to brightness
+      if (palette && (colorIdx * paletteStride + 2) < palette.length) {
+        const r = palette[colorIdx * paletteStride + 0]
+        const g = palette[colorIdx * paletteStride + 1]
+        const b = palette[colorIdx * paletteStride + 2]
+        // Brighter pixels = more visible glow
+        const brightness = Math.max(r, g, b)
+        imgData.data[base + 0] = r
+        imgData.data[base + 1] = g
+        imgData.data[base + 2] = b
+        imgData.data[base + 3] = Math.min(255, brightness + 60)
+      }
     } else if (playerColorRamp && colorIdx >= 8 && colorIdx <= 15) {
-      // Player color override (indices 8-15)
+      // VB: Player color override (indices 8-15)
+      // Only applied when isremapping = False
       const rampColor = playerColorRamp[colorIdx - 8]
       imgData.data[base + 0] = rampColor[0]
       imgData.data[base + 1] = rampColor[1]
       imgData.data[base + 2] = rampColor[2]
       imgData.data[base + 3] = 255
     } else {
-      const isWpe = palette && palette.length >= 1024
-      const stride = isWpe ? 4 : 3
-
-      // Ensure index is within palette range
-      if (palette && (colorIdx * stride + 2) < palette.length) {
-        imgData.data[base + 0] = palette[colorIdx * stride + 0]
-        imgData.data[base + 1] = palette[colorIdx * stride + 1]
-        imgData.data[base + 2] = palette[colorIdx * stride + 2]
+      // Normal palette lookup
+      if (palette && (colorIdx * paletteStride + 2) < palette.length) {
+        imgData.data[base + 0] = palette[colorIdx * paletteStride + 0]
+        imgData.data[base + 1] = palette[colorIdx * paletteStride + 1]
+        imgData.data[base + 2] = palette[colorIdx * paletteStride + 2]
         imgData.data[base + 3] = 255
       } else {
-        // Fallback or shadow handling? 
-        // For indices 1-7 in low-palette, they might be shadows. 
-        // We'll just render it as partial transparency for now or dark gray.
         const brightness = (colorIdx === 0) ? 0 : colorIdx
         imgData.data[base + 0] = brightness
         imgData.data[base + 1] = brightness
@@ -211,3 +245,4 @@ export function renderToCanvas(ctx, decoded, palette, playerColorRamp = null, dr
   
   ctx.putImageData(imgData, 0, 0)
 }
+

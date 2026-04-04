@@ -147,6 +147,28 @@ const en = {
   'unit.sound.whatEnd': 'What (Last)',
   'unit.sound.pissStart': 'Piss (First)',
   'unit.sound.pissEnd': 'Piss (Last)',
+  
+  // Image Tab
+  'image.prop.drawFunction': 'Draw Function',
+  'image.prop.remapping': 'Remapping',
+  'image.draw.0': 'Normal Draw',
+  'image.draw.1': 'Unknown 1',
+  'image.draw.2': 'Enemy Cloaking (Spell)',
+  'image.draw.3': 'Own Cloaking (Spell 1)',
+  'image.draw.4': 'Allied Cloaking',
+  'image.draw.5': 'Own Cloaking (Spell 2)',
+  'image.draw.6': 'Own Cloaking (Draw only)',
+  'image.draw.7': '(Crash)',
+  'image.draw.8': 'EMP Shockwave',
+  'image.draw.9': 'Use Remapping',
+  'image.draw.10': 'Shadow or Water (dark.pcx)',
+  'image.draw.11': 'Unknown 11',
+  'image.draw.12': 'Warp Flash (Editor Crash)',
+  'image.draw.13': 'Flipped Graphic',
+  'image.draw.14': 'Unknown 14',
+  'image.draw.15': 'Hide Graphic',
+  'image.draw.16': 'Hallucination Effect',
+  'image.draw.17': 'Warp Flash',
 }
 
 export default en

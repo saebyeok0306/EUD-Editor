@@ -147,6 +147,28 @@ const ko = {
   'unit.sound.whatEnd': '물어봄(마지막)',
   'unit.sound.pissStart': '짜증(첫번째)',
   'unit.sound.pissEnd': '짜증(마지막)',
+  
+  // Image Tab
+  'image.prop.drawFunction': '기능 (Draw)',
+  'image.prop.remapping': '색상표 (Remap)',
+  'image.draw.0': '기본 그리기',
+  'image.draw.1': '알 수 없음 1',
+  'image.draw.2': '적 클로킹 (마법)',
+  'image.draw.3': '자신의 클로킹 (마법 1)',
+  'image.draw.4': '동맹 클로킹',
+  'image.draw.5': '자신의 클로킹 (마법 2)',
+  'image.draw.6': '자신의 클로킹 (표시만)',
+  'image.draw.7': '(다운됨)',
+  'image.draw.8': 'EMP 쇼크웨이브',
+  'image.draw.9': '다시 그리기',
+  'image.draw.10': '그림자/해양 (dark.pcx)',
+  'image.draw.11': '알 수 없음 11',
+  'image.draw.12': '워프 번쩍임',
+  'image.draw.13': '그래픽 반대방향 (초록색)',
+  'image.draw.14': '알 수 없음 14',
+  'image.draw.15': '그래픽 숨기기',
+  'image.draw.16': '할루시네이션 효과',
+  'image.draw.17': '워프 플래시',
 }
 
 export default ko

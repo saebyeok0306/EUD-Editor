@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { getUnitsData, getFlingyData, getSpritesData } from '../../utils/datStore'
 import ImageGraphic from './ImageGraphic'
 
-export default function UnitGraphic({ 
-  unitId, 
-  onDebugInfo, 
-  animationName = 'Walking',
-  ...props 
+export default function UnitGraphic({
+  unitId,
+  onDebugInfo,
+  animationName = 'Init',
+  ...props
 }) {
   const [imageId, setImageId] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
@@ -33,7 +33,7 @@ export default function UnitGraphic({
 
       const spriteId = flingyData[fId]['Sprite']
       const resolvedImageId = spritesData[spriteId]['Image File']
-      
+
       setFlingyId(fId)
       setImageId(resolvedImageId)
 
@@ -60,8 +60,8 @@ export default function UnitGraphic({
   }
 
   return (
-    <ImageGraphic 
-      imageId={imageId} 
+    <ImageGraphic
+      imageId={imageId}
       animationName={animationName}
       {...props}
       onDebugInfo={(info) => {

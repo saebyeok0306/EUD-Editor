@@ -153,6 +153,8 @@ const ImageGraphic = forwardRef(({
         // Get GRP frame count for bounds checking (VB: curretgrpMaxFrame)
         const grpView = new DataView(grpBuffer.buffer, grpBuffer.byteOffset, grpBuffer.byteLength)
         const grpFrameCount = grpView.getUint16(0, true)
+        const grpWidth = grpView.getUint16(2, true)
+        const grpHeight = grpView.getUint16(4, true)
 
         // VB: currentFrame (base frame index, NOT the final displayed frame)
         let currentFrame = 0
@@ -334,6 +336,12 @@ const ImageGraphic = forwardRef(({
             executionCount++
             const script = sharedIscriptData.labels[currentScriptLabel]
             if (!script || scriptIndex >= script.length) break
+            // if (!script) break
+            // // If we've reached the end of this script block, loop back to start
+            // // (VB binary parser naturally continues to next byte; our label system needs explicit loop)
+            // if (scriptIndex >= script.length) {
+            //   scriptIndex = 0
+            // }
 
             const instr = script[scriptIndex]
             const { opcode, args } = instr
@@ -747,28 +755,33 @@ const ImageGraphic = forwardRef(({
         }}
       ></canvas>
 
-      {overlays.map(ov => (
-        <ImageGraphic
-          key={ov.key}
-          imageId={ov.imageId}
-          animate={true}
-          animationName="Init"
-          direction={direction}
-          playerColor={playerColor}
-          tileset={tileset}
-          parentFrameInfo={currentFrameInfo}
-          maxWidth={2000}
-          maxHeight={2000}
-          style={{
-            position: 'absolute',
-            left: `calc(50% + ${ov.x}px)`,
-            top: `calc(50% + ${ov.y}px)`,
-            transform: 'translate(-50%, -50%)',
-            zIndex: (ov.type === 'imgul' || ov.type === 'sprul') ? 1 : 3,
-            pointerEvents: 'none'
-          }}
-        />
-      ))}
+      {overlays.map(ov => {
+        const isFlipped = currentFrameInfo.current?.flip || false
+        const adjustedX = isFlipped ? -ov.x : ov.x
+
+        return (
+          <ImageGraphic
+            key={ov.key}
+            imageId={ov.imageId}
+            animate={true}
+            animationName="Init"
+            direction={direction}
+            playerColor={playerColor}
+            tileset={tileset}
+            parentFrameInfo={currentFrameInfo}
+            maxWidth={2000}
+            maxHeight={2000}
+            style={{
+              position: 'absolute',
+              left: `calc(50% + ${adjustedX}px)`,
+              top: `calc(50% + ${ov.y}px)`,
+              transform: 'translate(-50%, -50%)',
+              zIndex: (ov.type === 'imgul' || ov.type === 'sprul') ? 1 : 3,
+              pointerEvents: 'none'
+            }}
+          />
+        )
+      })}
 
       {invalidFrame && !loading && (
         <div style={{ position: 'absolute', color: '#ff5555', fontWeight: 'bold', fontSize: '14px', zIndex: 11, background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: '4px', border: '1px solid #ff5555' }}>

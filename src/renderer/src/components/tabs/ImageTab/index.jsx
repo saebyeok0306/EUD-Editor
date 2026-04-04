@@ -253,10 +253,10 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
       const imagesData = getImagesData()
       if (imagesData && imagesData[selectedItem]) {
         const iscriptId = imagesData[selectedItem]['Iscript ID'] & 0xFFFF
-        const header = iscriptData.headers.find(h => h.is_id === iscriptId)
-        if (header && header.entry_points && header.entry_points.hasOwnProperty('Walking') && header.entry_points['Walking'] !== null) {
-          defaultAnim = 'Walking'
-        }
+        // const header = iscriptData.headers.find(h => h.is_id === iscriptId)
+        // if (header && header.entry_points && header.entry_points.hasOwnProperty('Walking') && header.entry_points['Walking'] !== null) {
+        //   defaultAnim = 'Walking'
+        // }
       }
     }
     setSelectedAnimation(defaultAnim)

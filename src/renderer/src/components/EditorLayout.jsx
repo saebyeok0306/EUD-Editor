@@ -18,7 +18,7 @@ function EditorLayout({
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0])
 
   return (
-    <div className="editor-layout" style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: 'var(--color-background-soft)' }}>
+    <div className="editor-layout" style={{ display: 'flex', width: '100vw', height: 'calc(100vh - 32px)', backgroundColor: 'var(--color-background-soft)' }}>
       <Sidebar
         mapData={mapData}
         categories={CATEGORIES}

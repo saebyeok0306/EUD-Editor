@@ -5,6 +5,7 @@ import { initDatStore } from './utils/datStore'
 import { I18nProvider } from './i18n/i18nContext'
 import { UNIT_GROUPS } from './constants/unitGroups'
 import SetupScreen from './components/SetupScreen'
+import TitleBar from './components/TitleBar'
 
 function App() {
   const [mapData, setMapData] = useState(null)
@@ -44,6 +45,7 @@ function App() {
   const handleCloseMap = () => {
     setMapData(null)
     setProjectData({ units: {}, weapons: {}, upgrades: {}, images: {} })
+    window.api.resetWindowSize()
   }
 
   const updateProjectUnit = (unitId, field, value) => {
@@ -103,21 +105,28 @@ function App() {
 
   return (
     <I18nProvider>
-      {scPath === null ? (
-        <SetupScreen onCompleted={(path) => setScPath(path)} />
-      ) : mapData ? (
-        <EditorLayout 
-          mapData={mapData} 
-          projectData={projectData}
-          datReady={datReady} 
+      <div className="app-container">
+        <TitleBar 
+          onOpenScx={handleOpenScx} 
           onCloseMap={handleCloseMap} 
-          onUpdateProjectUnit={updateProjectUnit}
-          onResetProjectUnit={resetProjectUnit}
-          onUpdateProjectData={updateProjectData}
+          mapLoaded={!!mapData} 
         />
-      ) : (
-        <StartScreen onOpenScx={handleOpenScx} />
-      )}
+        {scPath === null ? (
+          <SetupScreen onCompleted={(path) => setScPath(path)} />
+        ) : mapData ? (
+          <EditorLayout 
+            mapData={mapData} 
+            projectData={projectData}
+            datReady={datReady} 
+            onCloseMap={handleCloseMap} 
+            onUpdateProjectUnit={updateProjectUnit}
+            onResetProjectUnit={resetProjectUnit}
+            onUpdateProjectData={updateProjectData}
+          />
+        ) : (
+          <StartScreen onOpenScx={handleOpenScx} />
+        )}
+      </div>
     </I18nProvider>
   )
 }

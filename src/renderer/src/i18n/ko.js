@@ -3,6 +3,14 @@ const ko = {
   'start.subtitle': 'EUD Editor',
   'start.tip': '스타크래프트 맵 파일을 불러오려면 아래를 클릭하세요.',
   'start.openFile': 'SCX/SCM 파일 열기',
+  'start.openFileDesc': '기존 SCX/SCM 파일을 불러옵니다.',
+  'start.recentMaps': '최근 작업한 맵',
+  'start.quickActions': '빠른 시작',
+  'start.newFile': '새로운 맵 만들기',
+  'start.newFileDesc': '자체 템플릿으로 새 프로젝트를 시작합니다.',
+  'start.settings': '설정',
+  'start.settingsDesc': '에디터 환경 설정을 변경합니다.',
+  'start.recentEmpty': '최근 작업한 내역이 없습니다.',
 
   // Sidebar
   'sidebar.size': '크기',

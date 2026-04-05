@@ -1,8 +1,16 @@
 const en = {
   // StartScreen
   'start.subtitle': 'EUD Editor',
-  'start.tip': 'Click below to parse a Starcraft Map file.',
+  'start.tip': 'Select a Starcraft map file to start editing.',
   'start.openFile': 'Open SCX/SCM File',
+  'start.openFileDesc': 'Load an existing SCX/SCM map.',
+  'start.recentMaps': 'Recent Maps',
+  'start.quickActions': 'Quick Actions',
+  'start.newFile': 'Create New Map',
+  'start.newFileDesc': 'Start a new project with a template.',
+  'start.settings': 'Settings',
+  'start.settingsDesc': 'Configure editor environment.',
+  'start.recentEmpty': 'No recent maps found.',
 
   // Sidebar
   'sidebar.size': 'Size',

@@ -25,7 +25,8 @@ function createWindow() {
     minWidth: 1140,
     height: 670,
     show: false,
-    autoHideMenuBar: false,
+    frame: false,
+    backgroundColor: '#1b1b1f',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -38,8 +39,6 @@ function createWindow() {
     mainWindow.show()
     // Open DevTools even in production for debugging
     mainWindow.webContents.openDevTools()
-    // Build initial menu (default language: ko)
-    buildMenu('ko', mainWindow)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -56,104 +55,6 @@ function createWindow() {
   }
 }
 
-function setLanguage(lang, mainWindow) {
-  const isoLabel = lang === 'ko' ? '한국어' : 'English'
-  console.log(`[i18n] Language changed to: ${isoLabel}`)
-
-  buildMenu(lang, mainWindow)
-  mainWindow.webContents.send('language-changed', lang)
-}
-
-function buildMenu(currentLang, mainWindow) {
-  const template = [
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Open SCX/SCM',
-          accelerator: 'CmdOrCtrl+O',
-          click: () => mainWindow.webContents.send('menu:open-scx')
-        },
-        { type: 'separator' },
-        { role: 'quit', label: 'Quit' }
-      ]
-    },
-    {
-      label: 'Language',
-      submenu: [
-        {
-          label: '한국어',
-          type: 'radio',
-          checked: currentLang === 'ko',
-          click: () => setLanguage('ko', mainWindow)
-        },
-        {
-          label: 'English',
-          type: 'radio',
-          checked: currentLang === 'en',
-          click: () => setLanguage('en', mainWindow)
-        }
-      ]
-    },
-    {
-      label: 'Test',
-      submenu: [
-        {
-          label: 'Delete settings.json',
-          click: async () => {
-            const { response } = await dialog.showMessageBox(mainWindow, {
-              type: 'warning',
-              buttons: ['Cancel', 'Delete'],
-              defaultId: 0,
-              title: 'Delete settings.json',
-              message: 'Are you sure you want to delete settings.json? The application will be reset and closed.',
-            })
-
-            if (response === 1) {
-              const success = deleteSettings()
-              if (success) {
-                app.quit()
-              } else {
-                dialog.showErrorBox('Error', 'Failed to delete settings.json')
-              }
-            }
-          }
-        },
-        {
-          label: 'Delete casc.datapack',
-          click: async () => {
-            const { response } = await dialog.showMessageBox(mainWindow, {
-              type: 'warning',
-              buttons: ['Cancel', 'Delete'],
-              defaultId: 0,
-              title: 'Delete casc.datapack',
-              message: 'Are you sure you want to delete casc.datapack? The graphics data will be removed and you will need to setup Starcraft path again.',
-            })
-
-            if (response === 1) {
-              try {
-                const userDataPath = app.getPath('userData')
-                const packPath = path.join(userDataPath, 'casc.datapack')
-                if (fs.existsSync(packPath)) {
-                  fs.unlinkSync(packPath)
-                  deleteSettings() // Removing datapack also requires setup reset
-                  app.quit()
-                } else {
-                  dialog.showMessageBox(mainWindow, { type: 'info', message: 'casc.datapack not found.', buttons: ['OK'] })
-                }
-              } catch (err) {
-                dialog.showErrorBox('Error', 'Failed to delete casc.datapack: ' + err.message)
-              }
-            }
-          }
-        }
-      ]
-    }
-  ]
-
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -172,6 +73,38 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.on('window:resetSize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win) {
+      if (win.isMaximized()) {
+        win.unmaximize()
+      }
+      win.setSize(1140, 670)
+      win.center()
+    }
+  })
+
+  ipcMain.on('window:minimize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win) win.minimize()
+  })
+
+  ipcMain.on('window:maximize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win) {
+      if (win.isMaximized()) {
+        win.unmaximize()
+      } else {
+        win.maximize()
+      }
+    }
+  })
+
+  ipcMain.on('window:close', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win) win.close()
+  })
 
   ipcMain.handle('dialog:openScx', async (event) => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -423,6 +356,53 @@ app.whenReady().then(() => {
     } catch (err) {
       console.error('Extraction error:', err)
       return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle('app:deleteSettings', async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const { response } = await dialog.showMessageBox(win, {
+      type: 'warning',
+      buttons: ['Cancel', 'Delete'],
+      defaultId: 0,
+      title: 'Delete settings.json',
+      message: 'Are you sure you want to delete settings.json? The application will be reset and closed.',
+    })
+
+    if (response === 1) {
+      const success = deleteSettings()
+      if (success) {
+        app.quit()
+      } else {
+        dialog.showErrorBox('Error', 'Failed to delete settings.json')
+      }
+    }
+  })
+
+  ipcMain.handle('app:deleteDatapack', async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const { response } = await dialog.showMessageBox(win, {
+      type: 'warning',
+      buttons: ['Cancel', 'Delete'],
+      defaultId: 0,
+      title: 'Delete casc.datapack',
+      message: 'Are you sure you want to delete casc.datapack? The graphics data will be removed and you will need to setup Starcraft path again.',
+    })
+
+    if (response === 1) {
+      try {
+        const userDataPath = app.getPath('userData')
+        const packPath = path.join(userDataPath, 'casc.datapack')
+        if (fs.existsSync(packPath)) {
+          fs.unlinkSync(packPath)
+          deleteSettings()
+          app.quit()
+        } else {
+          dialog.showMessageBox(win, { type: 'info', message: 'casc.datapack not found.', buttons: ['OK'] })
+        }
+      } catch (err) {
+        dialog.showErrorBox('Error', 'Failed to delete casc.datapack: ' + err.message)
+      }
     }
   })
 

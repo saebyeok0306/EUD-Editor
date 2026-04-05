@@ -26,7 +26,13 @@ const api = {
   getUnitPreviewUrl: (unitId) => ipcRenderer.invoke('app:getUnitPreviewUrl', unitId),
   saveImagePreview: (imageId, dataUrl) => ipcRenderer.invoke('app:saveImagePreview', { imageId, dataUrl }),
   getImagePreviewUrl: (imageId) => ipcRenderer.invoke('app:getImagePreviewUrl', imageId),
-  getUserDataPath: () => ipcRenderer.invoke('app:getUserDataPath')
+  getUserDataPath: () => ipcRenderer.invoke('app:getUserDataPath'),
+  resetWindowSize: () => ipcRenderer.send('window:resetSize'),
+  minimize: () => ipcRenderer.send('window:minimize'),
+  maximize: () => ipcRenderer.send('window:maximize'),
+  close: () => ipcRenderer.send('window:close'),
+  deleteSettings: () => ipcRenderer.invoke('app:deleteSettings'),
+  deleteDatapack: () => ipcRenderer.invoke('app:deleteDatapack')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

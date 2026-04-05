@@ -10,6 +10,12 @@ export default function TitleBar({ onOpenScx, onCloseMap, mapLoaded }) {
     setActiveMenu(activeMenu === menu ? null : menu)
   }
 
+  const handleMouseEnter = (menu) => {
+    if (activeMenu) {
+      setActiveMenu(menu)
+    }
+  }
+
   const closeMenu = () => setActiveMenu(null)
 
   useEffect(() => {
@@ -39,7 +45,12 @@ export default function TitleBar({ onOpenScx, onCloseMap, mapLoaded }) {
 
         <div className="menu-items">
           <div className={`menu-item ${activeMenu === 'file' ? 'active' : ''}`}>
-            <button onClick={() => toggleMenu('file')}>File</button>
+            <button 
+              onClick={() => toggleMenu('file')}
+              onMouseEnter={() => handleMouseEnter('file')}
+            >
+              File
+            </button>
             {activeMenu === 'file' && (
               <div className="dropdown-menu">
                 <div className="menu-row" onClick={() => { onOpenScx(); closeMenu(); }}>
@@ -60,7 +71,12 @@ export default function TitleBar({ onOpenScx, onCloseMap, mapLoaded }) {
           </div>
 
           <div className={`menu-item ${activeMenu === 'language' ? 'active' : ''}`}>
-            <button onClick={() => toggleMenu('language')}>Language</button>
+            <button 
+              onClick={() => toggleMenu('language')}
+              onMouseEnter={() => handleMouseEnter('language')}
+            >
+              Language
+            </button>
             {activeMenu === 'language' && (
               <div className="dropdown-menu">
                 <div className="menu-row" onClick={() => { changeLanguage('ko'); closeMenu(); }}>
@@ -76,7 +92,12 @@ export default function TitleBar({ onOpenScx, onCloseMap, mapLoaded }) {
           </div>
 
           <div className={`menu-item ${activeMenu === 'test' ? 'active' : ''}`}>
-            <button onClick={() => toggleMenu('test')}>Test</button>
+            <button 
+              onClick={() => toggleMenu('test')}
+              onMouseEnter={() => handleMouseEnter('test')}
+            >
+              Test
+            </button>
             {activeMenu === 'test' && (
               <div className="dropdown-menu">
                 <div className="menu-row" onClick={() => { window.api.deleteSettings(); closeMenu(); }}>

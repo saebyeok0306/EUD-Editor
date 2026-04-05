@@ -14,9 +14,10 @@
 
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle, useCallback } from 'react'
 import { getImagesData, getImagesTbl, getSpritesData } from '../../utils/datStore'
-import { decodeGRP, renderToCanvas } from '../../utils/grpDecoder'
+import { decodeGRP, renderToCanvas, decodeAndRenderGRP } from '../../utils/grpDecoder'
 import { loadPalette } from '../../utils/paletteLoader'
 import iscriptJsonUrl from '../../data/iscript_data.json?url'
+import { isIscriptWasmReady, initIscriptDataRaw, getIscriptLabel, createIscriptState, stepIscriptLogic } from '../../utils/iscriptWasm'
 
 let sharedIscriptData = null
 const graphicCache = new Map()
@@ -84,7 +85,8 @@ const ImageGraphic = forwardRef(({
     scriptIndex: 0,
     callStack: [],
     iscriptHistory: [],
-    lastRenderState: null
+    lastRenderState: null,
+    wasmState: null
   })
 
   // Reset ended state ONLY when a genuinely new animation starts.
@@ -103,7 +105,8 @@ const ImageGraphic = forwardRef(({
       scriptIndex: 0,
       callStack: [],
       iscriptHistory: [],
-      lastRenderState: null
+      lastRenderState: null,
+      // wasmState persists across init
     }
   }, [imageId, animationName, restartKey])
 
@@ -185,7 +188,11 @@ const ImageGraphic = forwardRef(({
           try {
             const response = await fetch(iscriptJsonUrl)
             if (response.ok) {
-              sharedIscriptData = await response.json()
+              const text = await response.text()
+              sharedIscriptData = JSON.parse(text)
+              if (isIscriptWasmReady()) {
+                initIscriptDataRaw(text)
+              }
             }
           } catch (e) {
             console.error('[ImageGraphic] iscript_data.json load failed:', e)
@@ -261,7 +268,8 @@ const ImageGraphic = forwardRef(({
           let cached = decodedFrameCache.get(fIdx)
 
           if (!cached) {
-            const frameData = decodeGRP(grpBuffer, fIdx)
+            // Use the combined Rust WASM decoder + renderer for high performance
+            const frameData = decodeAndRenderGRP(grpBuffer, fIdx, paletteToUse, playerColor, drawFunction, remappingNum)
             if (!frameData) {
               if (active) setInvalidFrame(true)
               canvasRef.current.width = maxWidth || 100
@@ -277,9 +285,11 @@ const ImageGraphic = forwardRef(({
             if (autoCrop) {
               let minX = frameData.width, minY = frameData.height, maxXb = 0, maxYb = 0
               const pixels = frameData.data
+              const isRgba = pixels.length === frameData.width * frameData.height * 4
               for (let y = 0; y < frameData.height; y++) {
                 for (let x = 0; x < frameData.width; x++) {
-                  if (pixels[y * frameData.width + x] !== 0) {
+                  const idx = isRgba ? ((y * frameData.width + x) * 4 + 3) : (y * frameData.width + x)
+                  if (pixels[idx] !== 0) {
                     if (x < minX) minX = x; if (y < minY) minY = y
                     if (x > maxXb) maxXb = x; if (y > maxYb) maxYb = y
                   }
@@ -294,7 +304,14 @@ const ImageGraphic = forwardRef(({
             const tempCanvas = document.createElement('canvas')
             tempCanvas.width = frameData.width
             tempCanvas.height = frameData.height
-            renderToCanvas(tempCanvas.getContext('2d'), frameData, paletteToUse, playerColor, drawFunction, remappingNum)
+            const tempCtx = tempCanvas.getContext('2d')
+            // If it's already RGBA from WASM, just putImageData
+            if (frameData.data.length === frameData.width * frameData.height * 4) {
+              const imgData = new ImageData(new Uint8ClampedArray(frameData.data), frameData.width, frameData.height)
+              tempCtx.putImageData(imgData, 0, 0)
+            } else {
+              renderToCanvas(tempCtx, frameData, paletteToUse, playerColor, drawFunction, remappingNum)
+            }
 
             cached = { tempCanvas, cropWidth, cropHeight, offsetX, offsetY }
             decodedFrameCache.set(fIdx, cached)
@@ -333,38 +350,43 @@ const ImageGraphic = forwardRef(({
         const iscriptId = itemData['Iscript ID'] & 0xFFFF
 
         if (sharedIscriptData && (!state.initialized || (!parentFrameInfo && animationEndedRef.current))) {
-          const header = sharedIscriptData.headers.find(h => h.is_id === iscriptId)
-          if (header && header.entry_points) {
-            let entryPoint = header.entry_points[animationName]
-
-            // Fallback chain
-            if (!entryPoint) {
-              entryPoint = header.entry_points.Init ||
-                header.entry_points.Walking ||
-                Object.values(header.entry_points).find(v => v !== null)
-            }
-
-            if (!entryPoint) {
-              if (active) { setHasNoScript(true); setLoading(false) }
-              return
-            } else {
-              if (active) setHasNoScript(false)
-              if (sharedIscriptData.labels[entryPoint]) {
-                state.currentScriptLabel = entryPoint
-                state.originalScriptLabel = entryPoint
-                state.scriptIndex = 0
-                state.callStack = []
-                state.iscriptHistory = []
-                state.currentFrame = 0
-                state.posX = 0
-                state.posY = 0
-                state.lastRenderState = null
-                state.initialized = true
-                animationEndedRef.current = false
-                setOverlays([])
-                activeOverlaysRef.current.clear()
+          let entryPoint = null
+          if (isIscriptWasmReady() && state.wasmState) {
+            entryPoint = getIscriptLabel(iscriptId, animationName)
+          } else {
+            const header = sharedIscriptData.headers.find(h => h.is_id === iscriptId)
+            if (header && header.entry_points) {
+              entryPoint = header.entry_points[animationName]
+              if (!entryPoint) {
+                entryPoint = header.entry_points.Init || header.entry_points.Walking || Object.values(header.entry_points).find(v => v !== null)
               }
             }
+          }
+
+          if (!entryPoint) {
+            if (active) { setHasNoScript(true); setLoading(false) }
+            return
+          } else {
+            if (active) setHasNoScript(false)
+            if (isIscriptWasmReady() && !state.wasmState) {
+              state.wasmState = createIscriptState()
+            }
+            if (state.wasmState) {
+              state.wasmState.reset(entryPoint)
+            }
+            state.currentScriptLabel = entryPoint
+            state.originalScriptLabel = entryPoint
+            state.scriptIndex = 0
+            state.callStack = []
+            state.iscriptHistory = []
+            state.currentFrame = 0
+            state.posX = 0
+            state.posY = 0
+            state.lastRenderState = null
+            state.initialized = true
+            animationEndedRef.current = false
+            setOverlays([])
+            activeOverlaysRef.current.clear()
           }
         }
 
@@ -386,363 +408,76 @@ const ImageGraphic = forwardRef(({
          */
         const processIScriptBlock = () => {
           state.iscriptHistory.push({
-            currentScriptLabel: state.currentScriptLabel,
+            currentScriptLabel: state.wasmState ? state.wasmState.get_label() : state.currentScriptLabel,
             originalScriptLabel: state.originalScriptLabel,
-            scriptIndex: state.scriptIndex,
-            currentFrame: state.currentFrame,
-            posX: state.posX, posY: state.posY,
+            scriptIndex: state.wasmState ? state.wasmState.get_script_index() : state.scriptIndex,
+            currentFrame: state.wasmState ? state.wasmState.current_frame : state.currentFrame,
+            posX: state.wasmState ? state.wasmState.pos_x : state.posX, 
+            posY: state.wasmState ? state.wasmState.pos_y : state.posY,
             renderState: state.lastRenderState ? { ...state.lastRenderState } : { fIdx: 0, flip: false },
             activeOverlayKeys: Array.from(activeOverlaysRef.current)
           })
 
           let waitTicks = 0
-          let executionCount = 0
 
-          while (waitTicks === 0 && state.currentScriptLabel && executionCount < 200) {
-            executionCount++
-            const script = sharedIscriptData.labels[state.currentScriptLabel]
-            if (!script || state.scriptIndex >= script.length) break
-            // if (!script) break
-            // // If we've reached the end of this script block, loop back to start
-            // // (VB binary parser naturally continues to next byte; our label system needs explicit loop)
-            // if (state.scriptIndex >= script.length) {
-            //   state.scriptIndex = 0
-            // }
+          // Use WASM if available
+          if (isIscriptWasmReady() && state.wasmState) {
+            waitTicks = stepIscriptLogic(state.wasmState, grpFrameCount)
+            
+            // Sync state back
+            state.currentScriptLabel = state.wasmState.get_label()
+            state.scriptIndex = state.wasmState.get_script_index()
+            state.currentFrame = state.wasmState.current_frame
+            state.posX = state.wasmState.pos_x
+            state.posY = state.wasmState.pos_y
 
-            const instr = script[state.scriptIndex]
-            const { opcode, args } = instr
-
-            switch (opcode) {
-              // ===== 0x00: playfram =====
-              // VB: state.currentFrame = values(0); drawImageGRP(GetFrameNum, ...)
-              case 'playfram': {
-                state.currentFrame = parseInt(args[0], args[0].startsWith('0x') ? 16 : 10)
-                // Bounds check
-                if (grpFrameCount > 0 && state.currentFrame >= grpFrameCount) {
-                  state.currentFrame = state.currentFrame % grpFrameCount
-                }
-                drawWithDirection()
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x01: playframtile =====
-              // VB: NOT handled (no Case &H1 in Select Case) → NO-OP
-              // This command is tileset-dependent and not relevant for previewer
-              case 'playframtile': {
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x02: sethorpos =====
-              // VB: x = values(0); drawImageGRP(GetFrameNum, turnStatus, x, y)
-              case 'sethorpos': {
-                let val = parseInt(args[0])
-                if (val > 127) val -= 256  // signed byte
-                state.posX = val
-                drawWithDirection()
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x03: setvertpos =====
-              // VB: y = values(0); drawImageGRP(GetFrameNum, turnStatus, x, y)
-              case 'setvertpos': {
-                let val = parseInt(args[0])
-                if (val > 127) val -= 256  // signed byte
-                state.posY = val
-                drawWithDirection()
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x04: setpos =====
-              // VB: x = values(0); y = values(1); drawImageGRP(...)
-              case 'setpos': {
-                let vx = parseInt(args[0])
-                let vy = parseInt(args[1])
-                if (vx > 127) vx -= 256
-                if (vy > 127) vy -= 256
-                state.posX = vx
-                state.posY = vy
-                drawWithDirection()
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x05: wait =====
-              // VB: iscirpt_wait = values(0)
-              case 'wait': {
-                waitTicks = parseInt(args[0]) || 1
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x06: waitrand =====
-              // VB: selectv = random.Next(values(0), values(1)); iscirpt_wait = selectv
-              case 'waitrand': {
-                const min = parseInt(args[0]) || 1
-                const max = parseInt(args[1]) || min
-                waitTicks = min + Math.floor(Math.random() * (max - min + 1))
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x07: goto =====
-              // VB: currentHeader = values(0)
-              case 'goto': {
-                const targetLabel = args[0]
-                if (sharedIscriptData.labels[targetLabel]) {
-                  state.currentScriptLabel = targetLabel
-                  state.scriptIndex = 0
-                } else {
-                  state.currentScriptLabel = null
-                }
-                break
-              }
-
-              // ===== 0x08: imgol / 0x09: imgul =====
-              // These use IMAGE IDs directly (from images.dat)
-              case 'imgol':
-              case 'imgul': {
-                const overlayId = parseInt(args[0])
-                let oX = parseInt(args[1] || 0)
-                let oY = parseInt(args[2] || 0)
-                if (oX > 127) oX -= 256
-                if (oY > 127) oY -= 256
-                const newKey = `${opcode}_${overlayId}_${overlayCounterRef.current++}`
+            // Process Overlays
+            const overlaysToPush = state.wasmState.pop_overlays()
+            for (let i = 0; i < overlaysToPush.length; i++) {
+              const o = overlaysToPush[i]
+              const { opcode, id, x, y } = o
+              
+              if (opcode === 'end') {
+                 // Should be true because we set it
+              } else if (opcode === 'imgol' || opcode === 'imgul' || opcode === 'imgolorig' || opcode === 'imgulnextid') {
+                const targetId = (opcode === 'imgulnextid') ? imageId + 1 : id
+                const newKey = `${opcode}_${targetId}_${overlayCounterRef.current++}`
                 activeOverlaysRef.current.add(newKey)
-                setOverlays(prev => [...prev, { imageId: overlayId, x: oX, y: oY, type: opcode, key: newKey }])
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x0F: sprol / 0x10: highsprol / 0x14: sprul =====
-              // These use SPRITE IDs (from sprites.dat) — must resolve to image ID!
-              // VB: sprol spawns a sprite, the visual comes from sprites.dat[sprite#]['Image File']
-              case 'sprol':
-              case 'highsprol':
-              case 'sprul': {
-                const spriteId = parseInt(args[0])
-                let oX = parseInt(args[1] || 0)
-                let oY = parseInt(args[2] || 0)
-                if (oX > 127) oX -= 256
-                if (oY > 127) oY -= 256
-                // Resolve sprite ID → image ID via sprites.dat
+                setOverlays(prev => [...prev, { imageId: targetId, x: x, y: y, type: opcode, key: newKey }])
+              } else if (opcode === 'sprol' || opcode === 'highsprol' || opcode === 'sprul') {
                 const spritesData = getSpritesData()
-                const resolvedImageId = spritesData?.[spriteId]?.['Image File']
-                if (resolvedImageId === undefined || resolvedImageId === null) {
-                  state.scriptIndex++
-                  break
+                const resolvedImageId = spritesData?.[id]?.['Image File']
+                if (resolvedImageId !== undefined && resolvedImageId !== null) {
+                  const newKey = `${opcode}_${resolvedImageId}_${overlayCounterRef.current++}`
+                  activeOverlaysRef.current.add(newKey)
+                  setOverlays(prev => [...prev, { imageId: resolvedImageId, x: x, y: y, type: opcode, key: newKey }])
                 }
-                const newKey = `${opcode}_${resolvedImageId}_${overlayCounterRef.current++}`
-                activeOverlaysRef.current.add(newKey)
-                setOverlays(prev => [...prev, { imageId: resolvedImageId, x: oX, y: oY, type: opcode, key: newKey }])
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x0A: imgolorig =====
-              case 'imgolorig': {
-                const overlayId = parseInt(args[0])
-                const newKey = `${opcode}_${overlayId}_${overlayCounterRef.current++}`
-                activeOverlaysRef.current.add(newKey)
-                setOverlays(prev => [...prev, { imageId: overlayId, x: 0, y: 0, type: opcode, key: newKey }])
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x0D: imgoluselo, 0x0E: imguluselo, 0x13: spruluselo, 0x15: sproluselo =====
-              // These require LO* files which we don't have - skip gracefully
-              case 'imgoluselo':
-              case 'imguluselo':
-              case 'spruluselo':
-              case 'sproluselo': {
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x3D: imgulnextid =====
-              case 'imgulnextid': {
-                const nextImageId = imageId + 1
-                let oX = parseInt(args[0] || 0)
-                let oY = parseInt(args[1] || 0)
-                if (oX > 127) oX -= 256
-                if (oY > 127) oY -= 256
-                const newKey = `${opcode}_${nextImageId}_${overlayCounterRef.current++}`
-                activeOverlaysRef.current.add(newKey)
-                setOverlays(prev => [...prev, { imageId: nextImageId, x: oX, y: oY, type: opcode, key: newKey }])
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x16: end =====
-              // VB (IscriptModule.vb line 417-418): DatEditForm.ListBox9.SelectedIndex = -1
-              // → 선택된 애니메이션 없음 = 아무 이미지도 그리지 않음.
-              // Death 스크립트에서 end를 만나면 원본 유닛이 사라지고 캔버스가 비워진다.
-              case 'end': {
-                state.currentScriptLabel = null
-                // Mark as ended — prevents frame 0 from being redrawn when
-                // onAnimationEnd() causes animate prop to change, re-triggering this effect.
-                animationEndedRef.current = true
-                // Clear canvas to hide the image (mirrors VB's "nothing selected" state)
-                if (canvasRef.current) {
-                  canvasRef.current.width = canvasRef.current.width  // fast clear trick
-                }
-                if (activeOverlaysRef.current.size === 0) {
-                  if (callbacksRef.current.onAnimationEnd) {
-                    callbacksRef.current.onAnimationEnd()
-                  }
-                }
-                break
-              }
-
-              // ===== 0x1D: followmaingraphic =====
-              // VB: drawImageGRP(GetFrameNum, turnStatus, x, y) — uses parent's frame
-              case 'followmaingraphic': {
-                if (parentFrameInfo && parentFrameInfo.current) {
-                  renderFrame(parentFrameInfo.current.fIdx, parentFrameInfo.current.flip)
-                } else {
-                  drawWithDirection()
-                }
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x1E: randcondjmp =====
-              // VB: If random <= values(0) Then currentHeader = values(1)
-              case 'randcondjmp': {
-                const chance = parseInt(args[0])
-                const targetLabel = args[1]
-                if (Math.floor(Math.random() * 256) <= chance) {
-                  if (sharedIscriptData.labels[targetLabel]) {
-                    state.currentScriptLabel = targetLabel
-                    state.scriptIndex = 0
-                  }
-                } else {
-                  state.scriptIndex++
-                }
-                break
-              }
-
-              // ===== 0x1F: turnccwise =====
-              // VB: TrackBar1.Value = TrackBar1.Value - values(0), wrapping
-              case 'turnccwise':
-              case 'turncwise':
-              case 'turn1cwise':
-              case 'turnrand': {
-                // Turn commands: skip in previewer (direction is user-controlled)
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x2A: gotorepeatattk =====
-              // VB: loops back to GndAttkRpt/AirAttkRpt
-              case 'gotorepeatattk': {
-                // In previewer, just loop current script back to start
-                state.scriptIndex = 0
-                break
-              }
-
-              // ===== 0x2B: engframe =====
-              // Sets the base frame directly (like playfram, but for engine glows)
-              // Data shows values like 0, 17 — these are direct set points
-              // E.g. WraithAfterburnersInit: engframe 0, wait, engframe 17, wait, goto loop
-              case 'engframe': {
-                state.currentFrame = parseInt(args[0])
-                // VB bounds check: If curretgrpMaxFrame <= state.currentFrame Then state.currentFrame = 0
-                if (grpFrameCount > 0 && state.currentFrame >= grpFrameCount) {
-                  state.currentFrame = state.currentFrame % grpFrameCount
-                }
-                drawWithDirection()
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x2C: engset =====
-              // Sets the base frame to frameset# * 17
-              // E.g. engset 1280 → 1280 * 17 = 21760 → exceeds GRP → wraps to 0
-              case 'engset': {
-                const setNum = parseInt(args[0])
-                state.currentFrame = setNum * 17
-                // VB bounds check: If curretgrpMaxFrame <= state.currentFrame Then state.currentFrame = 0
-                if (grpFrameCount > 0 && state.currentFrame >= grpFrameCount) {
-                  state.currentFrame = state.currentFrame % grpFrameCount
-                }
-                drawWithDirection()
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x30: ignorerest =====
-              case 'ignorerest': {
-                state.currentScriptLabel = null
-                break
-              }
-
-              // ===== 0x34: setfldirect =====
-              // VB: gfxturn = False
-              case 'setfldirect': {
-                // In preview mode, we just ignore this
-                state.scriptIndex++
-                break
-              }
-
-              // ===== 0x35: call =====
-              // VB: currentHeader = values(0)
-              case 'call': {
-                const targetLabel = args[0]
-                if (sharedIscriptData.labels[targetLabel]) {
-                  state.callStack.push({ label: state.currentScriptLabel, index: state.scriptIndex + 1 })
-                  state.currentScriptLabel = targetLabel
-                  state.scriptIndex = 0
-                } else {
-                  state.scriptIndex++
-                }
-                break
-              }
-
-              // ===== 0x36: return =====
-              // VB: currentHeader = iscriptEntry(...).AnimHeader(currentAnimHeaderID)
-              case 'return': {
-                if (state.callStack.length > 0) {
-                  const ret = state.callStack.pop()
-                  state.currentScriptLabel = ret.label
-                  state.scriptIndex = ret.index
-                } else {
-                  state.scriptIndex++
-                }
-                break
-              }
-
-              // ===== 0x40: warpoverlay =====
-              // VB: state.currentFrame = values(0); drawImageGRP(GetFrameNum, ...)
-              case 'warpoverlay': {
-                state.currentFrame = parseInt(args[0])
-                drawWithDirection()
-                state.scriptIndex++
-                break
-              }
-
-              // ===== All other opcodes: skip =====
-              // This covers playsnd, playsndrand, playsndbtwn, domissiledmg,
-              // attackmelee, attackwith, attack, castspell, useweapon, move,
-              // sigorder, nobrkcodestart, nobrkcodeend, attkshiftproj,
-              // tmprmgraphicstart, tmprmgraphicend, setflspeed,
-              // creategasoverlays, pwrupcondjmp, etc.
-              default: {
-                state.scriptIndex++
-                break
               }
             }
+
+            if (state.wasmState.animation_ended) {
+              state.currentScriptLabel = null
+              animationEndedRef.current = true
+              if (canvasRef.current) {
+                canvasRef.current.width = canvasRef.current.width
+              }
+              if (activeOverlaysRef.current.size === 0) {
+                if (callbacksRef.current.onAnimationEnd) {
+                  callbacksRef.current.onAnimationEnd()
+                }
+              }
+            } else if (state.currentScriptLabel === null) {
+              // Wait or aborted. We just draw if it hasn't ended.
+              if (!animationEndedRef.current) drawWithDirection()
+            } else {
+               drawWithDirection()
+            }
+
+            return waitTicks
           }
 
-          // Safety: if we ran out of opcodes without wait, default to 1 tick
-          if (waitTicks === 0 && state.currentScriptLabel) {
-            waitTicks = 1
-          }
-
-          return waitTicks
+          // If WASM is not ready for some reason, just stall animation
+          return 1
         }
 
         // ===== Manual stepping (for step buttons) =====
@@ -760,6 +495,9 @@ const ImageGraphic = forwardRef(({
               state.currentFrame = prev.currentFrame
               state.posX = prev.posX
               state.posY = prev.posY
+              if (state.wasmState) {
+                state.wasmState.set_state(prev.currentScriptLabel || null, prev.scriptIndex, prev.currentFrame, prev.posX, prev.posY)
+              }
               if (prev.renderState) {
                 renderFrame(prev.renderState.fIdx, prev.renderState.flip)
               }

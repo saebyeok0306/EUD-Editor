@@ -1,4 +1,4 @@
-import init, { decode_grp_frame } from '../wasm/rust_grp.js'
+import init, { decode_grp_frame, render_grp_frame } from '../wasm/rust_grp.js'
 import wasmUrl from '../wasm/rust_grp_bg.wasm?url'
 
 let wasmReady = false
@@ -159,6 +159,14 @@ export const PLAYER_COLORS = {
  * @param playerColor - string name (e.g. "Red") or legacy ramp array
  */
 export function renderToCanvas(ctx, decoded, palette, playerColor = null, drawFunction = 0, remappingNum = 0) {
+  // If decoded object contains the RGBA data directly from WASM (width * height * 4)
+  if (decoded.data.length === decoded.width * decoded.height * 4) {
+    const imgData = new ImageData(new Uint8ClampedArray(decoded.data), decoded.width, decoded.height)
+    ctx.putImageData(imgData, 0, 0)
+    return
+  }
+
+
   const { width, height, data } = decoded
   const imgData = ctx.createImageData(width, height)
   
@@ -246,3 +254,71 @@ export function renderToCanvas(ctx, decoded, palette, playerColor = null, drawFu
   ctx.putImageData(imgData, 0, 0)
 }
 
+export function decodeAndRenderGRP(buffer, frameIndex = 0, palette = null, playerColor = null, drawFunction = 0, remappingNum = 0) {
+  let playerColorRamp = null
+  const isRemapping = (drawFunction === 9 && remappingNum >= 1 && remappingNum <= 4)
+  if (playerColor && !isRemapping) {
+    if (typeof playerColor === 'string') {
+      playerColorRamp = PLAYER_COLORS[playerColor] || null
+    } else if (Array.isArray(playerColor)) {
+      playerColorRamp = playerColor
+    }
+  }
+
+  if (wasmReady) {
+    try {
+      let flatPalette = palette
+      if (palette && !(palette instanceof Uint8Array)) {
+        flatPalette = new Uint8Array(palette)
+      }
+      
+      let flatPlayerColor = null
+      if (playerColorRamp) {
+        flatPlayerColor = new Uint8Array(24)
+        for(let i=0; i<8; i++) {
+          flatPlayerColor[i*3] = playerColorRamp[i][0]
+          flatPlayerColor[i*3+1] = playerColorRamp[i][1]
+          flatPlayerColor[i*3+2] = playerColorRamp[i][2]
+        }
+      }
+
+      const result = render_grp_frame(
+        buffer, 
+        frameIndex, 
+        flatPalette, 
+        flatPlayerColor, 
+        drawFunction, 
+        remappingNum
+      )
+      
+      return {
+        width: result.width,
+        height: result.height,
+        data: result.data, // This is already RGBA data!
+        frameCount: result.frameCount
+      }
+    } catch (err) {
+      if (!err.toString().includes("out of bounds")) {
+        console.error(`[WASM GRP Render] Failed: ${err}`)
+      }
+    }
+  }
+
+  // Fallback: decode then render logic
+  const decoded = decodeGRP(buffer, frameIndex)
+  
+  // Create a temporary canvas and render it via JS
+  const tempCanvas = document.createElement('canvas')
+  tempCanvas.width = decoded.width
+  tempCanvas.height = decoded.height
+  const ctx = tempCanvas.getContext('2d')
+  renderToCanvas(ctx, decoded, palette, playerColor, drawFunction, remappingNum)
+  
+  const imgData = ctx.getImageData(0, 0, decoded.width, decoded.height)
+  return {
+    width: decoded.width,
+    height: decoded.height,
+    data: imgData.data, // RGBA mapped
+    frameCount: decoded.frameCount
+  }
+}

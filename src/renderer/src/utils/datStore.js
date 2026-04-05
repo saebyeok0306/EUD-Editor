@@ -69,7 +69,7 @@ async function _parseDatFile(defText, datUrl) {
     throw new Error(`HTTP ${res.status} when fetching DAT: ${datUrl}`)
   }
   const arrayBuffer = await res.arrayBuffer()
-  return parseDat(arrayBuffer, defData)
+  return await parseDat(arrayBuffer, defData)
 }
 
 async function _parseTblFile(url, encoding = 'EUC-KR') {
@@ -79,7 +79,7 @@ async function _parseTblFile(url, encoding = 'EUC-KR') {
     throw new Error(`HTTP ${res.status} when fetching TBL: ${url}`)
   }
   const arrayBuffer = await res.arrayBuffer()
-  return parseTbl(arrayBuffer, encoding)
+  return await parseTbl(arrayBuffer, encoding)
 }
 
 /**

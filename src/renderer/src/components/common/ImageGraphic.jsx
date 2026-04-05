@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
-import { getImagesData, getImagesTbl } from '../../utils/datStore'
+import { getImagesData, getImagesTbl, getSpritesData } from '../../utils/datStore'
 import { decodeGRP, renderToCanvas } from '../../utils/grpDecoder'
 import { loadPalette } from '../../utils/paletteLoader'
 import iscriptJsonUrl from '../../data/iscript_data.json?url'
@@ -53,10 +53,19 @@ const ImageGraphic = forwardRef(({
   const prevImageIdRef = useRef(null)
   // Expose current frame info for child overlays (followmaingraphic)
   const currentFrameInfo = useRef({ fIdx: 0, flip: false })
+  // Track whether animation ended via 'end' opcode — prevents re-drawing frame 0
+  // when animate=false causes useEffect to re-run (e.g. after onAnimationEnd fires)
+  const animationEndedRef = useRef(false)
 
   useEffect(() => {
     callbacksRef.current = { onDebugInfo, onFrameChange, onAnimationEnd }
   }, [onDebugInfo, onFrameChange, onAnimationEnd])
+
+  // Reset ended state ONLY when a genuinely new animation starts.
+  // NOT on 'animate' changes — that's the exact case we need to ignore.
+  useEffect(() => {
+    animationEndedRef.current = false
+  }, [imageId, animationName, restartKey])
 
   // For manual step control
   const currentRawFrameRef = useRef(0)
@@ -112,10 +121,11 @@ const ImageGraphic = forwardRef(({
         const remappingNum = itemData['Remapping'] || 0
         const paletteToUse = await loadPalette(targetPath, tileset, drawFunction, remappingNum)
 
-        // Only clear overlays when switching to a different image
-        if (prevImageIdRef.current !== imageId) {
+        // Clear overlays when switching to a different image OR animation
+        const animKey = `${imageId}::${animationName}`
+        if (prevImageIdRef.current !== animKey) {
           setOverlays([])
-          prevImageIdRef.current = imageId
+          prevImageIdRef.current = animKey
         }
 
         // Load IScript data (shared singleton)
@@ -307,8 +317,12 @@ const ImageGraphic = forwardRef(({
         }
 
         // ===== Initial static render (non-animated or first frame) =====
+        // Skip if the animation already ended via 'end' opcode — prevents frame 0
+        // from being drawn when animate=false re-triggers this effect after onAnimationEnd.
         currentFrame = 0
-        drawWithDirection()
+        if (!animationEndedRef.current) {
+          drawWithDirection()
+        }
 
         // ===== IScript execution history for manual stepping =====
         let iscriptHistory = []
@@ -435,26 +449,44 @@ const ImageGraphic = forwardRef(({
                 break
               }
 
-              // ===== 0x08: imgol (image overlay, above) =====
-              // ===== 0x09: imgul (image overlay, below) =====
-              // ===== 0x0F: sprol (sprite overlay, above) =====
-              // ===== 0x10: highsprol (sprite overlay, highest) =====
-              // ===== 0x14: sprul (sprite overlay, below) =====
+              // ===== 0x08: imgol / 0x09: imgul =====
+              // These use IMAGE IDs directly (from images.dat)
               case 'imgol':
-              case 'imgul':
-              case 'sprol':
-              case 'highsprol':
-              case 'sprul': {
+              case 'imgul': {
                 const overlayId = parseInt(args[0])
                 let oX = parseInt(args[1] || 0)
                 let oY = parseInt(args[2] || 0)
-                // Signed byte conversion
                 if (oX > 127) oX -= 256
                 if (oY > 127) oY -= 256
                 setOverlays(prev => {
-                  // Prevent duplicate spawning of same overlay type+id
                   if (prev.find(o => o.imageId === overlayId && o.type === opcode)) return prev
                   return [...prev, { imageId: overlayId, x: oX, y: oY, type: opcode, key: `${opcode}_${overlayId}_${Date.now()}` }]
+                })
+                scriptIndex++
+                break
+              }
+
+              // ===== 0x0F: sprol / 0x10: highsprol / 0x14: sprul =====
+              // These use SPRITE IDs (from sprites.dat) — must resolve to image ID!
+              // VB: sprol spawns a sprite, the visual comes from sprites.dat[sprite#]['Image File']
+              case 'sprol':
+              case 'highsprol':
+              case 'sprul': {
+                const spriteId = parseInt(args[0])
+                let oX = parseInt(args[1] || 0)
+                let oY = parseInt(args[2] || 0)
+                if (oX > 127) oX -= 256
+                if (oY > 127) oY -= 256
+                // Resolve sprite ID → image ID via sprites.dat
+                const spritesData = getSpritesData()
+                const resolvedImageId = spritesData?.[spriteId]?.['Image File']
+                if (resolvedImageId === undefined || resolvedImageId === null) {
+                  scriptIndex++
+                  break
+                }
+                setOverlays(prev => {
+                  if (prev.find(o => o.imageId === resolvedImageId && o.type === opcode)) return prev
+                  return [...prev, { imageId: resolvedImageId, x: oX, y: oY, type: opcode, key: `${opcode}_${resolvedImageId}_${Date.now()}` }]
                 })
                 scriptIndex++
                 break
@@ -497,9 +529,21 @@ const ImageGraphic = forwardRef(({
               }
 
               // ===== 0x16: end =====
-              // VB: Script stops
+              // VB (IscriptModule.vb line 417-418): DatEditForm.ListBox9.SelectedIndex = -1
+              // → 선택된 애니메이션 없음 = 아무 이미지도 그리지 않음.
+              // Death 스크립트에서 end를 만나면 원본 유닛이 사라지고 캔버스가 비워진다.
               case 'end': {
                 currentScriptLabel = null
+                // Mark as ended — prevents frame 0 from being redrawn when
+                // onAnimationEnd() causes animate prop to change, re-triggering this effect.
+                animationEndedRef.current = true
+                // Clear canvas to hide the image (mirrors VB's "nothing selected" state)
+                if (canvasRef.current) {
+                  canvasRef.current.width = canvasRef.current.width  // fast clear trick
+                }
+                if (callbacksRef.current.onAnimationEnd) {
+                  callbacksRef.current.onAnimationEnd()
+                }
                 break
               }
 

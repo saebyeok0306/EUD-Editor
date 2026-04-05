@@ -8,6 +8,12 @@ AI랑 결합한 차세대 EUD 에디터를 목표로 하고 있지만, 취미로
 
 ---
 
+## 💖 Special Thanks
+
+이 프로젝트는 **맛있는빙수**님의 [EUD Editor](https://github.com/Buizz/EUDEditor) 프로젝트 소스를 참고하여 제작되었습니다. 소스 코드를 공개해주신 맛있는빙수님께 깊은 감사를 드립니다.
+
+---
+
 ## 🛠 Project Setup
 
 ### 필수 요구사항 (Prerequisites)

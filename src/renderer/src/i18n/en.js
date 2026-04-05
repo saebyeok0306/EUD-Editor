@@ -1,6 +1,6 @@
 const en = {
   // StartScreen
-  'start.subtitle': 'Map Editor',
+  'start.subtitle': 'EUD Editor',
   'start.tip': 'Click below to parse a Starcraft Map file.',
   'start.openFile': 'Open SCX/SCM File',
 

@@ -8,7 +8,6 @@ function StartScreen({ onOpenScx }) {
   return (
     <div className="start-screen">
       <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">EUD-Editor</div>
       <div className="text">
         Starcraft <span className="react">{t('start.subtitle')}</span>
       </div>

@@ -1,6 +1,6 @@
 const ko = {
   // StartScreen
-  'start.subtitle': '맵 에디터',
+  'start.subtitle': 'EUD Editor',
   'start.tip': '스타크래프트 맵 파일을 불러오려면 아래를 클릭하세요.',
   'start.openFile': 'SCX/SCM 파일 열기',
 

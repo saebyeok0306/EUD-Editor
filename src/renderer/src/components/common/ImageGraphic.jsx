@@ -112,15 +112,26 @@ const ImageGraphic = forwardRef(({
   const currentFlipRef = useRef(false)
   const manualRenderRef = useRef(null)
 
+  const overlayRefs = useRef(new Map())
+
   useImperativeHandle(ref, () => ({
     stepFrame: (delta) => {
       if (manualRenderRef.current) {
         manualRenderRef.current(delta)
       }
+      // Forward the step to all active overlays
+      overlayRefs.current.forEach((overlay) => {
+        if (overlay && overlay.stepFrame) {
+          overlay.stepFrame(delta)
+        }
+      })
     }
   }))
 
   // Playback refs (avoid re-render for these)
+  const animateRef = useRef(animate)
+  useEffect(() => { animateRef.current = animate }, [animate])
+
   const speedRef = useRef(playbackSpeed)
   useEffect(() => { speedRef.current = playbackSpeed }, [playbackSpeed])
 
@@ -321,7 +332,7 @@ const ImageGraphic = forwardRef(({
         // ===== IScript resolution =====
         const iscriptId = itemData['Iscript ID'] & 0xFFFF
 
-        if (animate && sharedIscriptData && (!state.initialized || (!parentFrameInfo && animationEndedRef.current))) {
+        if (sharedIscriptData && (!state.initialized || (!parentFrameInfo && animationEndedRef.current))) {
           const header = sharedIscriptData.headers.find(h => h.is_id === iscriptId)
           if (header && header.entry_points) {
             let entryPoint = header.entry_points[animationName]
@@ -380,7 +391,8 @@ const ImageGraphic = forwardRef(({
             scriptIndex: state.scriptIndex,
             currentFrame: state.currentFrame,
             posX: state.posX, posY: state.posY,
-            renderState: state.lastRenderState ? { ...state.lastRenderState } : { fIdx: 0, flip: false }
+            renderState: state.lastRenderState ? { ...state.lastRenderState } : { fIdx: 0, flip: false },
+            activeOverlayKeys: Array.from(activeOverlaysRef.current)
           })
 
           let waitTicks = 0
@@ -751,12 +763,17 @@ const ImageGraphic = forwardRef(({
               if (prev.renderState) {
                 renderFrame(prev.renderState.fIdx, prev.renderState.flip)
               }
+              if (prev.activeOverlayKeys) {
+                const savedKeys = new Set(prev.activeOverlayKeys)
+                activeOverlaysRef.current = new Set(savedKeys)
+                setOverlays(current => current.filter(ov => savedKeys.has(ov.key)))
+              }
             }
           }
         }
 
         // ===== Animation loop =====
-        if (animate && state.currentScriptLabel) {
+        if (animateRef.current && state.currentScriptLabel) {
           const loop = () => {
             if (!active) return
 
@@ -796,7 +813,7 @@ const ImageGraphic = forwardRef(({
       active = false
       if (timer) clearTimeout(timer)
     }
-  }, [imageId, animate, animationName, direction, playerColor, autoCrop, tileset, customData, restartKey])
+  }, [imageId, animationName, direction, playerColor, autoCrop, tileset, customData, restartKey])
 
   // ===== RENDER =====
   if (errorMsg) {
@@ -844,6 +861,10 @@ const ImageGraphic = forwardRef(({
         return (
           <ImageGraphic
             key={ov.key}
+            ref={(el) => {
+              if (el) overlayRefs.current.set(ov.key, el)
+              else overlayRefs.current.delete(ov.key)
+            }}
             imageId={ov.imageId}
             animate={animate}
             animationName="Init"

@@ -11,6 +11,8 @@ function App() {
   const [mapData, setMapData] = useState(null)
   const [datReady, setDatReady] = useState(false)
   const [scPath, setScPath] = useState(undefined) // undefined = checking, null = not set, string = path
+  const [projectPath, setProjectPath] = useState(null)
+  const [projectName, setProjectName] = useState(null)
 
   // Load all .dat files once at startup
   useEffect(() => {
@@ -24,14 +26,46 @@ function App() {
     init()
   }, [])
 
-  const handleOpenScx = async () => {
+  const handleCreateProject = async () => {
     try {
-      const data = await window.api.openScx()
+      const data = await window.api.createProject()
       if (data) {
-        setMapData(data)
+        setProjectPath(data.projectPath)
+        setProjectName(data.projectName)
+        setMapData(data.mapData)
+        setProjectData(data.projectData)
       }
     } catch (err) {
-      alert('Error reading SCX: ' + err)
+      alert('Error creating project: ' + err)
+    }
+  }
+
+  const handleOpenProject = async () => {
+    try {
+      const data = await window.api.openProject()
+      if (data) {
+        setProjectPath(data.projectPath)
+        setProjectName(data.projectName)
+        setMapData(data.mapData)
+        setProjectData(data.projectData)
+      }
+    } catch (err) {
+      alert('Error opening project: ' + err)
+    }
+  }
+
+  const handleSaveProject = async () => {
+    if (!projectPath || !mapData) return;
+    try {
+      const success = await window.api.saveProject(projectPath, {
+        mapPath: mapData.filePath,
+        projectData: projectData
+      })
+      if (success) {
+        console.log('Project saved successfully.')
+      }
+    } catch (err) {
+      alert('Error saving project: ' + err)
     }
   }
 
@@ -44,6 +78,8 @@ function App() {
 
   const handleCloseMap = () => {
     setMapData(null)
+    setProjectPath(null)
+    setProjectName(null)
     setProjectData({ units: {}, weapons: {}, upgrades: {}, images: {} })
     window.api.resetWindowSize()
   }
@@ -107,7 +143,11 @@ function App() {
     <I18nProvider>
       <div className="app-container">
         <TitleBar 
-          onOpenScx={handleOpenScx} 
+          onCreateProject={handleCreateProject}
+          onOpenProject={handleOpenProject}
+          projectPath={projectPath}
+          projectName={projectName}
+          onSaveProject={handleSaveProject}
           onCloseMap={handleCloseMap} 
           mapLoaded={!!mapData} 
         />
@@ -124,7 +164,11 @@ function App() {
             onUpdateProjectData={updateProjectData}
           />
         ) : (
-          <StartScreen onOpenScx={handleOpenScx} />
+          <StartScreen 
+            onCreateProject={handleCreateProject} 
+            onOpenProject={handleOpenProject}
+            onOpenSettings={() => setScPath(null)}
+          />
         )}
       </div>
     </I18nProvider>

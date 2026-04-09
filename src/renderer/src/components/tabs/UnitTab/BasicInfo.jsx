@@ -1,6 +1,6 @@
 import { useI18n } from '../../../i18n/i18nContext'
 import DatIcon from '../../common/DatIcon'
-import './UnitTab.css'
+import '../../common/TabCommon.css'
 
 function Field({ label, value, onChange, modified, addon, type = "number", className = "", style }) {
   return (
@@ -104,7 +104,7 @@ function BasicInfo({
   const unitSize = getVal('unitSize', null, 'Unit Size')
 
   return (
-    <div className="unit-detail-container">
+    <div className="tab-detail-container">
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
         <button
           className="btn-reset-tab"
@@ -127,16 +127,32 @@ function BasicInfo({
         </button>
       </div>
 
-      <div className="unit-detail-grid">
+      <div className="tab-detail-grid">
         {/* Section 1: 유닛 생체 정보 */}
         <Card title={t('unit.section.bio') || '유닛 생체 정보'}>
-          <Field
-            label={t('unit.prop.hitPoints')}
-            value={hp}
-            onChange={(v) => onUpdateProjectUnit(selectedItem, 'rawHp', v)}
-            modified={isMod('rawHp')}
-            addon={`(${Math.floor(hp / 256)})`}
-          />
+          <div className="field-group">
+            <label className="field-label">{t('unit.prop.hitPoints')}</label>
+            <div className="value-row" style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <input
+                  type="number"
+                  className={`modern-input ${isMod('rawHp') ? 'modified' : ''}`}
+                  value={Math.floor((hp || 0) / 256)}
+                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'rawHp', (parseInt(e.target.value) || 0) * 256)}
+                  title="Actual Hit Points"
+                />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <input
+                  type="number"
+                  className={`modern-input ${isMod('rawHp') ? 'modified' : ''}`}
+                  value={hp || 0}
+                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'rawHp', parseInt(e.target.value) || 0)}
+                  title="Raw Hit Points"
+                />
+              </div>
+            </div>
+          </div>
           <div className="field-group">
             <label className="field-label">{t('unit.prop.shieldPoints')}</label>
             <div className="value-row">

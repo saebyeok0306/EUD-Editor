@@ -80,6 +80,19 @@ code {
   -webkit-app-region: no-drag;
 }
 
+.logo {
+  margin-bottom: 20px;
+  -webkit-user-drag: none;
+  height: 128px;
+  width: 128px;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 1.2em #6988e6aa);
+}
+
 .menu-items {
   display: flex;
   align-items: center;
@@ -103,7 +116,8 @@ code {
   transition: background 0.1s;
 }
 
-.menu-item:hover button, .menu-item.active button {
+.menu-item:hover button,
+.menu-item.active button {
   background: var(--ev-c-gray-3);
   color: var(--ev-c-text-1);
 }
@@ -115,7 +129,7 @@ code {
   width: 220px;
   background: var(--ev-c-black-soft);
   border: 1px solid var(--ev-c-gray-1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   border-radius: 0 0 4px 4px;
   padding: 5px 0;
   display: flex;

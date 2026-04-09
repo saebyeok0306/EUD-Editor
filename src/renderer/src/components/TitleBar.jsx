@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useI18n } from '../i18n/i18nContext'
 
-export default function TitleBar({ onOpenScx, onCloseMap, mapLoaded }) {
+export default function TitleBar({ onCreateProject, onOpenProject, onSaveProject, onCloseMap, mapLoaded, projectName }) {
   const { t, language, changeLanguage } = useI18n()
   const [activeMenu, setActiveMenu] = useState(null)
   const menuRef = useRef(null)
@@ -53,14 +53,23 @@ export default function TitleBar({ onOpenScx, onCloseMap, mapLoaded }) {
             </button>
             {activeMenu === 'file' && (
               <div className="dropdown-menu">
-                <div className="menu-row" onClick={() => { onOpenScx(); closeMenu(); }}>
-                  <span>{t('start.openFile')}</span>
+                <div className="menu-row" onClick={() => { onCreateProject(); closeMenu(); }}>
+                  <span>{t('start.newProject')}</span>
+                </div>
+                <div className="menu-row" onClick={() => { onOpenProject(); closeMenu(); }}>
+                  <span>{t('start.openProject')}</span>
                   <span className="shortcut">Ctrl+O</span>
                 </div>
                 {mapLoaded && (
-                  <div className="menu-row" onClick={() => { onCloseMap(); closeMenu(); }}>
-                    <span>{t('sidebar.closeMap')}</span>
-                  </div>
+                  <>
+                    <div className="menu-row" onClick={() => { onSaveProject(); closeMenu(); }}>
+                      <span>{t('sidebar.saveProject')}</span>
+                      <span className="shortcut">Ctrl+S</span>
+                    </div>
+                    <div className="menu-row" onClick={() => { onCloseMap(); closeMenu(); }}>
+                      <span>{t('sidebar.closeMap')}</span>
+                    </div>
+                  </>
                 )}
                 <div className="menu-separator"></div>
                 <div className="menu-row" onClick={() => { handleClose(); }}>
@@ -111,7 +120,7 @@ export default function TitleBar({ onOpenScx, onCloseMap, mapLoaded }) {
           </div>
         </div>
 
-        <div className="window-title">EUD Editor</div>
+        <div className="window-title">{projectName ? `EUD Editor - ${projectName}` : 'EUD Editor'}</div>
 
         <div className="window-controls">
           <button className="control-btn minimize" onClick={handleMinimize}>

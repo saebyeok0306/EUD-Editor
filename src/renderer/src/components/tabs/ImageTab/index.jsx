@@ -5,7 +5,7 @@ import ImageGraphic from '../../common/ImageGraphic'
 import imagesNamesData from '../../../data/Images.txt?raw'
 import iscriptJsonUrl from '../../../data/iscript_data.json?url'
 import SearchableSelect from '../../common/SearchableSelect'
-import '../UnitTab/UnitTab.css'
+import '../../common/TabCommon.css'
 
 function Field({ label, value, onChange, type = "number", className = "", disabled = false, options = [] }) {
   return (
@@ -376,11 +376,11 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
       {/* Right Pane: Properties */}
       <div className="properties-pane">
         {selectedItem !== null ? (
-          <div className="unit-detail-container" style={{ height: '100%', overflowY: 'auto' }}>
+          <div className="tab-detail-container" style={{ height: '100%', overflowY: 'auto' }}>
 
 
 
-            <div className="unit-detail-grid">
+            <div className="tab-detail-grid">
               {/* Image Preview & Controls (Left column) */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <GraphicRenderer

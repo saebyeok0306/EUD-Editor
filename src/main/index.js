@@ -13,7 +13,7 @@ import { openCASC, closeCASC, readFile, listFiles } from './casc.js'
 import { packCascData, readDatapackFile } from './cascPacker.js'
 import { setupPortablePath } from './paths.js'
 import path from 'path'
-
+import { createProject, openProject, saveProject } from './projectManager.js'
 // Set up portable data path before anything else
 setupPortablePath()
 
@@ -106,58 +106,16 @@ app.whenReady().then(() => {
     if (win) win.close()
   })
 
-  ipcMain.handle('dialog:openScx', async (event) => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-      properties: ['openFile'],
-      filters: [{ name: 'Starcraft Maps', extensions: ['scx', 'scm'] }]
-    })
-    
-    if (canceled || filePaths.length === 0) {
-      return null
-    }
+  ipcMain.handle('project:create', async (event) => {
+    return await createProject(event)
+  })
 
-    const filePath = filePaths[0]
-    return new Promise((resolve, reject) => {
-      const extractor = createExtractor()
-      const chunks = []
-      
-      extractor.on('data', chunk => chunks.push(chunk))
-      extractor.on('end', () => {
-        try {
-          const data = Buffer.concat(chunks)
-          const chk = new BwChk(data)
-          
-          // Custom Parsing for deeper CHK sections (UNIx / UNIS)
-          const unixBuffer = extractChkSection(data, 'UNIx') || extractChkSection(data, 'UNIS')
-          const unitSettings = parseUnixSection(unixBuffer)
+  ipcMain.handle('project:open', async (event) => {
+    return await openProject(event)
+  })
 
-          const tilesetNames = ['badlands', 'platform', 'install', 'ashworld', 'jungle', 'desert', 'ice', 'twilight']
-          const tilesetId = chk.tileset || 0
-          const tilesetName = tilesetNames[tilesetId] || 'badlands'
-
-          const win = BrowserWindow.fromWebContents(event.sender)
-          if (win && !win.isMaximized()) {
-            win.maximize()
-          }
-          
-          resolve({
-            fileName: basename(filePath),
-            filePath,
-            title: chk.title,
-            description: chk.description,
-            size: [chk.size[0], chk.size[1]],
-            tileset: tilesetName,
-            unitSettings: unitSettings.units,
-            weaponSettings: unitSettings.weapons
-          })
-        } catch (err) {
-          reject(err.message)
-        }
-      })
-      extractor.on('error', err => reject(err.message))
-      
-      fs.createReadStream(filePath).pipe(extractor)
-    })
+  ipcMain.handle('project:save', async (event, projectPath, data) => {
+    return await saveProject(projectPath, data)
   })
 
   // StarCraft Path & CASC

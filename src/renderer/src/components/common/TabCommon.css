@@ -1,11 +1,11 @@
-.unit-detail-container {
+.tab-detail-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 10px;
 }
 
-.unit-detail-grid {
+.tab-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 20px;
@@ -29,7 +29,8 @@
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0.03);
   border-bottom: 1px solid var(--ev-c-divider);
-  border-radius: 11px 11px 0 0; /* Match parent's 12px border-radius minus 1px border */
+  border-radius: 11px 11px 11px 11px;
+  /* Match parent's 12px border-radius minus 1px border */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -106,6 +107,7 @@ select.modern-input option {
   -webkit-appearance: none;
   margin: 0;
 }
+
 .modern-input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;

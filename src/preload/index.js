@@ -3,7 +3,9 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  openScx: () => ipcRenderer.invoke('dialog:openScx'),
+  createProject: () => ipcRenderer.invoke('project:create'),
+  openProject: () => ipcRenderer.invoke('project:open'),
+  saveProject: (projectPath, data) => ipcRenderer.invoke('project:save', projectPath, data),
   onLanguageChanged: (callback) => {
     const listener = (_event, lang) => callback(lang)
     ipcRenderer.on('language-changed', listener)

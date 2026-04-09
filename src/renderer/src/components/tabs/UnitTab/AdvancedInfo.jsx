@@ -1,6 +1,6 @@
 import { useI18n } from '../../../i18n/i18nContext'
 import DatIcon from '../../common/DatIcon'
-import './UnitTab.css'
+import '../../common/TabCommon.css'
 
 // Constants
 const SPECIAL_ABILITY_KEY = 'Special Ability Flags:Building,Addon,Flyer,Worker,Subunit,"Flying Building",Hero,"Regenerates HP","Animated Idle(?)",Cloakable,"Two Units in 1 Egg","Single Entity","Resource Depot","Resource Container","Robotic Unit",Detector,"Organic Unit","Requires Creep",Unused(?),"Requires Psi",Burrowable,Spellcaster,"Permanent Cloak","Pickup Item(?)","Ignore Supply Check","Use Medium Overlays","Use Large Overlays","Battle Reactions","Full Auto-Attack",Invincible,"Mechanical Unit","Produces Units(?)"';
@@ -121,7 +121,7 @@ function AdvancedInfo({
   const subUnit2 = getVal('subUnit2', SUBUNIT2_KEY)
 
   return (
-    <div className="unit-detail-container">
+    <div className="tab-detail-container">
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
         <button
           className="btn-reset-tab"

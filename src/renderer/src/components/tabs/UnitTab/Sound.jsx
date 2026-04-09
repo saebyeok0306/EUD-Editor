@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { getSfxdataData, getSfxdataTbl } from '../../../utils/datStore'
 import SearchableSelect from '../../common/SearchableSelect'
-import './UnitTab.css'
+import '../../common/TabCommon.css'
 
 function useSfxOptions(t) {
   const sfxdata = getSfxdataData()
@@ -97,7 +97,7 @@ function SoundTab({
   const pissEnd = getVal('pissSoundEnd', 'Piss Sound End')
 
   return (
-    <div className="unit-detail-container">
+    <div className="tab-detail-container">
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
         <button
           className="btn-reset-tab"

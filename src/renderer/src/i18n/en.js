@@ -2,19 +2,21 @@ const en = {
   // StartScreen
   'start.subtitle': 'EUD Editor',
   'start.tip': 'Select a Starcraft map file to start editing.',
-  'start.openFile': 'Open SCX/SCM File',
-  'start.openFileDesc': 'Load an existing SCX/SCM map.',
-  'start.recentMaps': 'Recent Maps',
+  'start.openProject': 'Open Project',
+  'start.openProjectDesc': 'Load an existing .eep project file.',
+  'start.recentMaps': 'Recent Projects',
   'start.quickActions': 'Quick Actions',
-  'start.newFile': 'Create New Map',
-  'start.newFileDesc': 'Start a new project with a template.',
+  'start.newProject': 'New Project',
+  'start.newProjectDesc': 'Create a new project and link a map.',
   'start.settings': 'Settings',
   'start.settingsDesc': 'Configure editor environment.',
   'start.recentEmpty': 'No recent maps found.',
 
   // Sidebar
   'sidebar.size': 'Size',
-  'sidebar.closeMap': 'Close Map',
+  'sidebar.closeMap': 'Close Project',
+  'sidebar.saveProject': 'Save Project',
+  'sidebar.saveProjectDesc': 'Save current project',
 
   // Categories
   'category.Unit': 'Unit',

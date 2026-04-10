@@ -1,8 +1,10 @@
 import { dialog, BrowserWindow } from 'electron'
 import fs from 'fs'
+import { promises as fsp } from 'fs'
 import { join, basename } from 'path'
 import scmExtractor from 'scm-extractor'
 import bwChkData from 'bw-chk'
+import { pack, unpack } from 'msgpackr'
 import { extractChkSection, parseUnixSection } from './chkParser.js'
 
 const createExtractor = scmExtractor.default || scmExtractor
@@ -84,8 +86,9 @@ export async function createProject(windowEvent) {
       }
     }
 
-    // 5. Save project to .eep
-    fs.writeFileSync(projectPath, JSON.stringify(projectData, null, 2), 'utf-8')
+    // 5. Save project to .eep (MessagePack)
+    const packed = pack(projectData)
+    await fsp.writeFile(projectPath, packed)
 
     // Optional: Auto maximize window if not already
     const win = windowEvent ? BrowserWindow.fromWebContents(windowEvent.sender) : null
@@ -117,8 +120,15 @@ export async function openProject(windowEvent) {
   const projectPath = filePaths[0]
 
   try {
-    const fileContent = fs.readFileSync(projectPath, 'utf-8')
-    const parsedData = JSON.parse(fileContent)
+    const buffer = await fsp.readFile(projectPath)
+    let parsedData
+
+    // Auto-detect format: JSON starts with '{' (0x7B)
+    if (buffer[0] === 0x7B) {
+      parsedData = JSON.parse(buffer.toString('utf-8'))
+    } else {
+      parsedData = unpack(buffer)
+    }
     
     const mapPath = parsedData.mapPath
     // Need to handle absolute/relative path or missing map file here
@@ -149,11 +159,19 @@ export async function saveProject(projectPath, data) {
   if (!projectPath) return false
 
   try {
-    fs.writeFileSync(projectPath, JSON.stringify({
-       version: '1.0',
-       mapPath: data.mapPath,
-       projectData: data.projectData
-    }, null, 2), 'utf-8')
+    const projectData = {
+      version: '1.0',
+      mapPath: data.mapPath,
+      projectData: data.projectData
+    }
+    
+    const packed = pack(projectData)
+    const tempPath = projectPath + '.tmp'
+
+    // Atomic save: write to temp file then rename
+    await fsp.writeFile(tempPath, packed)
+    await fsp.rename(tempPath, projectPath)
+    
     return true
   } catch (err) {
     console.error('Failed to save project:', err)

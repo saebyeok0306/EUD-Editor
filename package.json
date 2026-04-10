@@ -27,6 +27,7 @@
     "iconv-lite": "^0.7.2",
     "implode-decoder": "^1.0.2",
     "koffi": "^2.15.2",
+    "msgpackr": "^1.11.9",
     "scm-extractor": "file:src/main/lib/scm-extractor",
     "stream-splicer": "^2.0.1"
   },

@@ -1,39 +1,9 @@
-import { useMemo } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
-import { getSfxdataData, getSfxdataTbl } from '../../../utils/datStore'
 import SearchableSelect from '../../common/SearchableSelect'
+import useDatOptions from '../../../hooks/useDatOptions'
 import '../../common/TabCommon.css'
 
-function useSfxOptions(t) {
-  const sfxdata = getSfxdataData()
-  const sfxdataTbl = getSfxdataTbl()
 
-  return useMemo(() => {
-    if (!sfxdata || !sfxdataTbl) return []
-
-    const options = []
-    options.push({ value: 0, label: t('unit.sound.none') })
-
-    for (let i = 1; i < sfxdata.length; i++) {
-      const sfx = sfxdata[i]
-      if (!sfx) continue
-
-      const sndFileIdx = sfx['Sound File']
-      let stringName = ''
-      if (sndFileIdx && sndFileIdx > 0 && sfxdataTbl) {
-        stringName = sfxdataTbl[sndFileIdx - 1] || ''
-      }
-      if (!stringName) {
-        stringName = 'Unknown'
-      }
-
-      // format: Terran\MARINE\TMaRdy00.WAV (275)
-      // or (275) Terran\MARINE\TMaRdy00.WAV
-      options.push({ value: i, label: `[${i.toString().padStart(3, '0')}] ${stringName}` })
-    }
-    return options
-  }, [sfxdata, sfxdataTbl])
-}
 
 function SoundRow({ label, value, modified, onChange, sfxOptions }) {
   return (
@@ -76,7 +46,7 @@ function SoundTab({
   onResetProjectUnit
 }) {
   const { t } = useI18n()
-  const sfxOptions = useSfxOptions(t)
+  const sfxOptions = useDatOptions('sfx')
 
   if (selectedItem === null) return null
 

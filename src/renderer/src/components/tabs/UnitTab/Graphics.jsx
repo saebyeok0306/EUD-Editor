@@ -1,13 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
-import { PLAYER_COLORS } from '../../../utils/grpDecoder'
 import UnitGraphic from '../../common/UnitGraphic'
 import ImageGraphic from '../../common/ImageGraphic'
-import { getFlingyData, getSpritesData, getImagesData, getPortdataTbl } from '../../../utils/datStore'
-import imagesText from '../../../data/Images.txt?raw'
+import SearchableSelect from '../../common/SearchableSelect'
+import { getFlingyData, getSpritesData } from '../../../utils/datStore'
+import useDatOptions from '../../../hooks/useDatOptions'
 import '../../common/TabCommon.css'
-
-const IMAGE_NAMES = imagesText.split('\n').map(line => line.trim())
 
 function Field({ label, value, onChange, modified, addon, type = "number", className = "", style, selectOptions, disabled }) {
   return (
@@ -55,32 +53,31 @@ function Card({ title, children, style }) {
   )
 }
 
-function SmallGraphicBox({ imageId }) {
-  return (
-    <div className="small-graphic-box">
-      {imageId !== null && imageId !== undefined ? (
-        <ImageGraphic imageId={imageId} maxWidth={28} maxHeight={28} autoCrop={true} />
-      ) : null}
-    </div>
-  )
-}
-
-function GraphicInfoRow({ label, id, imageId, name, onChangeId }) {
+function DatSelectRow({ label, value, onChange, options, imageId }) {
   return (
     <div className="icon-field-row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div className="field-label" style={{ width: '60px' }}>{label}</div>
+      <div className="field-label" style={{ width: '60px', flexShrink: 0 }}>{label}</div>
       <input
         type="number"
         className="modern-input"
-        style={{ width: '60px', flex: 'none' }}
-        value={id ?? 0}
-        onChange={(e) => onChangeId(parseInt(e.target.value) || 0)}
+        style={{ width: '56px', flex: 'none' }}
+        value={value ?? 0}
+        onChange={(e) => onChange(parseInt(e.target.value) || 0)}
       />
-      <SmallGraphicBox imageId={imageId} />
-      <div className="icon-main-label" style={{ flex: 1, paddingLeft: '8px', color: 'var(--ev-c-text-2)' }}>
-        {name}
-      </div>
-      <button className="btn-confirm">확인</button>
+      {imageId !== undefined && (
+        <div className="small-graphic-box">
+          {imageId !== null ? (
+            <ImageGraphic imageId={imageId} maxWidth={28} maxHeight={28} autoCrop={true} />
+          ) : null}
+        </div>
+      )}
+      <SearchableSelect
+        className="modern-input"
+        options={options}
+        value={value ?? 0}
+        onChange={onChange}
+        style={{ flex: 1, height: '30px', backgroundColor: 'rgba(255,255,255,0.05)' }}
+      />
     </div>
   )
 }
@@ -119,6 +116,11 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
 
   const isMod = (field) => currentProjectData?.[field] !== undefined
 
+  // DAT option lists
+  const flingyOptions = useDatOptions('flingy')
+  const imageOptions = useDatOptions('image')
+  const portraitOptions = useDatOptions('portrait')
+
   // Fields mapping
   const flingy = getVal('graphics', 'Graphics')
   const macr = getVal('constructionAnimation', 'Construction Animation')
@@ -137,10 +139,9 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
   const addonX = getVal('addonHorizontalPosition', 'Addon Horizontal (X) Position')
   const addonY = getVal('addonVerticalPosition', 'Addon Vertical (Y) Position')
 
-  // Resolve Graphics to Image ID for Flingy
+  // Resolve Graphics to Image ID for preview
   const flingyData = getFlingyData()
   const spritesData = getSpritesData()
-  const portdataTbl = getPortdataTbl()
 
   const flingyImageId = useMemo(() => {
     if (!flingyData || !spritesData || !flingyData[flingy]) return null;
@@ -148,10 +149,6 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
     if (spriteId === undefined || !spritesData[spriteId]) return null;
     return spritesData[spriteId]['Image File'];
   }, [flingy, flingyData, spritesData])
-
-  const flingyName = flingyImageId !== null ? IMAGE_NAMES[flingyImageId] : 'Unknown'
-  const macrName = macr !== null ? IMAGE_NAMES[macr] : 'Unknown'
-  const portraitName = portrait !== null && portdataTbl && portdataTbl[portrait] ? portdataTbl[portrait] : 'Unknown'
 
   if (selectedItem === null) return null
 
@@ -162,35 +159,26 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
         <div className="section-label">그래픽 정보</div>
         <Card>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <GraphicInfoRow
+            <DatSelectRow
               label="비행정보"
-              id={flingy}
+              value={flingy}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'graphics', v)}
+              options={flingyOptions}
               imageId={flingyImageId}
-              name={flingyName}
-              onChangeId={(v) => onUpdateProjectUnit(selectedItem, 'graphics', v)}
             />
-            <GraphicInfoRow
+            <DatSelectRow
               label="생산모습"
-              id={macr}
+              value={macr}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'constructionAnimation', v)}
+              options={imageOptions}
               imageId={macr}
-              name={macrName}
-              onChangeId={(v) => onUpdateProjectUnit(selectedItem, 'constructionAnimation', v)}
             />
-
-            {/* Portrait row has no GraphicBox in the original screenshot */}
-            <div className="icon-field-row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div className="field-label" style={{ width: '60px' }}>얼굴모습</div>
-              <input
-                type="number"
-                className="modern-input"
-                style={{ width: '60px', flex: 'none' }}
-                value={portrait ?? 0}
-                onChange={(e) => onUpdateProjectUnit(selectedItem, 'portrait', parseInt(e.target.value) || 0)}
-              />
-              <div className="icon-main-label" style={{ flex: 1, paddingLeft: '8px', color: 'var(--ev-c-text-2)', display: 'flex', alignItems: 'center', height: '32px' }}>
-                {portraitName}
-              </div>
-            </div>
+            <DatSelectRow
+              label="얼굴모습"
+              value={portrait}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'portrait', v)}
+              options={portraitOptions}
+            />
 
             {/* Elevation & Direction */}
             <div style={{ display: 'flex', gap: '20px', marginTop: '4px' }}>

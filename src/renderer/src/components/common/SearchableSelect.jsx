@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 
-export default function SearchableSelect({ options, value, onChange, className, style }) {
+export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...' }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const containerRef = useRef(null)
@@ -73,7 +73,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="검색어 입력..."
+              placeholder={placeholder}
               style={{
                 width: '100%',
                 padding: '6px',
@@ -116,7 +116,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
                     borderLeft: opt.value === value ? '3px solid var(--ev-c-brand)' : '3px solid transparent'
                   }}
                 >
-                  {opt.label}
+                  {renderOption ? renderOption(opt) : opt.label}
                 </div>
               ))
             )}

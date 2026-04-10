@@ -180,3 +180,39 @@ select.modern-input option {
 .checkbox-label input {
   margin: 0;
 }
+
+/* Common Graphic Box Utilities */
+.small-graphic-box {
+  width: 32px;
+  height: 32px;
+  background-color: var(--ev-c-bg-soft);
+  border: 1px solid var(--ev-c-divider);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.preview-box {
+  flex: 1;
+  background-color: var(--ev-c-bg-mute);
+  border: 1px solid var(--ev-c-divider);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--ev-c-text-1);
+}
+
+.section-label-sm {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--ev-c-text-1);
+}

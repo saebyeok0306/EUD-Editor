@@ -8,6 +8,8 @@ struct DatFormat {
     size: usize,
     var_start: Option<usize>,
     var_end: Option<usize>,
+    var_array: Option<usize>,
+    var_array_index: Option<usize>,
 }
 
 #[wasm_bindgen]
@@ -49,6 +51,8 @@ pub fn parse_dat(def_text: &str, dat_buffer: &[u8]) -> Result<Array, JsValue> {
                             size: 4,
                             var_start: None,
                             var_end: None,
+                            var_array: None,
+                            var_array_index: None,
                         });
                         
                         match prop {
@@ -56,6 +60,8 @@ pub fn parse_dat(def_text: &str, dat_buffer: &[u8]) -> Result<Array, JsValue> {
                             "Size" => fmt.size = val.parse::<usize>().unwrap_or(4),
                             "VarStart" => fmt.var_start = Some(val.parse::<usize>().unwrap_or(0)),
                             "VarEnd" => fmt.var_end = Some(val.parse::<usize>().unwrap_or(0)),
+                            "VarArray" => fmt.var_array = Some(val.parse::<usize>().unwrap_or(1)),
+                            "VarArrayIndex" => fmt.var_array_index = Some(val.parse::<usize>().unwrap_or(1)),
                             _ => {}
                         }
                     }
@@ -66,26 +72,36 @@ pub fn parse_dat(def_text: &str, dat_buffer: &[u8]) -> Result<Array, JsValue> {
     
     let mut offset = 0;
     let mut matrix = vec![HashMap::new(); input_entry_count];
+    let mut current_block_offset = 0;
     
     for i in 0..var_count {
         if let Some(fmt) = formats.get(&i) {
             let start = fmt.var_start.unwrap_or(0);
             let end = fmt.var_end.unwrap_or(input_entry_count.saturating_sub(1));
             let size = fmt.size;
+            let var_array = fmt.var_array.unwrap_or(1);
+            let var_array_idx = fmt.var_array_index.unwrap_or(1);
+            
+            if var_array_idx == 1 {
+                current_block_offset = offset;
+                offset += size * var_array * (end - start + 1);
+            }
+            
+            let stride = size * var_array;
+            let inner_offset = (var_array_idx.saturating_sub(1)) * size;
             
             for index in start..=end {
                 let mut value: u32 = 0;
+                let read_pos = current_block_offset + (index - start) * stride + inner_offset;
                 
-                if offset + size <= dat_buffer.len() {
+                if read_pos + size <= dat_buffer.len() {
                     match size {
-                        1 => value = dat_buffer[offset] as u32,
-                        2 => value = u16::from_le_bytes([dat_buffer[offset], dat_buffer[offset+1]]) as u32,
-                        4 => value = u32::from_le_bytes([dat_buffer[offset], dat_buffer[offset+1], dat_buffer[offset+2], dat_buffer[offset+3]]),
+                        1 => value = dat_buffer[read_pos] as u32,
+                        2 => value = u16::from_le_bytes([dat_buffer[read_pos], dat_buffer[read_pos+1]]) as u32,
+                        4 => value = u32::from_le_bytes([dat_buffer[read_pos], dat_buffer[read_pos+1], dat_buffer[read_pos+2], dat_buffer[read_pos+3]]),
                         _ => {}
                     }
                 }
-                
-                offset += size;
                 
                 if index < input_entry_count {
                     matrix[index].insert(fmt.name.clone(), value);

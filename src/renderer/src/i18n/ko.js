@@ -252,6 +252,7 @@ const ko = {
   'settings.starcraftPathPlaceholder': '스타크래프트 폴더를 선택하세요',
   'settings.euddraftPath': 'euddraft 경로',
   'settings.euddraftPathPlaceholder': 'euddraft.exe 파일을 선택하세요',
+  'settings.euddraftMinVersion': '(최소 권장 버전: 0.10.1.3)',
   'settings.selectEudDraft': 'euddraft.exe 선택',
   'settings.language': '언어(Language)',
   'settings.browse': '찾아보기',

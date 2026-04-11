@@ -252,6 +252,7 @@ const en = {
   'settings.starcraftPathPlaceholder': 'Select StarCraft Launcher.exe file',
   'settings.euddraftPath': 'euddraft Path',
   'settings.euddraftPathPlaceholder': 'Select euddraft.exe file',
+  'settings.euddraftMinVersion': '(Minimum recommended: 0.10.1.3)',
   'settings.selectEudDraft': 'Select euddraft.exe',
   'settings.language': 'Language',
   'settings.browse': 'Browse',

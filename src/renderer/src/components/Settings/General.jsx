@@ -57,7 +57,12 @@ export default function General() {
       </div>
 
       <div className="settings-group">
-        <label className="settings-label">{t('settings.euddraftPath') || 'euddraft 경로'}</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <label className="settings-label" style={{ marginBottom: 0 }}>{t('settings.euddraftPath') || 'euddraft 경로'}</label>
+          <span style={{ fontSize: '11px', color: 'var(--ev-c-text-3)', fontWeight: 'normal' }}>
+            {t('settings.euddraftMinVersion')}
+          </span>
+        </div>
         <div className="settings-input-row">
           <input
             type="text"

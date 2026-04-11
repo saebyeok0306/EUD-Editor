@@ -28,7 +28,8 @@ function createWindow() {
     show: false,
     frame: false,
     backgroundColor: '#1b1b1f',
-    ...(process.platform === 'linux' ? { icon } : {}),
+    // ...(process.platform === 'linux' ? { icon } : {}),
+    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -127,6 +128,8 @@ app.whenReady().then(() => {
   ipcMain.handle('starcraft:getPath', () => {
     return getSettings().starcraftPath || null
   })
+
+  ipcMain.handle('app:getVersion', () => app.getVersion())
 
   ipcMain.handle('app:readLocalPalette', async (event, name) => {
     try {

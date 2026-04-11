@@ -1,9 +1,15 @@
 import { useI18n } from '../i18n/i18nContext'
 import Versions from './Versions'
-import electronLogo from '../assets/electron.svg'
+import logo from '../assets/logo.png'
+import { useState, useEffect } from 'react'
 
 function StartScreen({ onCreateProject, onOpenProject, onOpenSettings, recentProjects = [], onOpenRecentProject }) {
   const { t } = useI18n()
+  const [appVersion, setAppVersion] = useState('')
+
+  useEffect(() => {
+    window.api.getAppVersion().then(setAppVersion)
+  }, [])
 
   const getFileName = (path) => {
     return path.split(/[\\/]/).pop()
@@ -12,10 +18,10 @@ function StartScreen({ onCreateProject, onOpenProject, onOpenSettings, recentPro
   return (
     <div className="start-screen">
       <header className="start-header">
-        <img alt="logo" className="logo" src={electronLogo} />
+        <img alt="logo" className="logo" src={logo} />
         <div className="start-title">
-          <h1>Starcraft {t('start.subtitle')}</h1>
-          <span>v1.0.0-alpha.1</span>
+          <h1>Starcraft <span className="highlight">{t('start.subtitle')}</span></h1>
+          <span className="version">v{appVersion}</span>
         </div>
       </header>
 
@@ -71,9 +77,9 @@ function StartScreen({ onCreateProject, onOpenProject, onOpenSettings, recentPro
           <div className="recent-projects-list">
             {recentProjects.length > 0 ? (
               recentProjects.map((path, index) => (
-                <button 
-                  key={index} 
-                  className="recent-project-item" 
+                <button
+                  key={index}
+                  className="recent-project-item"
                   onClick={() => onOpenRecentProject(path)}
                   title={path}
                 >

@@ -1,14 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function Versions() {
   const [versions] = useState(window.electron.process.versions)
+  const [appVersion, setAppVersion] = useState('')
+
+  useEffect(() => {
+    window.api.getAppVersion().then(setAppVersion)
+  }, [])
 
   return (
-    <ul className="versions">
-      <li className="electron-version">Electron v{versions.electron}</li>
-      <li className="chrome-version">Chromium v{versions.chrome}</li>
-      <li className="node-version">Node v{versions.node}</li>
-    </ul>
+    <div className="versions-container">
+      <div className="author-info">
+        <p>Developed by <a href="#" onClick={(e) => { e.preventDefault(); window.api.openExternal('https://github.com/saebyeok0306/EUD-Editor'); }}>saebyeok0306</a></p>
+        <p className="copyright">© 2026 saebyeok0306. All rights reserved.</p>
+      </div>
+    </div>
   )
 }
 

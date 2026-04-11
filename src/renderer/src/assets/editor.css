@@ -361,7 +361,8 @@
 /* --- Settings Screen --- */
 .settings-overlay {
   position: fixed;
-  top: 32px; /* same as title bar height */
+  top: 32px;
+  /* same as title bar height */
   left: 0;
   right: 0;
   bottom: 0;
@@ -554,7 +555,8 @@
   word-break: break-all;
 }
 
-.changelog-loading, .changelog-error {
+.changelog-loading,
+.changelog-error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -601,8 +603,12 @@
   color: var(--ev-c-text-2);
 }
 
-.changelog-body h1, .changelog-body h2, .changelog-body h3, 
-.changelog-body h4, .changelog-body h5, .changelog-body h6 {
+.changelog-body h1,
+.changelog-body h2,
+.changelog-body h3,
+.changelog-body h4,
+.changelog-body h5,
+.changelog-body h6 {
   margin-top: 24px;
   margin-bottom: 16px;
   font-weight: 600;
@@ -610,21 +616,31 @@
   color: var(--ev-c-text-1);
 }
 
-.changelog-body h1, .changelog-body h2 {
+.changelog-body h1,
+.changelog-body h2 {
   padding-bottom: 0.3em;
   border-bottom: 1px solid var(--ev-c-gray-3);
 }
 
-.changelog-body h1 { font-size: 2em; }
-.changelog-body h2 { font-size: 1.5em; }
-.changelog-body h3 { font-size: 1.25em; }
+.changelog-body h1 {
+  font-size: 2em;
+}
+
+.changelog-body h2 {
+  font-size: 1.5em;
+}
+
+.changelog-body h3 {
+  font-size: 1.25em;
+}
 
 .changelog-body p {
   margin-top: 0;
   margin-bottom: 16px;
 }
 
-.changelog-body ul, .changelog-body ol {
+.changelog-body ul,
+.changelog-body ol {
   padding-left: 2em;
   margin-top: 0;
   margin-bottom: 16px;
@@ -634,7 +650,7 @@
   margin-top: 0.25em;
 }
 
-.changelog-body li + li {
+.changelog-body li+li {
   margin-top: 0.25em;
 }
 
@@ -705,7 +721,8 @@
   border-top: 1px solid var(--ev-c-gray-3);
 }
 
-.changelog-body th, .changelog-body td {
+.changelog-body th,
+.changelog-body td {
   padding: 6px 13px;
   border: 1px solid var(--ev-c-gray-3);
 }
@@ -758,8 +775,15 @@
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .recent-projects-list {
@@ -769,7 +793,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 400px;
-  padding: 4px; /* 사방에 약간의 여유 공간 추가 */
+  padding: 4px;
+  /* 사방에 약간의 여유 공간 추가 */
 }
 
 .recent-projects-list::-webkit-scrollbar {
@@ -793,7 +818,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--ev-c-text-1);
-  margin-right: 8px; /* 이동 시 잘리지 않도록 우측 여백 확보 */
+  margin-right: 8px;
+  /* 이동 시 잘리지 않도록 우측 여백 확보 */
 }
 
 .recent-project-item:hover {

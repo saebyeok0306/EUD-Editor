@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, shell } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
@@ -38,7 +38,9 @@ const api = {
   maximize: () => ipcRenderer.send('window:maximize'),
   close: () => ipcRenderer.send('window:close'),
   deleteSettings: () => ipcRenderer.invoke('app:deleteSettings'),
-  deleteDatapack: () => ipcRenderer.invoke('app:deleteDatapack')
+  deleteDatapack: () => ipcRenderer.invoke('app:deleteDatapack'),
+  getAppVersion: () => ipcRenderer.invoke('app:getVersion'),
+  openExternal: (url) => shell.openExternal(url)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

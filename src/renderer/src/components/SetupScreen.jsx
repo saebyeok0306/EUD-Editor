@@ -61,7 +61,7 @@ export default function SetupScreen({ onCompleted }) {
       <div style={{ maxWidth: '600px', width: '100%' }}>
         <h1 style={{ marginBottom: '20px', color: 'var(--ev-c-brand)' }}>Welcome to EUD Editor</h1>
         <p style={{ marginBottom: '40px', color: 'var(--ev-c-text-2)' }}>
-          To start editing, we need to locate your StarCraft Launcher.exe and extract essential SD graphics.
+          To start editing, we need to locate your StarCraft Launcher.exe and extract essential graphics.
         </p>
 
         {!extracting ? (

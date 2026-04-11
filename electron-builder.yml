@@ -1,5 +1,5 @@
 appId: com.saebyeok.eud-editor
-productName: eud-editor
+productName: Saebyeok's EUD Editor
 directories:
   buildResources: build
 files:
@@ -48,7 +48,7 @@ linux:
     - AppImage
     - snap
     - deb
-  maintainer: electronjs.org
+  maintainer: saebyeok0306
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}

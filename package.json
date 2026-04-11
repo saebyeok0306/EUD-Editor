@@ -1,5 +1,6 @@
 {
   "name": "eud-editor",
+  "productName": "Saebyeok's EUD Editor",
   "version": "1.0.0-alpha",
   "description": "Starcraft1 EUD Editor",
   "main": "./out/main/index.js",

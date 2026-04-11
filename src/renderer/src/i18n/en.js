@@ -223,6 +223,26 @@ const en = {
   'unit.edit.textInfo': 'Text Information',
   'unit.edit.rank': 'Rank',
   'unit.edit.name': 'Name',
+
+  // AI Orders Tab
+  'unit.ai.title': 'AI Orders',
+  'unit.ai.compIdle': 'Comp AI Idle',
+  'unit.ai.humanIdle': 'Human AI Idle',
+  'unit.ai.returnToIdle': 'Return to Idle',
+  'unit.ai.attackUnit': 'Attack Unit',
+  'unit.ai.attackMove': 'Attack Move',
+  'unit.ai.rightClickAction': 'Right-click Action',
+  'unit.ai.aiInternal': 'AI Internal',
+  'unit.btn.confirm': 'Confirm',
+  'order.rightClick.0': '0  No Order / Auto Attack',
+  'order.rightClick.1': '1  Normal Move / Normal Attack',
+  'order.rightClick.2': '2  Normal Move / No Attack',
+  'order.rightClick.3': '3  No Move / Normal Attack',
+  'order.rightClick.4': '4  Harvest',
+  'order.rightClick.5': '5  Harvest / Repair',
+  'order.rightClick.6': '6  None',
+  'ai.internal.suicide': 'Ignore "Strategic Suicide missions"',
+  'ai.internal.guard': 'Do not enter "Guard" state',
 }
 
 export default en

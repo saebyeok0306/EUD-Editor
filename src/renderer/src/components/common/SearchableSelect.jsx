@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react'
+import DatIcon from './DatIcon'
+import ImageGraphic from './ImageGraphic'
 
 export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...', onNavigate }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -41,6 +43,55 @@ export default function SearchableSelect({ options, value, onChange, className, 
     )
   }, [options, searchQuery])
 
+  // Detect which icon type is being used
+  const hasIcons = options.some(opt => opt.icon !== undefined)
+  const hasImageIds = options.some(opt => opt.imageId !== undefined)
+
+  const THUMB_SIZE = 28
+
+  function renderThumb(opt) {
+    if (hasIcons) {
+      return (
+        <div style={{
+          width: THUMB_SIZE, height: THUMB_SIZE, flexShrink: 0,
+          backgroundColor: '#000',
+          borderRadius: '3px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          overflow: 'hidden'
+        }}>
+          {opt.icon !== null && opt.icon !== undefined && (
+            <DatIcon
+              frameIndex={opt.icon}
+              size={THUMB_SIZE}
+              style={{ border: 'none', borderRadius: 0, backgroundColor: 'transparent' }}
+            />
+          )}
+        </div>
+      )
+    }
+    if (hasImageIds) {
+      return (
+        <div style={{
+          width: THUMB_SIZE, height: THUMB_SIZE, flexShrink: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          borderRadius: '3px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          overflow: 'hidden'
+        }}>
+          {opt.imageId !== null && opt.imageId !== undefined && (
+            <ImageGraphic
+              imageId={opt.imageId}
+              maxWidth={THUMB_SIZE}
+              maxHeight={THUMB_SIZE}
+              autoCrop={true}
+            />
+          )}
+        </div>
+      )
+    }
+    return null
+  }
+
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%', ...style }} className={className}>
       <div 
@@ -55,13 +106,13 @@ export default function SearchableSelect({ options, value, onChange, className, 
           alignItems: 'center',
           cursor: 'pointer',
           padding: '0 8px',
-          fontFamily: 'monospace',
+          gap: '6px',
           overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
         }}
       >
-        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayLabel}</span>
+        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
+          {displayLabel}
+        </span>
         {onNavigate && (
           <button
             onClick={(e) => {
@@ -87,12 +138,8 @@ export default function SearchableSelect({ options, value, onChange, className, 
               transition: 'opacity 0.15s ease',
               opacity: 0.85
             }}
-            onMouseEnter={(e) => { 
-              e.currentTarget.style.opacity = '1'
-            }}
-            onMouseLeave={(e) => { 
-              e.currentTarget.style.opacity = '0.85'
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.85' }}
           >
             <span>이동</span>
             <span style={{ fontSize: '10px' }}>➔</span>
@@ -133,7 +180,6 @@ export default function SearchableSelect({ options, value, onChange, className, 
                 outline: 'none'
               }}
               onKeyDown={(e) => {
-                // Ignore propagate up if needed
                 e.stopPropagation()
               }}
             />
@@ -163,7 +209,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
                         : 'transparent'
                     }}
                     style={{
-                      padding: '6px 12px',
+                      padding: '3px 8px',
                       cursor: 'pointer',
                       fontSize: '13px',
                       fontFamily: 'monospace',
@@ -183,6 +229,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
                       textAlign: 'center',
                       opacity: isSelected ? 1 : 0
                     }}>✓</span>
+                    {renderThumb(opt)}
                     <span style={{ flex: 1 }}>{renderOption ? renderOption(opt) : opt.label}</span>
                   </div>
                 )

@@ -52,9 +52,47 @@ export default function DatIcon({
         const ctx = canvasRef.current?.getContext('2d')
         if (!ctx) return
 
-        canvasRef.current.width = decoded.width
-        canvasRef.current.height = decoded.height
-        renderToCanvas(ctx, decoded, palette)
+        // 1) Render to offscreen canvas
+        const offscreen = document.createElement('canvas')
+        offscreen.width = decoded.width
+        offscreen.height = decoded.height
+        const offCtx = offscreen.getContext('2d')
+        renderToCanvas(offCtx, decoded, palette)
+
+        // 2) Find non-transparent bounding box
+        const imageData = offCtx.getImageData(0, 0, decoded.width, decoded.height)
+        const pixels = imageData.data
+        let minX = decoded.width, minY = decoded.height, maxX = 0, maxY = 0
+        let hasVisiblePixels = false
+
+        for (let y = 0; y < decoded.height; y++) {
+          for (let x = 0; x < decoded.width; x++) {
+            const a = pixels[(y * decoded.width + x) * 4 + 3]
+            if (a > 0) {
+              if (x < minX) minX = x
+              if (y < minY) minY = y
+              if (x > maxX) maxX = x
+              if (y > maxY) maxY = y
+              hasVisiblePixels = true
+            }
+          }
+        }
+
+        // 3) Draw content region centered into fixed size canvas
+        canvasRef.current.width = size
+        canvasRef.current.height = size
+        ctx.clearRect(0, 0, size, size)
+
+        if (hasVisiblePixels) {
+          const contentW = maxX - minX + 1
+          const contentH = maxY - minY + 1
+          const scale = Math.min(size / contentW, size / contentH, 1)
+          const drawW = Math.round(contentW * scale)
+          const drawH = Math.round(contentH * scale)
+          const destX = Math.round((size - drawW) / 2)
+          const destY = Math.round((size - drawH) / 2)
+          ctx.drawImage(offscreen, minX, minY, contentW, contentH, destX, destY, drawW, drawH)
+        }
 
         setLoading(false)
       } catch (err) {
@@ -100,7 +138,6 @@ export default function DatIcon({
             maxWidth: '100%',
             maxHeight: '100%',
             objectFit: 'contain',
-            imageRendering: 'pixelated',
             display: loading ? 'none' : 'block'
           }}
         />

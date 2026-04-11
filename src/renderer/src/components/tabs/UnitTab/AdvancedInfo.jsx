@@ -3,8 +3,8 @@ import DatIcon from '../../common/DatIcon'
 import '../../common/TabCommon.css'
 
 // Constants
-const SPECIAL_ABILITY_KEY = 'Special Ability Flags:Building,Addon,Flyer,Worker,Subunit,"Flying Building",Hero,"Regenerates HP","Animated Idle(?)",Cloakable,"Two Units in 1 Egg","Single Entity","Resource Depot","Resource Container","Robotic Unit",Detector,"Organic Unit","Requires Creep",Unused(?),"Requires Psi",Burrowable,Spellcaster,"Permanent Cloak","Pickup Item(?)","Ignore Supply Check","Use Medium Overlays","Use Large Overlays","Battle Reactions","Full Auto-Attack",Invincible,"Mechanical Unit","Produces Units(?)"';
-const MOVEMENT_KEY = 'Unknown (old Movement):0x1,0x2,0x4,0x8,0x10,0x20,0x40,0x80(Mine-safe)';
+const SPECIAL_ABILITY_KEY = 'Special Ability Flags';
+const MOVEMENT_KEY = 'Unknown (old Movement)';
 const INFESTATION_KEY = 'Infestation';
 const SUBUNIT1_KEY = 'Subunit 1';
 const SUBUNIT2_KEY = 'Subunit 2';

@@ -586,7 +586,6 @@ const ImageGraphic = forwardRef(({
           maxWidth: '100%',
           maxHeight: '100%',
           objectFit: 'contain',
-          imageRendering: 'pixelated',
           display: (loading || (hasNoScript && animate)) ? 'none' : 'block',
           zIndex: 2
         }}

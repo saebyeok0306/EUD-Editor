@@ -223,6 +223,26 @@ const ko = {
   'unit.edit.textInfo': '문자 정보',
   'unit.edit.rank': '계급',
   'unit.edit.name': '이름',
+
+  // AI Orders Tab
+  'unit.ai.title': '인공지능명령',
+  'unit.ai.compIdle': '컴퓨터 기본',
+  'unit.ai.humanIdle': '사람 기본',
+  'unit.ai.returnToIdle': '원상태로',
+  'unit.ai.attackUnit': '유닛 공격',
+  'unit.ai.attackMove': '공격&이동',
+  'unit.ai.rightClickAction': '우클릭 행동',
+  'unit.ai.aiInternal': '내부 인공지능',
+  'unit.btn.confirm': '확인',
+  'order.rightClick.0': '0  명령없음 / 자동 Attack',
+  'order.rightClick.1': '1  기본 이동 / 기본 Attack',
+  'order.rightClick.2': '2  기본 이동 / 없음 Attack',
+  'order.rightClick.3': '3  이동없음 / 기본 Attack',
+  'order.rightClick.4': '4  자원캐기',
+  'order.rightClick.5': '5  자원캐기 / 수리',
+  'order.rightClick.6': '6  없음',
+  'ai.internal.suicide': '"Strategic Suicide missions" AI를 무시한다.',
+  'ai.internal.guard': '"Guard" 상태가 되지 않는다.',
 }
 
 export default ko

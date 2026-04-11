@@ -56,7 +56,7 @@ pub fn parse_dat(def_text: &str, dat_buffer: &[u8]) -> Result<Array, JsValue> {
                         });
                         
                         match prop {
-                            "Name" => fmt.name = val.to_string(),
+                            "Name" => fmt.name = val.split(':').next().unwrap_or(val).trim().to_string(),
                             "Size" => fmt.size = val.parse::<usize>().unwrap_or(4),
                             "VarStart" => fmt.var_start = Some(val.parse::<usize>().unwrap_or(0)),
                             "VarEnd" => fmt.var_end = Some(val.parse::<usize>().unwrap_or(0)),

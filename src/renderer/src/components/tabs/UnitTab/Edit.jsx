@@ -122,14 +122,14 @@ function EditTab({
   const isMod = (field) => currentProjectData?.[field] !== undefined
 
   // 1. StarEdit Ability Flags
-  const abilityFlags = getVal('starEditAbilityFlags', 'StarEdit Availability Flags')
+  const abilityFlags = getVal('starEditAbilityFlags', 'Staredit Availability Flags')
 
   // 2. StarEdit Group Flags
-  const groupFlags = getVal('starEditGroupFlags', 'StarEdit Group Flags')
+  const groupFlags = getVal('starEditGroupFlags', 'Staredit Group Flags')
 
   // 3. Text Information (Rank, Label)
-  const rankVal = getVal('rank', 'Rank')
-  const labelVal = getVal('label', 'Label')
+  const rankVal = getVal('rank', 'Rank/Sublabel')
+  const labelVal = getVal('label', 'Unit Map String')
 
   // Translations
   const STAR_EDIT_ABILITY_FLAGS = [

@@ -5,6 +5,7 @@ import {
   getUnitsData,
   getWeaponsData,
   getUpgradesData,
+  getOrdersData,
   getStatTxt
 } from '../../../utils/datStore'
 import UnitGraphic from '../../common/UnitGraphic'
@@ -156,6 +157,7 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
       onResetProjectUnit,
       weaponsData: getWeaponsData(),
       upgradesData: getUpgradesData(),
+      ordersData: getOrdersData(),
       statTxt: getStatTxt()
     }
 

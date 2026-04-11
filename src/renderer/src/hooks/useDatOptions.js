@@ -27,12 +27,21 @@ function pad(id, digits = 3) {
 
 function buildUnitOptions() {
   const data = getUnitsData()
+  const flingyData = getFlingyData()
+  const spritesData = getSpritesData()
   if (!data) return []
 
   const options = []
   for (let i = 0; i < data.length; i++) {
     const name = UNITS_NAMES[i] || `Unit ${i}`
-    options.push({ value: i, label: `[${pad(i)}] ${name}` })
+    // Resolve unit → flingy → sprite → imageId
+    let imageId = null
+    try {
+      const flingyId = data[i]?.['Graphics']
+      const spriteId = flingyData?.[flingyId]?.['Sprite']
+      if (spriteId !== undefined) imageId = spritesData?.[spriteId]?.['Image File'] ?? null
+    } catch (e) {}
+    options.push({ value: i, label: `[${pad(i)}] ${name}`, imageId })
   }
   return options
 }
@@ -47,14 +56,14 @@ function buildFlingyOptions() {
   const options = []
   for (let i = 0; i < flingyData.length; i++) {
     let name = `Flingy ${i}`
+    let imageId = null
 
     // Resolve: Flingy → Sprite → Image → GRP File → imagesTbl path
     try {
       const spriteId = flingyData[i]?.['Sprite']
       if (spriteId !== undefined && spritesData?.[spriteId]) {
-        const imageId = spritesData[spriteId]['Image File']
+        imageId = spritesData[spriteId]['Image File'] ?? null
         if (imageId !== undefined) {
-          // Try Images.txt first
           if (IMAGES_NAMES[imageId] && IMAGES_NAMES[imageId].trim()) {
             name = IMAGES_NAMES[imageId]
           } else if (imagesData?.[imageId] && imagesTbl) {
@@ -69,7 +78,7 @@ function buildFlingyOptions() {
       // fallback to default name
     }
 
-    options.push({ value: i, label: `[${pad(i)}] ${name}` })
+    options.push({ value: i, label: `[${pad(i)}] ${name}`, imageId })
   }
   return options
 }
@@ -94,7 +103,7 @@ function buildImageOptions() {
       }
     }
 
-    options.push({ value: id, label: `[${pad(id)}] ${name}` })
+    options.push({ value: id, label: `[${pad(id)}] ${name}`, imageId: id })
   }
   return options
 }
@@ -105,12 +114,12 @@ function buildSpriteOptions() {
 
   const options = []
   for (let i = 0; i < data.length; i++) {
-    const imageId = data[i]?.['Image File']
+    const imageId = data[i]?.['Image File'] ?? null
     let name = `Sprite ${i}`
     if (imageId !== undefined && IMAGES_NAMES[imageId] && IMAGES_NAMES[imageId].trim()) {
       name = IMAGES_NAMES[imageId]
     }
-    options.push({ value: i, label: `[${pad(i)}] ${name}` })
+    options.push({ value: i, label: `[${pad(i)}] ${name}`, imageId })
   }
   return options
 }

@@ -39,7 +39,7 @@
 .card-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--ev-c-brand);
+  /* color: var(--ev-c-brand); */
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

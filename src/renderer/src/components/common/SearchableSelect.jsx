@@ -68,26 +68,34 @@ export default function SearchableSelect({ options, value, onChange, className, 
               e.stopPropagation()
               onNavigate(value)
             }}
-            title="해당 항목으로 이동"
+            title="선택한 항목으로 바로 이동합니다"
             style={{
               flexShrink: 0,
               marginLeft: '4px',
-              padding: '2px 8px',
+              padding: '2px 6px',
               fontSize: '11px',
               fontWeight: '600',
               backgroundColor: 'var(--ev-c-brand)',
-              color: 'white',
+              color: '#ffffff',
               border: 'none',
               borderRadius: '3px',
               cursor: 'pointer',
               lineHeight: '1.4',
-              transition: 'opacity 0.15s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              transition: 'opacity 0.15s ease',
               opacity: 0.85
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.85' }}
+            onMouseEnter={(e) => { 
+              e.currentTarget.style.opacity = '1'
+            }}
+            onMouseLeave={(e) => { 
+              e.currentTarget.style.opacity = '0.85'
+            }}
           >
-            확인
+            <span>이동</span>
+            <span style={{ fontSize: '10px' }}>➔</span>
           </button>
         )}
       </div>

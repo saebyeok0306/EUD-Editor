@@ -19,29 +19,6 @@ function MainContent({
   onUpdateProjectData
 }) {
   const { t } = useI18n()
-
-  const renderTab = () => {
-    switch (selectedCategory) {
-      case 'Unit': return <UnitTab 
-        mapData={mapData} 
-        projectData={projectData} 
-        datReady={datReady} 
-        onUpdateProjectUnit={onUpdateProjectUnit} 
-        onResetProjectUnit={onResetProjectUnit}
-      />
-      case 'Flingy': return <FlingyTab mapData={mapData} datReady={datReady} />
-      case 'Sprite': return <SpriteTab mapData={mapData} datReady={datReady} />
-      case 'Weapon': return <WeaponTab mapData={mapData} datReady={datReady} />
-      case 'Image': return <ImageTab mapData={mapData} projectData={projectData} datReady={datReady} onUpdateProjectImage={onUpdateProjectData} />
-      case 'Upgrade': return <UpgradeTab mapData={mapData} datReady={datReady} />
-      case 'Tech': return <TechTab mapData={mapData} datReady={datReady} />
-      case 'Order': return <OrderTab mapData={mapData} datReady={datReady} />
-      case 'Text': return <GenericTab category="Text" mapData={mapData} />
-      case 'Buttonset': return <GenericTab category="Buttonset" mapData={mapData} />
-      default: return <div style={{ padding: '20px' }}>{t('content.unknownCategory')}</div>
-    }
-  }
-
   const title = t('content.editorTitle', { category: t(`category.${selectedCategory}`) })
 
   return (
@@ -49,7 +26,45 @@ function MainContent({
       <div className="content-header">
         <h2>{title}</h2>
       </div>
-      {renderTab()}
+      <div style={{ display: selectedCategory === 'Unit' ? 'contents' : 'none' }}>
+        <UnitTab 
+          mapData={mapData} 
+          projectData={projectData} 
+          datReady={datReady} 
+          onUpdateProjectUnit={onUpdateProjectUnit} 
+          onResetProjectUnit={onResetProjectUnit}
+        />
+      </div>
+      <div style={{ display: selectedCategory === 'Flingy' ? 'contents' : 'none' }}>
+        <FlingyTab mapData={mapData} datReady={datReady} />
+      </div>
+      <div style={{ display: selectedCategory === 'Sprite' ? 'contents' : 'none' }}>
+        <SpriteTab mapData={mapData} datReady={datReady} />
+      </div>
+      <div style={{ display: selectedCategory === 'Weapon' ? 'contents' : 'none' }}>
+        <WeaponTab mapData={mapData} datReady={datReady} />
+      </div>
+      <div style={{ display: selectedCategory === 'Image' ? 'contents' : 'none' }}>
+        <ImageTab mapData={mapData} projectData={projectData} datReady={datReady} onUpdateProjectImage={onUpdateProjectData} />
+      </div>
+      <div style={{ display: selectedCategory === 'Upgrade' ? 'contents' : 'none' }}>
+        <UpgradeTab mapData={mapData} datReady={datReady} />
+      </div>
+      <div style={{ display: selectedCategory === 'Tech' ? 'contents' : 'none' }}>
+        <TechTab mapData={mapData} datReady={datReady} />
+      </div>
+      <div style={{ display: selectedCategory === 'Order' ? 'contents' : 'none' }}>
+        <OrderTab mapData={mapData} datReady={datReady} />
+      </div>
+      <div style={{ display: selectedCategory === 'Text' ? 'contents' : 'none' }}>
+        <GenericTab category="Text" mapData={mapData} />
+      </div>
+      <div style={{ display: selectedCategory === 'Buttonset' ? 'contents' : 'none' }}>
+        <GenericTab category="Buttonset" mapData={mapData} />
+      </div>
+      {!['Unit', 'Flingy', 'Sprite', 'Weapon', 'Image', 'Upgrade', 'Tech', 'Order', 'Text', 'Buttonset'].includes(selectedCategory) && (
+        <div style={{ padding: '20px' }}>{t('content.unknownCategory')}</div>
+      )}
     </div>
   )
 }

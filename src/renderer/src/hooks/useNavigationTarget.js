@@ -20,12 +20,16 @@ export default function useNavigationTarget(category, setSelectedItem) {
       // Wait for React re-render, then scroll the active list item into view
       setTimeout(() => {
         requestAnimationFrame(() => {
-          const activeItem = document.querySelector('.items-list-pane .list-item.active')
-          if (activeItem) {
-            activeItem.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          const activeItems = document.querySelectorAll('.items-list-pane .list-item.active')
+          // Find the one that actually belongs to the visible tab
+          const visibleItem = Array.from(activeItems).find(
+            el => el.getBoundingClientRect().width > 0
+          )
+          if (visibleItem) {
+            visibleItem.scrollIntoView({ block: 'center', behavior: 'smooth' })
           }
         })
-      }, 50)
+      }, 100)
     }
   }, [navigationRequest, category, setSelectedItem, consumeNavigation])
 }

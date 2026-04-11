@@ -3,6 +3,7 @@ import { useI18n } from '../../../i18n/i18nContext'
 import { getWeaponsData, getFlingyData, getSpritesData, getStatTxtKorEng } from '../../../utils/datStore'
 import ImageGraphic from '../../common/ImageGraphic'
 import DatIcon from '../../common/DatIcon'
+import useNavigationTarget from '../../../hooks/useNavigationTarget'
 
 function WeaponPreview({ weaponId }) {
   const weaponsData = getWeaponsData()
@@ -58,6 +59,8 @@ function WeaponTab({ mapData, datReady }) {
   const [listWidth, setListWidth] = useState(300)
   const [isDragging, setIsDragging] = useState(false)
   const [weaponNames, setWeaponNames] = useState([])
+
+  useNavigationTarget('Weapon', setSelectedItem)
   
   useEffect(() => {
     if (!datReady) return

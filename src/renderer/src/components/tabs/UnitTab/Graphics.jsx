@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import UnitGraphic from '../../common/UnitGraphic'
 import ImageGraphic from '../../common/ImageGraphic'
 import SearchableSelect from '../../common/SearchableSelect'
 import { getFlingyData, getSpritesData } from '../../../utils/datStore'
 import useDatOptions from '../../../hooks/useDatOptions'
+import { useNavigation } from '../../../contexts/NavigationContext'
 import '../../common/TabCommon.css'
 
 function Field({ label, value, onChange, modified, addon, type = "number", className = "", style, selectOptions, disabled }) {
@@ -53,7 +54,7 @@ function Card({ title, children, style }) {
   )
 }
 
-function DatSelectRow({ label, value, onChange, options, imageId }) {
+function DatSelectRow({ label, value, onChange, options, imageId, onNavigate }) {
   return (
     <div className="icon-field-row" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <div className="field-label" style={{ width: '60px', flexShrink: 0 }}>{label}</div>
@@ -76,6 +77,7 @@ function DatSelectRow({ label, value, onChange, options, imageId }) {
         options={options}
         value={value ?? 0}
         onChange={onChange}
+        onNavigate={onNavigate}
         style={{ flex: 1, height: '30px', backgroundColor: 'rgba(255,255,255,0.05)' }}
       />
     </div>
@@ -84,6 +86,7 @@ function DatSelectRow({ label, value, onChange, options, imageId }) {
 
 function GraphicsTab({ selectedItem, currentProjectData, currentMapData, currentEudData, onUpdateProjectUnit, onResetProjectUnit }) {
   const { t } = useI18n()
+  const { navigateTo } = useNavigation()
 
   const getVal = (field, eudField) => {
     if (currentProjectData?.[field] !== undefined) return currentProjectData[field]
@@ -165,6 +168,7 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'graphics', v)}
               options={flingyOptions}
               imageId={flingyImageId}
+              onNavigate={(v) => navigateTo('Flingy', v)}
             />
             <DatSelectRow
               label="생산모습"
@@ -172,6 +176,7 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'constructionAnimation', v)}
               options={imageOptions}
               imageId={macr}
+              onNavigate={(v) => navigateTo('Image', v)}
             />
             <DatSelectRow
               label="얼굴모습"
@@ -182,22 +187,30 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
 
             {/* Elevation & Direction */}
             <div style={{ display: 'flex', gap: '20px', marginTop: '4px' }}>
-              <Field
-                label="높이"
-                value={elevation}
-                onChange={(v) => onUpdateProjectUnit(selectedItem, 'elevationLevel', v)}
-                modified={isMod('elevationLevel')}
-                selectOptions={ELEVATION_OPTIONS.find(o => o.value === elevation) ? ELEVATION_OPTIONS : [...ELEVATION_OPTIONS, { value: elevation, label: `${elevation} (Custom)` }]}
-                style={{ gridTemplateColumns: '40px 1fr', flex: 1 }}
-              />
-              <Field
-                label="생산방향"
-                value={direction}
-                onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitDirection', v)}
-                modified={isMod('unitDirection')}
-                selectOptions={DIRECTION_OPTIONS.find(o => o.value === direction) ? DIRECTION_OPTIONS : [...DIRECTION_OPTIONS, { value: direction, label: `${direction} (Custom)` }]}
-                style={{ gridTemplateColumns: '60px 1fr', flex: 1 }}
-              />
+              <div className="field-group" style={{ gridTemplateColumns: '40px 1fr', flex: 1 }}>
+                <label className="field-label">높이</label>
+                <div className="value-row">
+                  <SearchableSelect
+                    className={`modern-input ${isMod('elevationLevel') ? 'modified' : ''}`}
+                    options={ELEVATION_OPTIONS.find(o => o.value === elevation) ? ELEVATION_OPTIONS : [...ELEVATION_OPTIONS, { value: elevation, label: `${elevation} (Custom)` }]}
+                    value={elevation}
+                    onChange={(v) => onUpdateProjectUnit(selectedItem, 'elevationLevel', v)}
+                    style={{ height: '30px', backgroundColor: 'rgba(255,255,255,0.05)' }}
+                  />
+                </div>
+              </div>
+              <div className="field-group" style={{ gridTemplateColumns: '60px 1fr', flex: 1 }}>
+                <label className="field-label">생산방향</label>
+                <div className="value-row">
+                  <SearchableSelect
+                    className={`modern-input ${isMod('unitDirection') ? 'modified' : ''}`}
+                    options={DIRECTION_OPTIONS.find(o => o.value === direction) ? DIRECTION_OPTIONS : [...DIRECTION_OPTIONS, { value: direction, label: `${direction} (Custom)` }]}
+                    value={direction}
+                    onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitDirection', v)}
+                    style={{ height: '30px', backgroundColor: 'rgba(255,255,255,0.05)' }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </Card>

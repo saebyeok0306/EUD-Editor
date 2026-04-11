@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 
-export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...' }) {
+export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...', onNavigate }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const containerRef = useRef(null)
+  const listRef = useRef(null)
 
   const selectedOption = options.find(opt => opt.value === value)
   const displayLabel = selectedOption ? selectedOption.label : value
@@ -18,6 +19,18 @@ export default function SearchableSelect({ options, value, onChange, className, 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Auto-scroll to the selected item when dropdown opens
+  useEffect(() => {
+    if (isOpen && !searchQuery && listRef.current) {
+      requestAnimationFrame(() => {
+        const selectedEl = listRef.current.querySelector('[data-selected="true"]')
+        if (selectedEl) {
+          selectedEl.scrollIntoView({ block: 'center' })
+        }
+      })
+    }
+  }, [isOpen])
 
   const filteredOptions = useMemo(() => {
     if (!searchQuery) return options
@@ -48,7 +61,35 @@ export default function SearchableSelect({ options, value, onChange, className, 
           whiteSpace: 'nowrap'
         }}
       >
-        {displayLabel}
+        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayLabel}</span>
+        {onNavigate && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onNavigate(value)
+            }}
+            title="해당 항목으로 이동"
+            style={{
+              flexShrink: 0,
+              marginLeft: '4px',
+              padding: '2px 8px',
+              fontSize: '11px',
+              fontWeight: '600',
+              backgroundColor: 'var(--ev-c-brand)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              lineHeight: '1.4',
+              transition: 'opacity 0.15s',
+              opacity: 0.85
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.85' }}
+          >
+            확인
+          </button>
+        )}
       </div>
 
       {isOpen && (
@@ -89,36 +130,55 @@ export default function SearchableSelect({ options, value, onChange, className, 
               }}
             />
           </div>
-          <div style={{ overflowY: 'auto', flex: 1 }}>
+          <div ref={listRef} style={{ overflowY: 'auto', flex: 1 }}>
             {filteredOptions.length === 0 ? (
               <div style={{ padding: '8px 12px', color: 'var(--ev-c-text-3)', fontSize: '13px' }}>검색 결과가 없습니다.</div>
             ) : (
-              filteredOptions.map((opt) => (
-                <div
-                  key={opt.value}
-                  onClick={() => {
-                    onChange(opt.value)
-                    setIsOpen(false)
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--ev-c-brand)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent'
-                  }}
-                  style={{
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontFamily: 'monospace',
-                    color: 'var(--ev-c-text-1)',
-                    backgroundColor: opt.value === value ? 'rgba(100, 108, 255, 0.2)' : 'transparent',
-                    borderLeft: opt.value === value ? '3px solid var(--ev-c-brand)' : '3px solid transparent'
-                  }}
-                >
-                  {renderOption ? renderOption(opt) : opt.label}
-                </div>
-              ))
+              filteredOptions.map((opt) => {
+                const isSelected = opt.value === value
+                return (
+                  <div
+                    key={opt.value}
+                    data-selected={isSelected ? 'true' : undefined}
+                    onClick={() => {
+                      onChange(opt.value)
+                      setIsOpen(false)
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = isSelected
+                        ? 'rgba(100, 108, 255, 0.35)'
+                        : 'rgba(255, 255, 255, 0.08)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = isSelected
+                        ? 'rgba(100, 108, 255, 0.15)'
+                        : 'transparent'
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontFamily: 'monospace',
+                      color: isSelected ? 'var(--ev-c-brand)' : 'var(--ev-c-text-1)',
+                      backgroundColor: isSelected ? 'rgba(100, 108, 255, 0.15)' : 'transparent',
+                      borderLeft: isSelected ? '3px solid var(--ev-c-brand)' : '3px solid transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.1s ease'
+                    }}
+                  >
+                    <span style={{
+                      width: '16px',
+                      flexShrink: 0,
+                      fontSize: '11px',
+                      textAlign: 'center',
+                      opacity: isSelected ? 1 : 0
+                    }}>✓</span>
+                    <span style={{ flex: 1 }}>{renderOption ? renderOption(opt) : opt.label}</span>
+                  </div>
+                )
+              })
             )}
           </div>
         </div>

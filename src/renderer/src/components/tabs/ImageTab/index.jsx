@@ -6,6 +6,7 @@ import imagesNamesData from '../../../data/Images.txt?raw'
 import iscriptJsonUrl from '../../../data/iscript_data.json?url'
 import SearchableSelect from '../../common/SearchableSelect'
 import '../../common/TabCommon.css'
+import useNavigationTarget from '../../../hooks/useNavigationTarget'
 
 function Field({ label, value, onChange, type = "number", className = "", disabled = false, options = [] }) {
   return (
@@ -235,6 +236,8 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
   const [iscriptData, setIscriptData] = useState(null)
   const [selectedAnimation, setSelectedAnimation] = useState('Init')
   const [userDataPath, setUserDataPath] = useState(null)
+
+  useNavigationTarget('Image', setSelectedItem)
 
   useEffect(() => {
     window.api.getUserDataPath().then(path => setUserDataPath(path))

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { getTechdataData, getStatTxtKorEng } from '../../../utils/datStore'
 import DatIcon from '../../common/DatIcon'
+import useNavigationTarget from '../../../hooks/useNavigationTarget'
 
 const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
   <div
@@ -41,6 +42,8 @@ function TechTab({ mapData, datReady }) {
   const [listWidth, setListWidth] = useState(300)
   const [isDragging, setIsDragging] = useState(false)
   const [techNames, setTechNames] = useState([])
+
+  useNavigationTarget('Tech', setSelectedItem)
   
   useEffect(() => {
     if (!datReady) return

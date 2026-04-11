@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { getSpritesData, getImagesData } from '../../../utils/datStore'
 import ImageGraphic from '../../common/ImageGraphic'
+import useNavigationTarget from '../../../hooks/useNavigationTarget'
 
 function SpritePreview({ spriteId }) {
   const spritesData = getSpritesData()
@@ -52,6 +53,8 @@ function SpriteTab({ mapData, datReady }) {
   const [listWidth, setListWidth] = useState(300)
   const [isDragging, setIsDragging] = useState(false)
   const [spriteNames, setSpriteNames] = useState([])
+
+  useNavigationTarget('Sprite', setSelectedItem)
   
   useEffect(() => {
     if (!datReady) return

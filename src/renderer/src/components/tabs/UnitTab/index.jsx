@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, memo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import unitsText from '../../../data/Units.txt?raw'
 import {
@@ -8,6 +8,7 @@ import {
   getStatTxt
 } from '../../../utils/datStore'
 import UnitGraphic from '../../common/UnitGraphic'
+import useNavigationTarget from '../../../hooks/useNavigationTarget'
 
 // Sub-components
 import BasicInfo from './BasicInfo'
@@ -108,6 +109,8 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
   const [listWidth, setListWidth] = useState(300)
   const [isDragging, setIsDragging] = useState(false)
   const [userDataPath, setUserDataPath] = useState(null)
+
+  useNavigationTarget('Unit', setSelectedItem)
 
   useEffect(() => {
     window.api.getUserDataPath().then(path => setUserDataPath(path))

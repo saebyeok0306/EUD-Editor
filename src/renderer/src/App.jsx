@@ -6,6 +6,7 @@ import { I18nProvider } from './i18n/i18nContext'
 import { UNIT_GROUPS } from './constants/unitGroups'
 import SetupScreen from './components/SetupScreen'
 import TitleBar from './components/TitleBar'
+import { NavigationProvider } from './contexts/NavigationContext'
 
 function App() {
   const [mapData, setMapData] = useState(null)
@@ -141,36 +142,38 @@ function App() {
 
   return (
     <I18nProvider>
-      <div className="app-container">
-        <TitleBar 
-          onCreateProject={handleCreateProject}
-          onOpenProject={handleOpenProject}
-          projectPath={projectPath}
-          projectName={projectName}
-          onSaveProject={handleSaveProject}
-          onCloseMap={handleCloseMap} 
-          mapLoaded={!!mapData} 
-        />
-        {scPath === null ? (
-          <SetupScreen onCompleted={(path) => setScPath(path)} />
-        ) : mapData ? (
-          <EditorLayout 
-            mapData={mapData} 
-            projectData={projectData}
-            datReady={datReady} 
-            onCloseMap={handleCloseMap} 
-            onUpdateProjectUnit={updateProjectUnit}
-            onResetProjectUnit={resetProjectUnit}
-            onUpdateProjectData={updateProjectData}
-          />
-        ) : (
-          <StartScreen 
-            onCreateProject={handleCreateProject} 
+      <NavigationProvider>
+        <div className="app-container">
+          <TitleBar 
+            onCreateProject={handleCreateProject}
             onOpenProject={handleOpenProject}
-            onOpenSettings={() => setScPath(null)}
+            projectPath={projectPath}
+            projectName={projectName}
+            onSaveProject={handleSaveProject}
+            onCloseMap={handleCloseMap} 
+            mapLoaded={!!mapData} 
           />
-        )}
-      </div>
+          {scPath === null ? (
+            <SetupScreen onCompleted={(path) => setScPath(path)} />
+          ) : mapData ? (
+            <EditorLayout 
+              mapData={mapData} 
+              projectData={projectData}
+              datReady={datReady} 
+              onCloseMap={handleCloseMap} 
+              onUpdateProjectUnit={updateProjectUnit}
+              onResetProjectUnit={resetProjectUnit}
+              onUpdateProjectData={updateProjectData}
+            />
+          ) : (
+            <StartScreen 
+              onCreateProject={handleCreateProject} 
+              onOpenProject={handleOpenProject}
+              onOpenSettings={() => setScPath(null)}
+            />
+          )}
+        </div>
+      </NavigationProvider>
     </I18nProvider>
   )
 }

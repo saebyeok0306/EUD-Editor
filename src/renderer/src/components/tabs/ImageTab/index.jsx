@@ -5,6 +5,7 @@ import ImageGraphic from '../../common/ImageGraphic'
 import imagesNamesData from '../../../data/Images.txt?raw'
 import iscriptJsonUrl from '../../../data/iscript_data.json?url'
 import SearchableSelect from '../../common/SearchableSelect'
+import VirtualList from '../../common/VirtualList'
 import '../../common/TabCommon.css'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
 
@@ -154,7 +155,22 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
   return (
     <div className="content-body">
       {/* Left Pane: Items List */}
-      {renderedList}
+      <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
+        <VirtualList
+          items={imageNames}
+          itemHeight={60}
+          scrollToIndex={selectedItem !== null ? imageNames.findIndex(n => n.id === selectedItem) : null}
+          style={{ height: '100%' }}
+          renderItem={(item) => (
+            <MemoizedListItem
+              item={item}
+              isActive={selectedItem === item.id}
+              onClick={handleItemClick}
+              userDataPath={userDataPath}
+            />
+          )}
+        />
+      </div>
 
       {/* Resizer */}
       <div

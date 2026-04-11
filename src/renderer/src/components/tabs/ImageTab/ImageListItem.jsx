@@ -9,7 +9,7 @@ export const MemoizedListItem = React.memo(({ item, isActive, onClick, userDataP
   <div
     className={`list-item${isActive ? ' active' : ''}`}
     onClick={() => onClick(item.id)}
-    style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px' }}
+    style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', gap: '10px', height: '60px', boxSizing: 'border-box' }}
   >
     <div style={{
       width: '44px',

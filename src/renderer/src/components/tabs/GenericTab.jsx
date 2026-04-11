@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useI18n } from '../../i18n/i18nContext'
+import VirtualList from '../common/VirtualList'
 
 import {
   getFlingyData,
@@ -56,16 +57,22 @@ function GenericTab({ category, mapData }) {
   return (
     <div className="content-body">
       <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
-        {Array.from({ length: itemCount }).map((_, i) => (
-          <div
-            key={i}
-            className={`list-item${selectedItem === i ? ' active' : ''}`}
-            onClick={() => setSelectedItem(i)}
-          >
-            <span className="list-item-id">{i.toString().padStart(3, '0')}</span>
-            <span className="list-item-name">{categoryLabel} {i}</span>
-          </div>
-        ))}
+        <VirtualList
+          items={Array.from({ length: itemCount }, (_, i) => i)}
+          itemHeight={40}
+          scrollToIndex={selectedItem}
+          style={{ height: '100%' }}
+          renderItem={(i) => (
+            <div
+              className={`list-item${selectedItem === i ? ' active' : ''}`}
+              onClick={() => setSelectedItem(i)}
+              style={{ height: 40, display: 'flex', alignItems: 'center', padding: '0 12px', gap: '8px', boxSizing: 'border-box' }}
+            >
+              <span className="list-item-id">{i.toString().padStart(3, '0')}</span>
+              <span className="list-item-name">{categoryLabel} {i}</span>
+            </div>
+          )}
+        />
       </div>
 
       <div

@@ -13,13 +13,25 @@ export function I18nProvider({ children }) {
     return localStorage.getItem(STORAGE_KEY) || 'ko'
   })
 
-  // Listen for language changes from Electron menu bar
+  // 1. Load language from global settings on mount
+  useEffect(() => {
+    const loadSavedLanguage = async () => {
+      if (window.api?.getSettings) {
+        const settings = await window.api.getSettings()
+        if (settings.language && settings.language !== language) {
+          setLanguage(settings.language)
+        }
+      }
+    }
+    loadSavedLanguage()
+  }, [])
+
+  // 2. Listen for language changes from Electron menu bar
   useEffect(() => {
     if (!window.api?.onLanguageChanged) return
 
     const cleanup = window.api.onLanguageChanged((lang) => {
       setLanguage(lang)
-      localStorage.setItem(STORAGE_KEY, lang)
     })
 
     return () => {
@@ -27,9 +39,12 @@ export function I18nProvider({ children }) {
     }
   }, [])
 
-  // Persist to localStorage whenever language changes
+  // 3. Persist to localStorage and global settings whenever language changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, language)
+    if (window.api?.saveSettings) {
+      window.api.saveSettings({ language })
+    }
   }, [language])
 
   /**

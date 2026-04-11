@@ -10,7 +10,7 @@ const en = {
   'start.newProjectDesc': 'Create a new project and link a map.',
   'start.settings': 'Settings',
   'start.settingsDesc': 'Configure editor environment.',
-  'start.recentEmpty': 'No recent maps found.',
+  'start.recentEmpty': 'No recent projects found.',
 
   // Sidebar
   'sidebar.size': 'Size',
@@ -261,6 +261,15 @@ const en = {
   'settings.changelog.loading': 'Loading version history...',
   'settings.changelog.error': 'Failed to load version history.',
   'settings.changelog.viewOnGithub': 'View on GitHub',
+
+  // SetupScreen
+  'setup.welcome': 'Welcome to EUD Editor',
+  'setup.description': 'To start editing, we need to locate your StarCraft Launcher.exe and extract essential graphics.',
+  'setup.placeholder': 'Select StarCraft Launcher.exe...',
+  'setup.selectFile': 'Select File',
+  'setup.start': 'Start Setup',
+  'setup.extracting': 'Extracting Graphics...',
+  'setup.errorSelection': 'Please select StarCraft Launcher.exe first.',
 }
 
 export default en

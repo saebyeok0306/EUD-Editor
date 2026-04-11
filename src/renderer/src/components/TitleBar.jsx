@@ -10,7 +10,8 @@ export default function TitleBar({
   projectName, 
   onOpenSettings,
   recentProjects = [],
-  onOpenRecentProject
+  onOpenRecentProject,
+  isSettingUp
 }) {
   const { t, language, changeLanguage } = useI18n()
   const [activeMenu, setActiveMenu] = useState(null)
@@ -53,105 +54,107 @@ export default function TitleBar({
           </svg>
         </div>
 
-        <div className="menu-items">
-          <div className={`menu-item ${activeMenu === 'file' ? 'active' : ''}`}>
-            <button 
-              onClick={() => toggleMenu('file')}
-              onMouseEnter={() => handleMouseEnter('file')}
-            >
-              File
-            </button>
-            {activeMenu === 'file' && (
-              <div className="dropdown-menu">
-                <div className="menu-row" onClick={() => { onCreateProject(); closeMenu(); }}>
-                  <span>{t('start.newProject')}</span>
-                </div>
-                <div className="menu-row" onClick={() => { onOpenProject(); closeMenu(); }}>
-                  <span>{t('start.openProject')}</span>
-                  <span className="shortcut">Ctrl+O</span>
-                </div>
-                
-                {/* Recent Projects Submenu */}
-                <div className="menu-separator"></div>
-                <div className="menu-label">{t('start.recentMaps')}</div>
-                <div className="recent-list-dropdown">
-                  {recentProjects && recentProjects.length > 0 ? (
-                    recentProjects.map((path, index) => (
-                      <div key={index} className="menu-row mini" onClick={() => { onOpenRecentProject(path); closeMenu(); }} title={path}>
-                        <span className="recent-filename">{path.split(/[\\/]/).pop()}</span>
+        {!isSettingUp && (
+          <div className="menu-items">
+            <div className={`menu-item ${activeMenu === 'file' ? 'active' : ''}`}>
+              <button 
+                onClick={() => toggleMenu('file')}
+                onMouseEnter={() => handleMouseEnter('file')}
+              >
+                File
+              </button>
+              {activeMenu === 'file' && (
+                <div className="dropdown-menu">
+                  <div className="menu-row" onClick={() => { onCreateProject(); closeMenu(); }}>
+                    <span>{t('start.newProject')}</span>
+                  </div>
+                  <div className="menu-row" onClick={() => { onOpenProject(); closeMenu(); }}>
+                    <span>{t('start.openProject')}</span>
+                    <span className="shortcut">Ctrl+O</span>
+                  </div>
+                  
+                  {/* Recent Projects Submenu */}
+                  <div className="menu-separator"></div>
+                  <div className="menu-label">{t('start.recentMaps')}</div>
+                  <div className="recent-list-dropdown">
+                    {recentProjects && recentProjects.length > 0 ? (
+                      recentProjects.map((path, index) => (
+                        <div key={index} className="menu-row mini" onClick={() => { onOpenRecentProject(path); closeMenu(); }} title={path}>
+                          <span className="recent-filename">{path.split(/[\\/]/).pop()}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="menu-row disabled">
+                        <span>{t('start.recentEmpty')}</span>
                       </div>
-                    ))
-                  ) : (
-                    <div className="menu-row disabled">
-                      <span>{t('start.recentEmpty')}</span>
-                    </div>
+                    )}
+                  </div>
+                  <div className="menu-separator"></div>
+
+                  {mapLoaded && (
+                    <>
+                      <div className="menu-row" onClick={() => { onSaveProject(); closeMenu(); }}>
+                        <span>{t('sidebar.saveProject')}</span>
+                        <span className="shortcut">Ctrl+S</span>
+                      </div>
+                      <div className="menu-row" onClick={() => { onCloseMap(); closeMenu(); }}>
+                        <span>{t('sidebar.closeMap')}</span>
+                      </div>
+                      <div className="menu-separator"></div>
+                    </>
                   )}
+                  <div className="menu-row" onClick={() => { onOpenSettings(); closeMenu(); }}>
+                    <span>{t('settings.title') || 'Settings'}</span>
+                  </div>
+                  <div className="menu-separator"></div>
+                  <div className="menu-row" onClick={() => { handleClose(); }}>
+                    <span>Exit</span>
+                  </div>
                 </div>
-                <div className="menu-separator"></div>
+              )}
+            </div>
 
-                {mapLoaded && (
-                  <>
-                    <div className="menu-row" onClick={() => { onSaveProject(); closeMenu(); }}>
-                      <span>{t('sidebar.saveProject')}</span>
-                      <span className="shortcut">Ctrl+S</span>
-                    </div>
-                    <div className="menu-row" onClick={() => { onCloseMap(); closeMenu(); }}>
-                      <span>{t('sidebar.closeMap')}</span>
-                    </div>
-                    <div className="menu-separator"></div>
-                  </>
-                )}
-                <div className="menu-row" onClick={() => { onOpenSettings(); closeMenu(); }}>
-                  <span>{t('settings.title') || 'Settings'}</span>
+            <div className={`menu-item ${activeMenu === 'language' ? 'active' : ''}`}>
+              <button 
+                onClick={() => toggleMenu('language')}
+                onMouseEnter={() => handleMouseEnter('language')}
+              >
+                Language
+              </button>
+              {activeMenu === 'language' && (
+                <div className="dropdown-menu">
+                  <div className="menu-row" onClick={() => { changeLanguage('ko'); closeMenu(); }}>
+                    <span className="check">{language === 'ko' ? '✓' : ''}</span>
+                    <span>한국어</span>
+                  </div>
+                  <div className="menu-row" onClick={() => { changeLanguage('en'); closeMenu(); }}>
+                    <span className="check">{language === 'en' ? '✓' : ''}</span>
+                    <span>English</span>
+                  </div>
                 </div>
-                <div className="menu-separator"></div>
-                <div className="menu-row" onClick={() => { handleClose(); }}>
-                  <span>Exit</span>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <div className={`menu-item ${activeMenu === 'language' ? 'active' : ''}`}>
-            <button 
-              onClick={() => toggleMenu('language')}
-              onMouseEnter={() => handleMouseEnter('language')}
-            >
-              Language
-            </button>
-            {activeMenu === 'language' && (
-              <div className="dropdown-menu">
-                <div className="menu-row" onClick={() => { changeLanguage('ko'); closeMenu(); }}>
-                  <span className="check">{language === 'ko' ? '✓' : ''}</span>
-                  <span>한국어</span>
+            <div className={`menu-item ${activeMenu === 'test' ? 'active' : ''}`}>
+              <button 
+                onClick={() => toggleMenu('test')}
+                onMouseEnter={() => handleMouseEnter('test')}
+              >
+                Test
+              </button>
+              {activeMenu === 'test' && (
+                <div className="dropdown-menu">
+                  <div className="menu-row" onClick={() => { window.api.deleteSettings(); closeMenu(); }}>
+                    <span>Delete settings.json</span>
+                  </div>
+                  <div className="menu-row" onClick={() => { window.api.deleteDatapack(); closeMenu(); }}>
+                    <span>Delete casc.datapack</span>
+                  </div>
                 </div>
-                <div className="menu-row" onClick={() => { changeLanguage('en'); closeMenu(); }}>
-                  <span className="check">{language === 'en' ? '✓' : ''}</span>
-                  <span>English</span>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-
-          <div className={`menu-item ${activeMenu === 'test' ? 'active' : ''}`}>
-            <button 
-              onClick={() => toggleMenu('test')}
-              onMouseEnter={() => handleMouseEnter('test')}
-            >
-              Test
-            </button>
-            {activeMenu === 'test' && (
-              <div className="dropdown-menu">
-                <div className="menu-row" onClick={() => { window.api.deleteSettings(); closeMenu(); }}>
-                  <span>Delete settings.json</span>
-                </div>
-                <div className="menu-row" onClick={() => { window.api.deleteDatapack(); closeMenu(); }}>
-                  <span>Delete casc.datapack</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
 
         <div className="window-title">{projectName ? `EUD Editor - ${projectName}` : 'EUD Editor'}</div>
 

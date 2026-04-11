@@ -261,6 +261,15 @@ const ko = {
   'settings.changelog.loading': '업데이트 내역을 불러오고 있습니다...',
   'settings.changelog.error': '업데이트 내역을 불러오는데 실패했습니다.',
   'settings.changelog.viewOnGithub': 'GitHub에서 보기',
+  
+  // SetupScreen
+  'setup.welcome': 'EUD 에디터에 오신 것을 환영합니다',
+  'setup.description': '에디터를 시작하려면 StarCraft Launcher.exe의 위치를 지정하고 필수 그래픽 데이터를 추출해야 합니다.',
+  'setup.placeholder': 'StarCraft Launcher.exe 파일을 선택하세요...',
+  'setup.selectFile': '파일 선택',
+  'setup.start': '설정 시작',
+  'setup.extracting': '그래픽 데이터 추출 중...',
+  'setup.errorSelection': '먼저 스타크래프트 실행 파일(.exe)을 선택해 주세요.',
 }
 
 export default ko

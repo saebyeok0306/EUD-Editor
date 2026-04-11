@@ -185,6 +185,7 @@ function App() {
             onCloseMap={handleCloseMap} 
             mapLoaded={!!mapData} 
             onOpenSettings={() => setShowSettings(true)}
+            isSettingUp={scPath === null}
           />
           {scPath === null ? (
             <SetupScreen onCompleted={(path) => setScPath(path)} />

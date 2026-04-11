@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import { useI18n } from '../i18n/i18nContext'
 
 export default function SetupScreen({ onCompleted }) {
+  const { language, changeLanguage, t } = useI18n()
   const [scPath, setScPath] = useState('')
   const [extracting, setExtracting] = useState(false)
   const [progress, setProgress] = useState({ percent: 0, currentFile: '' })
@@ -25,7 +27,7 @@ export default function SetupScreen({ onCompleted }) {
 
   const handleStartExtraction = async () => {
     if (!scPath) {
-      setError('Please select StarCraft folder first.')
+      setError(t('setup.errorSelection'))
       return
     }
 
@@ -56,12 +58,47 @@ export default function SetupScreen({ onCompleted }) {
       height: '100vh',
       backgroundColor: 'var(--color-background-soft)',
       padding: '40px',
-      textAlign: 'center'
+      textAlign: 'center',
+      position: 'relative'
     }}>
+      {/* Language Switcher */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '20px',
+        display: 'flex',
+        gap: '4px',
+        backgroundColor: 'var(--ev-c-gray-3)',
+        padding: '4px',
+        borderRadius: '8px',
+        border: '1px solid var(--ev-c-divider)'
+      }}>
+        {[
+          { id: 'ko', label: '한국어' },
+          { id: 'en', label: 'English' }
+        ].map(lang => (
+          <button
+            key={lang.id}
+            onClick={() => changeLanguage(lang.id)}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              backgroundColor: language === lang.id ? 'var(--ev-c-brand)' : 'transparent',
+              color: language === lang.id ? '#fff' : 'var(--ev-c-text-1)',
+              fontWeight: language === lang.id ? 'bold' : 'normal'
+            }}
+          >
+            {lang.label}
+          </button>
+        ))}
+      </div>
+
       <div style={{ maxWidth: '600px', width: '100%' }}>
-        <h1 style={{ marginBottom: '20px', color: 'var(--ev-c-brand)' }}>Welcome to EUD Editor</h1>
+        <h1 style={{ marginBottom: '20px', color: 'var(--ev-c-brand)' }}>{t('setup.welcome')}</h1>
         <p style={{ marginBottom: '40px', color: 'var(--ev-c-text-2)' }}>
-          To start editing, we need to locate your StarCraft Launcher.exe and extract essential graphics.
+          {t('setup.description')}
         </p>
 
         {!extracting ? (
@@ -71,7 +108,7 @@ export default function SetupScreen({ onCompleted }) {
                 type="text"
                 value={scPath}
                 readOnly
-                placeholder="Select StarCraft Launcher.exe..."
+                placeholder={t('setup.placeholder')}
                 style={{
                   flex: 1,
                   padding: '12px',
@@ -92,7 +129,7 @@ export default function SetupScreen({ onCompleted }) {
                   cursor: 'pointer'
                 }}
               >
-                Select File
+                {t('setup.selectFile')}
               </button>
             </div>
 
@@ -107,23 +144,24 @@ export default function SetupScreen({ onCompleted }) {
                   flex: 1,
                   padding: '15px',
                   borderRadius: '8px',
-                  backgroundColor: scPath ? 'var(--ev-c-brand)' : 'var(--ev-c-gray-2)',
-                  color: '#fff',
+                  backgroundColor: scPath ? 'var(--ev-c-brand)' : 'var(--ev-c-gray-3)',
+                  color: scPath ? '#fff' : 'var(--ev-c-text-3)',
                   fontSize: '1.1em',
                   fontWeight: 'bold',
                   border: 'none',
                   cursor: scPath ? 'pointer' : 'not-allowed',
+                  opacity: scPath ? 1 : 0.6,
                   transition: 'all 0.2s'
                 }}
               >
-                Start Setup
+                {t('setup.start')}
               </button>
             </div>
           </div>
         ) : (
           <div style={{ marginTop: '20px' }}>
             <p style={{ marginBottom: '10px', color: 'var(--ev-c-text-1)' }}>
-              Extracting Graphics...
+              {t('setup.extracting')}
             </p>
             <div style={{
               width: '100%',

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useI18n } from '../i18n/i18nContext'
 
-export default function TitleBar({ onCreateProject, onOpenProject, onSaveProject, onCloseMap, mapLoaded, projectName }) {
+export default function TitleBar({ onCreateProject, onOpenProject, onSaveProject, onCloseMap, mapLoaded, projectName, onOpenSettings }) {
   const { t, language, changeLanguage } = useI18n()
   const [activeMenu, setActiveMenu] = useState(null)
   const menuRef = useRef(null)
@@ -71,6 +71,9 @@ export default function TitleBar({ onCreateProject, onOpenProject, onSaveProject
                     </div>
                   </>
                 )}
+                <div className="menu-row" onClick={() => { onOpenSettings(); closeMenu(); }}>
+                  <span>{t('settings.title') || 'Settings'}</span>
+                </div>
                 <div className="menu-separator"></div>
                 <div className="menu-row" onClick={() => { handleClose(); }}>
                   <span>Exit</span>

@@ -357,3 +357,372 @@
   color: var(--ev-c-white);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* --- Settings Screen --- */
+.settings-overlay {
+  position: fixed;
+  top: 32px; /* same as title bar height */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-background);
+  z-index: 100;
+  display: flex;
+}
+
+.settings-sidebar {
+  width: 250px;
+  background-color: var(--color-background-mute);
+  border-right: 1px solid var(--ev-c-gray-3);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+.settings-sidebar-header {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--ev-c-gray-3);
+  margin-bottom: 10px;
+}
+
+.settings-sidebar-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--ev-c-text-1);
+}
+
+.settings-tab {
+  padding: 12px 20px;
+  cursor: pointer;
+  color: var(--ev-c-text-2);
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.settings-tab:hover {
+  background-color: var(--ev-c-gray-3);
+  color: var(--ev-c-text-1);
+}
+
+.settings-tab.active {
+  background-color: var(--ev-c-gray-2);
+  color: var(--ev-c-white);
+  font-weight: bold;
+  border-left-color: #6988e6;
+}
+
+.settings-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.settings-section {
+  max-width: 800px;
+}
+
+.settings-section-title {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  color: var(--ev-c-text-1);
+}
+
+.settings-group {
+  margin-bottom: 30px;
+}
+
+.settings-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ev-c-text-2);
+  margin-bottom: 8px;
+}
+
+.settings-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-input {
+  flex: 1;
+  padding: 10px 12px;
+  background-color: var(--ev-c-black-mute);
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 6px;
+  color: var(--ev-c-text-1);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.settings-input:focus {
+  border-color: #6988e6;
+}
+
+.settings-button {
+  padding: 10px 15px;
+  background-color: var(--ev-c-gray-3);
+  border: none;
+  border-radius: 6px;
+  color: var(--ev-c-text-1);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.settings-button:hover {
+  background-color: var(--ev-c-gray-2);
+}
+
+.settings-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background-color: var(--color-background-soft);
+  border-top: 1px solid var(--ev-c-gray-3);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-footer-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.settings-footer-btn.close {
+  background-color: #6988e6;
+  color: white;
+  border: none;
+}
+
+.settings-footer-btn.close:hover {
+  background-color: #5c78cc;
+}
+
+/* --- Changelog Tab --- */
+.changelog-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.changelog-item {
+  padding: 20px;
+  background-color: var(--color-background-soft);
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.changelog-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.changelog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.changelog-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #6988e6;
+  margin: 0;
+}
+
+.changelog-date {
+  font-size: 0.85rem;
+  color: var(--ev-c-text-3);
+}
+
+.changelog-body {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ev-c-text-2);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.changelog-loading, .changelog-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  color: var(--ev-c-text-3);
+  text-align: center;
+}
+
+.github-link {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 8px 16px;
+  background-color: var(--ev-c-gray-3);
+  color: var(--ev-c-text-1);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.github-link:hover {
+  background-color: var(--ev-c-gray-2);
+}
+
+.changelog-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: rgba(105, 136, 230, 0.2);
+  color: #6988e6;
+  border: 1px solid rgba(105, 136, 230, 0.4);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+/* --- Markdown Styles in Changelog (GitHub Style) --- */
+.changelog-body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  color: var(--ev-c-text-2);
+}
+
+.changelog-body h1, .changelog-body h2, .changelog-body h3, 
+.changelog-body h4, .changelog-body h5, .changelog-body h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ev-c-text-1);
+}
+
+.changelog-body h1, .changelog-body h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--ev-c-gray-3);
+}
+
+.changelog-body h1 { font-size: 2em; }
+.changelog-body h2 { font-size: 1.5em; }
+.changelog-body h3 { font-size: 1.25em; }
+
+.changelog-body p {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.changelog-body ul, .changelog-body ol {
+  padding-left: 2em;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.changelog-body li {
+  margin-top: 0.25em;
+}
+
+.changelog-body li + li {
+  margin-top: 0.25em;
+}
+
+.changelog-body code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+.changelog-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: var(--ev-c-black-mute);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.changelog-body pre code {
+  display: inline;
+  max-width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.changelog-body blockquote {
+  padding: 0 1em;
+  color: var(--ev-c-text-3);
+  border-left: 0.25em solid var(--ev-c-gray-3);
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.changelog-body a {
+  color: #4493f8;
+  text-decoration: none;
+}
+
+.changelog-body a:hover {
+  text-decoration: underline;
+}
+
+.changelog-body table {
+  display: block;
+  width: 100%;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  margin-top: 0;
+  margin-bottom: 16px;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+.changelog-body tr {
+  background-color: transparent;
+  border-top: 1px solid var(--ev-c-gray-3);
+}
+
+.changelog-body th, .changelog-body td {
+  padding: 6px 13px;
+  border: 1px solid var(--ev-c-gray-3);
+}
+
+.changelog-body th {
+  font-weight: 600;
+  background-color: var(--ev-c-gray-3);
+}
+
+.changelog-body img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.changelog-body hr {
+  border: none;
+  border-top: 1px solid var(--ev-c-gray-3);
+  margin: 20px 0;
+}

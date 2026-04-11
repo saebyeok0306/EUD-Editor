@@ -243,6 +243,24 @@ const ko = {
   'order.rightClick.6': '6  없음',
   'ai.internal.suicide': '"Strategic Suicide missions" AI를 무시한다.',
   'ai.internal.guard': '"Guard" 상태가 되지 않는다.',
+
+  // Settings
+  'settings.title': '환경설정',
+  'settings.tab.general': '기본 설정',
+  'settings.general.title': '기본 설정',
+  'settings.starcraftPath': '스타크래프트 경로',
+  'settings.starcraftPathPlaceholder': '스타크래프트 폴더를 선택하세요',
+  'settings.euddraftPath': 'euddraft 경로',
+  'settings.euddraftPathPlaceholder': 'euddraft.exe 파일을 선택하세요',
+  'settings.selectEudDraft': 'euddraft.exe 선택',
+  'settings.language': '언어(Language)',
+  'settings.browse': '찾아보기',
+  'settings.close': '닫기',
+  'settings.tab.changelog': '업데이트 내역',
+  'settings.changelog.title': '업데이트 내역',
+  'settings.changelog.loading': '업데이트 내역을 불러오고 있습니다...',
+  'settings.changelog.error': '업데이트 내역을 불러오는데 실패했습니다.',
+  'settings.changelog.viewOnGithub': 'GitHub에서 보기',
 }
 
 export default ko

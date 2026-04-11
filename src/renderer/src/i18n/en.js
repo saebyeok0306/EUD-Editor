@@ -243,6 +243,24 @@ const en = {
   'order.rightClick.6': '6  None',
   'ai.internal.suicide': 'Ignore "Strategic Suicide missions"',
   'ai.internal.guard': 'Do not enter "Guard" state',
+
+  // Settings
+  'settings.title': 'Settings',
+  'settings.tab.general': 'General',
+  'settings.general.title': 'General Settings',
+  'settings.starcraftPath': 'StarCraft Path',
+  'settings.starcraftPathPlaceholder': 'Select StarCraft folder',
+  'settings.euddraftPath': 'euddraft Path',
+  'settings.euddraftPathPlaceholder': 'Select euddraft.exe file',
+  'settings.selectEudDraft': 'Select euddraft.exe',
+  'settings.language': 'Language',
+  'settings.browse': 'Browse',
+  'settings.close': 'Close',
+  'settings.tab.changelog': 'Version History',
+  'settings.changelog.title': 'Version History',
+  'settings.changelog.loading': 'Loading version history...',
+  'settings.changelog.error': 'Failed to load version history.',
+  'settings.changelog.viewOnGithub': 'View on GitHub',
 }
 
 export default en

@@ -7,6 +7,7 @@ import { UNIT_GROUPS } from './constants/unitGroups'
 import SetupScreen from './components/SetupScreen'
 import TitleBar from './components/TitleBar'
 import { NavigationProvider } from './contexts/NavigationContext'
+import SettingsScreen from './components/Settings'
 
 function App() {
   const [mapData, setMapData] = useState(null)
@@ -14,6 +15,7 @@ function App() {
   const [scPath, setScPath] = useState(undefined) // undefined = checking, null = not set, string = path
   const [projectPath, setProjectPath] = useState(null)
   const [projectName, setProjectName] = useState(null)
+  const [showSettings, setShowSettings] = useState(false)
 
   // Load all .dat files once at startup
   useEffect(() => {
@@ -144,6 +146,7 @@ function App() {
     <I18nProvider>
       <NavigationProvider>
         <div className="app-container">
+          {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} />}
           <TitleBar 
             onCreateProject={handleCreateProject}
             onOpenProject={handleOpenProject}
@@ -152,6 +155,7 @@ function App() {
             onSaveProject={handleSaveProject}
             onCloseMap={handleCloseMap} 
             mapLoaded={!!mapData} 
+            onOpenSettings={() => setShowSettings(true)}
           />
           {scPath === null ? (
             <SetupScreen onCompleted={(path) => setScPath(path)} />
@@ -169,7 +173,7 @@ function App() {
             <StartScreen 
               onCreateProject={handleCreateProject} 
               onOpenProject={handleOpenProject}
-              onOpenSettings={() => setScPath(null)}
+              onOpenSettings={() => setShowSettings(true)}
             />
           )}
         </div>

@@ -248,6 +248,14 @@ app.whenReady().then(() => {
     return app.getPath('userData')
   })
 
+  ipcMain.handle('app:getSettings', () => {
+    return getSettings()
+  })
+
+  ipcMain.handle('app:saveSettings', (event, newSettings) => {
+    return saveSettings(newSettings)
+  })
+
   ipcMain.handle('read-images-tbl', () => {
     try {
       const userDataPath = app.getPath('userData')
@@ -296,6 +304,18 @@ app.whenReady().then(() => {
     if (canceled || filePaths.length === 0) return null
     // Return the directory containing the .exe
     return path.dirname(filePaths[0])
+  })
+
+  ipcMain.handle('starcraft:selectFile', async (event, { filters, title }) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+      properties: ['openFile'],
+      filters: filters || [],
+      title: title || 'Select File'
+    })
+    
+    if (canceled || filePaths.length === 0) return null
+    return filePaths[0]
   })
 
   ipcMain.handle('starcraft:extract', async (event, scPath) => {

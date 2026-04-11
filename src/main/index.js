@@ -21,9 +21,10 @@ setupPortablePath()
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1140,
-    minWidth: 1140,
-    height: 670,
+    width: 1440,
+    minWidth: 1440,
+    height: 720,
+    minHeight: 720,
     show: false,
     frame: false,
     backgroundColor: '#1b1b1f',
@@ -80,7 +81,7 @@ app.whenReady().then(() => {
       if (win.isMaximized()) {
         win.unmaximize()
       }
-      win.setSize(1140, 670)
+      win.setSize(1440, 720)
       win.center()
     }
   })

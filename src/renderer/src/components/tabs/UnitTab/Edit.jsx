@@ -111,16 +111,11 @@ function EditTab({
     return opts
   }, [statTxt])
 
-  // Rank uses stat_txt[rankVal + 1302] — build options where displayed index = raw value
   const rankOptions = React.useMemo(() => {
     if (!statTxt) return []
     const opts = []
-    // Rank values are typically 0-based offsets; stat_txt entry is at (rankVal + 1302)
-    const maxRank = Math.max(0, statTxt.length - 1302)
-    for (let i = 0; i < maxRank; i++) {
-      const statIdx = i + 1302
-      const text = statTxt[statIdx] ?? `(${statIdx})`
-      opts.push({ value: i, label: `[${(i + 1302).toString().padStart(4, '0')}] ${text}` })
+    for (let i = 0; i < statTxt.length; i++) {
+      opts.push({ value: i - 1302, label: `[${i.toString().padStart(4, '0')}] ${statTxt[i]}` })
     }
     return opts
   }, [statTxt])

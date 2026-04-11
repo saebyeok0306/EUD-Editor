@@ -13,7 +13,7 @@ import { openCASC, closeCASC, readFile, listFiles } from './casc.js'
 import { packCascData, readDatapackFile } from './cascPacker.js'
 import { setupPortablePath } from './paths.js'
 import path from 'path'
-import { createProject, openProject, saveProject } from './projectManager.js'
+import { createProject, openProject, saveProject, openProjectByPath } from './projectManager.js'
 // Set up portable data path before anything else
 setupPortablePath()
 
@@ -113,6 +113,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('project:open', async (event) => {
     return await openProject(event)
+  })
+
+  ipcMain.handle('project:openByPath', async (event, projectPath) => {
+    return await openProjectByPath(projectPath, event)
   })
 
   ipcMain.handle('project:save', async (event, projectPath, data) => {

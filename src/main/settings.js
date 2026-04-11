@@ -44,3 +44,27 @@ export function deleteSettings() {
   }
   return false
 }
+
+export function addRecentProject(projectPath) {
+  try {
+    const settings = getSettings()
+    let recentProjects = settings.recentProjects || []
+    
+    // Remove if already exists (to move to front)
+    recentProjects = recentProjects.filter(p => p !== projectPath)
+    
+    // Add to front
+    recentProjects.unshift(projectPath)
+    
+    // Limit to 10 items
+    if (recentProjects.length > 10) {
+      recentProjects = recentProjects.slice(0, 10)
+    }
+    
+    saveSettings({ recentProjects })
+    return recentProjects
+  } catch (err) {
+    console.error('Error adding recent project:', err)
+    return []
+  }
+}

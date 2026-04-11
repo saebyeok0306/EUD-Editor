@@ -5,6 +5,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   createProject: () => ipcRenderer.invoke('project:create'),
   openProject: () => ipcRenderer.invoke('project:open'),
+  openProjectByPath: (path) => ipcRenderer.invoke('project:openByPath', path),
   saveProject: (projectPath, data) => ipcRenderer.invoke('project:save', projectPath, data),
   onLanguageChanged: (callback) => {
     const listener = (_event, lang) => callback(lang)

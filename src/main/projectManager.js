@@ -6,6 +6,7 @@ import scmExtractor from 'scm-extractor'
 import bwChkData from 'bw-chk'
 import { pack, unpack } from 'msgpackr'
 import { extractChkSection, parseUnixSection } from './chkParser.js'
+import { addRecentProject } from './settings.js'
 
 const createExtractor = scmExtractor.default || scmExtractor
 const BwChk = bwChkData.default || bwChkData
@@ -96,6 +97,8 @@ export async function createProject(windowEvent) {
       win.maximize()
     }
 
+    addRecentProject(projectPath)
+
     return {
       projectPath,
       projectName: basename(projectPath),
@@ -143,6 +146,8 @@ export async function openProject(windowEvent) {
       win.maximize()
     }
 
+    addRecentProject(projectPath)
+
     return {
       projectPath,
       projectName: basename(projectPath),
@@ -177,4 +182,45 @@ export async function saveProject(projectPath, data) {
     console.error('Failed to save project:', err)
     throw new Error('Failed to save project: ' + err.message)
   }
+}
+
+export async function openProjectByPath(projectPath, windowEvent) {
+    if (!fs.existsSync(projectPath)) {
+        throw new Error(`Project file not found at: ${projectPath}`)
+    }
+
+    try {
+        const buffer = await fsp.readFile(projectPath)
+        let parsedData
+
+        if (buffer[0] === 0x7B) {
+            parsedData = JSON.parse(buffer.toString('utf-8'))
+        } else {
+            parsedData = unpack(buffer)
+        }
+
+        const mapPath = parsedData.mapPath
+        if (!fs.existsSync(mapPath)) {
+            throw new Error(`Linked map file not found at: ${mapPath}`)
+        }
+
+        const mapData = await loadMapData(mapPath)
+
+        const win = windowEvent ? BrowserWindow.fromWebContents(windowEvent.sender) : null
+        if (win && !win.isMaximized()) {
+            win.maximize()
+        }
+
+        addRecentProject(projectPath)
+
+        return {
+            projectPath,
+            projectName: basename(projectPath),
+            mapData,
+            projectData: parsedData.projectData || { units: {}, weapons: {}, upgrades: {}, images: {} }
+        }
+    } catch (err) {
+        console.error('Failed to open project by path:', err)
+        throw new Error('Failed to open project: ' + err.message)
+    }
 }

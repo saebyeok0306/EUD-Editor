@@ -1,7 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
 import { useI18n } from '../i18n/i18nContext'
 
-export default function TitleBar({ onCreateProject, onOpenProject, onSaveProject, onCloseMap, mapLoaded, projectName, onOpenSettings }) {
+export default function TitleBar({ 
+  onCreateProject, 
+  onOpenProject, 
+  onSaveProject, 
+  onCloseMap, 
+  mapLoaded, 
+  projectName, 
+  onOpenSettings,
+  recentProjects = [],
+  onOpenRecentProject
+}) {
   const { t, language, changeLanguage } = useI18n()
   const [activeMenu, setActiveMenu] = useState(null)
   const menuRef = useRef(null)
@@ -60,6 +70,25 @@ export default function TitleBar({ onCreateProject, onOpenProject, onSaveProject
                   <span>{t('start.openProject')}</span>
                   <span className="shortcut">Ctrl+O</span>
                 </div>
+                
+                {/* Recent Projects Submenu */}
+                <div className="menu-separator"></div>
+                <div className="menu-label">{t('start.recentMaps')}</div>
+                <div className="recent-list-dropdown">
+                  {recentProjects && recentProjects.length > 0 ? (
+                    recentProjects.map((path, index) => (
+                      <div key={index} className="menu-row mini" onClick={() => { onOpenRecentProject(path); closeMenu(); }} title={path}>
+                        <span className="recent-filename">{path.split(/[\\/]/).pop()}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="menu-row disabled">
+                      <span>{t('start.recentEmpty')}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="menu-separator"></div>
+
                 {mapLoaded && (
                   <>
                     <div className="menu-row" onClick={() => { onSaveProject(); closeMenu(); }}>
@@ -69,6 +98,7 @@ export default function TitleBar({ onCreateProject, onOpenProject, onSaveProject
                     <div className="menu-row" onClick={() => { onCloseMap(); closeMenu(); }}>
                       <span>{t('sidebar.closeMap')}</span>
                     </div>
+                    <div className="menu-separator"></div>
                   </>
                 )}
                 <div className="menu-row" onClick={() => { onOpenSettings(); closeMenu(); }}>

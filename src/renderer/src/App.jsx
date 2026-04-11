@@ -16,6 +16,7 @@ function App() {
   const [projectPath, setProjectPath] = useState(null)
   const [projectName, setProjectName] = useState(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [recentProjects, setRecentProjects] = useState([])
 
   // Load all .dat files once at startup
   useEffect(() => {
@@ -25,9 +26,17 @@ function App() {
       
       const path = await window.api.getStarcraftPath()
       setScPath(path)
+
+      const settings = await window.api.getSettings()
+      setRecentProjects(settings.recentProjects || [])
     }
     init()
   }, [])
+
+  const refreshRecentProjects = async () => {
+    const settings = await window.api.getSettings()
+    setRecentProjects(settings.recentProjects || [])
+  }
 
   const handleCreateProject = async () => {
     try {
@@ -37,6 +46,7 @@ function App() {
         setProjectName(data.projectName)
         setMapData(data.mapData)
         setProjectData(data.projectData)
+        refreshRecentProjects()
       }
     } catch (err) {
       alert('Error creating project: ' + err)
@@ -51,9 +61,26 @@ function App() {
         setProjectName(data.projectName)
         setMapData(data.mapData)
         setProjectData(data.projectData)
+        refreshRecentProjects()
       }
     } catch (err) {
       alert('Error opening project: ' + err)
+    }
+  }
+
+  const handleOpenRecentProject = async (path) => {
+    try {
+      const data = await window.api.openProjectByPath(path)
+      if (data) {
+        setProjectPath(data.projectPath)
+        setProjectName(data.projectName)
+        setMapData(data.mapData)
+        setProjectData(data.projectData)
+        refreshRecentProjects()
+      }
+    } catch (err) {
+      alert('Error opening recent project: ' + err)
+      refreshRecentProjects()
     }
   }
 
@@ -152,6 +179,8 @@ function App() {
             onOpenProject={handleOpenProject}
             projectPath={projectPath}
             projectName={projectName}
+            recentProjects={recentProjects}
+            onOpenRecentProject={handleOpenRecentProject}
             onSaveProject={handleSaveProject}
             onCloseMap={handleCloseMap} 
             mapLoaded={!!mapData} 
@@ -173,6 +202,8 @@ function App() {
             <StartScreen 
               onCreateProject={handleCreateProject} 
               onOpenProject={handleOpenProject}
+              recentProjects={recentProjects}
+              onOpenRecentProject={handleOpenRecentProject}
               onOpenSettings={() => setShowSettings(true)}
             />
           )}

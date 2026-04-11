@@ -58,7 +58,7 @@ function BitfieldCheckboxes({ value, labels, isMod, rows, onChange }) {
   )
 }
 
-function TextRow({ label, value, options, onChange, onNavigate, isMod }) {
+function TextRow({ label, value, options, onChange, onNavigate, isMod, offset = 0 }) {
   return (
     <div className="icon-field-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 5px' }}>
       <div className="field-label" style={{ width: '45px', flexShrink: 0, fontSize: '13px' }}>{label}</div>
@@ -66,8 +66,8 @@ function TextRow({ label, value, options, onChange, onNavigate, isMod }) {
         type="number"
         className={`modern-input ${isMod ? 'modified' : ''}`}
         style={{ width: '60px', flex: 'none' }}
-        value={value ?? 0}
-        onChange={(e) => onChange(parseInt(e.target.value) || 0)}
+        value={(value ?? 0) + offset}
+        onChange={(e) => onChange((parseInt(e.target.value) || 0) - offset)}
       />
       <SearchableSelect
         className={isMod ? 'modified' : ''}
@@ -107,6 +107,20 @@ function EditTab({
       statTxt.forEach((txt, idx) => {
         opts.push({ value: idx + 1, label: `[${(idx + 1).toString().padStart(3, '0')}] ${txt}` })
       })
+    }
+    return opts
+  }, [statTxt])
+
+  // Rank uses stat_txt[rankVal + 1302] — build options where displayed index = raw value
+  const rankOptions = React.useMemo(() => {
+    if (!statTxt) return []
+    const opts = []
+    // Rank values are typically 0-based offsets; stat_txt entry is at (rankVal + 1302)
+    const maxRank = Math.max(0, statTxt.length - 1302)
+    for (let i = 0; i < maxRank; i++) {
+      const statIdx = i + 1302
+      const text = statTxt[statIdx] ?? `(${statIdx})`
+      opts.push({ value: i, label: `[${(i + 1302).toString().padStart(4, '0')}] ${text}` })
     }
     return opts
   }, [statTxt])
@@ -248,10 +262,11 @@ function EditTab({
             <TextRow
               label={t('unit.edit.rank', { defaultValue: '계급' })}
               value={rankVal}
-              options={statOptions}
+              options={rankOptions}
               isMod={isMod('rank')}
+              offset={1302}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'rank', v)}
-              onNavigate={() => navigateTo('Text', rankVal)}
+              onNavigate={() => navigateTo('Text', rankVal + 1302)}
             />
             <TextRow
               label={t('unit.edit.name', { defaultValue: '이름' })}

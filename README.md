@@ -3,12 +3,13 @@
 Electron 기반으로 구축된 스타크래프트 에디터 프로젝트입니다.  
 AI랑 결합한 차세대 EUD 에디터를 목표로 하고 있지만, 취미로 시작한 프로젝트라 언제 중단될지 모릅니다.🔥
 
-![image](/md/image.png)
+![main1](/md/main1.png)
+![main2](/md/main2.png)
 
 
 ---
 
-## 💖 Special Thanks
+## Special Thanks
 
 이 프로젝트는 **맛있는빙수**님의 [EUD Editor](https://github.com/Buizz/EUDEditor) 프로젝트 소스를 참고하여 제작되었습니다. 소스 코드를 공개해주신 맛있는빙수님께 깊은 감사를 드립니다.
 

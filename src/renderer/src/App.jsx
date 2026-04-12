@@ -8,6 +8,7 @@ import SetupScreen from './components/SetupScreen'
 import TitleBar from './components/TitleBar'
 import { NavigationProvider } from './contexts/NavigationContext'
 import SettingsScreen from './components/Settings'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
   const [mapData, setMapData] = useState(null)
@@ -171,45 +172,47 @@ function App() {
 
   return (
     <I18nProvider>
-      <NavigationProvider>
-        <div className="app-container">
-          {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} />}
-          <TitleBar 
-            onCreateProject={handleCreateProject}
-            onOpenProject={handleOpenProject}
-            projectPath={projectPath}
-            projectName={projectName}
-            recentProjects={recentProjects}
-            onOpenRecentProject={handleOpenRecentProject}
-            onSaveProject={handleSaveProject}
-            onCloseMap={handleCloseMap} 
-            mapLoaded={!!mapData} 
-            onOpenSettings={() => setShowSettings(true)}
-            isSettingUp={scPath === null}
-          />
-          {scPath === null ? (
-            <SetupScreen onCompleted={(path) => setScPath(path)} />
-          ) : mapData ? (
-            <EditorLayout 
-              mapData={mapData} 
-              projectData={projectData}
-              datReady={datReady} 
-              onCloseMap={handleCloseMap} 
-              onUpdateProjectUnit={updateProjectUnit}
-              onResetProjectUnit={resetProjectUnit}
-              onUpdateProjectData={updateProjectData}
-            />
-          ) : (
-            <StartScreen 
-              onCreateProject={handleCreateProject} 
+      <ThemeProvider>
+        <NavigationProvider>
+          <div className="app-container">
+            {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} />}
+            <TitleBar 
+              onCreateProject={handleCreateProject}
               onOpenProject={handleOpenProject}
+              projectPath={projectPath}
+              projectName={projectName}
               recentProjects={recentProjects}
               onOpenRecentProject={handleOpenRecentProject}
+              onSaveProject={handleSaveProject}
+              onCloseMap={handleCloseMap} 
+              mapLoaded={!!mapData} 
               onOpenSettings={() => setShowSettings(true)}
+              isSettingUp={scPath === null}
             />
-          )}
-        </div>
-      </NavigationProvider>
+            {scPath === null ? (
+              <SetupScreen onCompleted={(path) => setScPath(path)} />
+            ) : mapData ? (
+              <EditorLayout 
+                mapData={mapData} 
+                projectData={projectData}
+                datReady={datReady} 
+                onCloseMap={handleCloseMap} 
+                onUpdateProjectUnit={updateProjectUnit}
+                onResetProjectUnit={resetProjectUnit}
+                onUpdateProjectData={updateProjectData}
+              />
+            ) : (
+              <StartScreen 
+                onCreateProject={handleCreateProject} 
+                onOpenProject={handleOpenProject}
+                recentProjects={recentProjects}
+                onOpenRecentProject={handleOpenRecentProject}
+                onOpenSettings={() => setShowSettings(true)}
+              />
+            )}
+          </div>
+        </NavigationProvider>
+      </ThemeProvider>
     </I18nProvider>
   )
 }

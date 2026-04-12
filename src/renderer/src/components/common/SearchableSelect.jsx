@@ -5,7 +5,7 @@ import ImageGraphic from './ImageGraphic'
 const ITEM_HEIGHT = 34   // px per list item
 const OVERSCAN = 5       // extra items to render above/below viewport
 
-export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...', onNavigate }) {
+export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...', onNavigate, disabled = false, iconGrfPath }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [scrollTop, setScrollTop] = useState(0)
@@ -65,6 +65,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
           {opt.icon !== null && opt.icon !== undefined && (
             <DatIcon
               frameIndex={opt.icon}
+              grfPath={iconGrfPath || opt.grfPath}
               size={THUMB_SIZE}
               style={{ border: 'none', borderRadius: 0, backgroundColor: 'transparent' }}
             />
@@ -111,14 +112,16 @@ export default function SearchableSelect({ options, value, onChange, className, 
       {/* Trigger */}
       <div
         onClick={() => {
+          if (disabled) return;
           setIsOpen(!isOpen)
           if (!isOpen) { setSearchQuery(''); setScrollTop(0) }
         }}
         style={{
           width: '100%', height: '100%',
           display: 'flex', alignItems: 'center',
-          cursor: 'pointer', padding: '0 8px', gap: '6px',
+          cursor: disabled ? 'not-allowed' : 'pointer', padding: '0 8px', gap: '6px',
           overflow: 'hidden',
+          opacity: disabled ? 0.6 : 1
         }}
       >
         <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
@@ -126,18 +129,19 @@ export default function SearchableSelect({ options, value, onChange, className, 
         </span>
         {onNavigate && (
           <button
+            disabled={disabled}
             onClick={(e) => { e.stopPropagation(); onNavigate(value) }}
             title="선택한 항목으로 바로 이동합니다"
             style={{
               flexShrink: 0, marginLeft: '4px', padding: '2px 6px',
               fontSize: '11px', fontWeight: '600',
               backgroundColor: 'var(--ev-c-brand)', color: '#ffffff',
-              border: 'none', borderRadius: '3px', cursor: 'pointer',
+              border: 'none', borderRadius: '3px', cursor: disabled ? 'not-allowed' : 'pointer',
               lineHeight: '1.4', display: 'flex', alignItems: 'center', gap: '4px',
-              transition: 'opacity 0.15s ease', opacity: 0.85
+              transition: 'opacity 0.15s ease', opacity: disabled ? 0.5 : 0.85
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.85' }}
+            onMouseEnter={(e) => { if(!disabled) e.currentTarget.style.opacity = '1' }}
+            onMouseLeave={(e) => { if(!disabled) e.currentTarget.style.opacity = '0.85' }}
           >
             <span>이동</span>
             <span style={{ fontSize: '10px' }}>➔</span>

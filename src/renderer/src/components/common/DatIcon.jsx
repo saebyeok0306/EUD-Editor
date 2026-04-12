@@ -19,7 +19,7 @@ export default function DatIcon({
     let active = true
 
     async function loadIcon() {
-      if (frameIndex === null || frameIndex === undefined) {
+      if (frameIndex === null || frameIndex === undefined || !grfPath) {
         if (canvasRef.current) {
           canvasRef.current.width = 0
           canvasRef.current.height = 0
@@ -39,7 +39,10 @@ export default function DatIcon({
         }
 
         if (!active || !grpBuffer) {
-          if (!grpBuffer && active) setError('GRP not found')
+          if (!grpBuffer && active) {
+            if (grfPath) setError('GRP not found')
+            else if (canvasRef.current) { canvasRef.current.width = 0; canvasRef.current.height = 0 }
+          }
           return
         }
 

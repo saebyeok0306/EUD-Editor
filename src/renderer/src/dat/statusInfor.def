@@ -1,0 +1,20 @@
+[HEADER]
+Varcount=3
+InputEntrycount=228
+OutputEntrycount=228
+
+[FORMAT]
+0Name=Unit Type
+0Size=4
+0VarArray=3
+0VarArrayIndex=1
+
+1Name=Status Function
+1Size=4
+1VarArray=3
+1VarArrayIndex=2
+
+2Name=Display Function
+2Size=4
+2VarArray=3
+2VarArrayIndex=3

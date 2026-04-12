@@ -28,6 +28,8 @@ import upgradesDefText from '../dat/upgrades.def?raw'
 import upgradesDatUrl  from '../dat/upgrades.dat?url'
 import weaponsDefText  from '../dat/weapons.def?raw'
 import weaponsDatUrl   from '../dat/weapons.dat?url'
+import statusInforDefText from '../dat/statusInfor.def?raw'
+import statusInforDatUrl  from '../dat/statusInfor.dat?url'
 
 // --- TBL static imports ---
 import statTxtUrl       from '../tbl/stat_txt.tbl?url'
@@ -50,6 +52,7 @@ const _store = {
   techdata: null,
   upgrades: null,
   weapons:  null,
+  statusInfor: null,
   // TBL
   statTxt:       null,  // English unit/ability names
   statTxtKorEng: null,  // Korean-English mixed
@@ -86,6 +89,24 @@ async function _parseTblFile(url, encoding = 'EUC-KR') {
  * Loads all .dat and .tbl files once and caches them.
  * Safe to call multiple times - only runs once.
  */
+const S_ADDRS = [4343040, 4344192, 4346240, 4345616, 4344656, 4344560, 4344512, 4348160, 4343072]
+const D_ADDRS = [4353872, 4356240, 4357264, 4355232, 4355040, 4354656, 4357424, 4353760, 4349664]
+
+const getUnitType = (s, d) => {
+  if (s === 2 && d === 1) return 0;
+  if (s === 1 && d === 0) return 1;
+  if (s === 4 && d === 3) return 2;
+  if (s === 3 && d === 2) return 3;
+  if (s === 7 && d === 6) return 4;
+  if (s === 8 && d === 7) return 5;
+  if (s === 6 && d === 5) return 6;
+  if (s === 5 && d === 4) return 7;
+  if (s === 0 && d === 8) return 8;
+  if (s === 1 && d === 8) return 9;
+  if (s === 2 && d === 8) return 10;
+  return 1;
+}
+
 export function initDatStore() {
   if (_initPromise) return _initPromise
 
@@ -101,6 +122,31 @@ export function initDatStore() {
     _parseDatFile(techdataDefText, techdataDatUrl),
     _parseDatFile(upgradesDefText, upgradesDatUrl),
     _parseDatFile(weaponsDefText,  weaponsDatUrl),
+    
+    // Manual statusInfor parsing
+    fetch(statusInforDatUrl).then(res => res.arrayBuffer()).then(buf => {
+      const dv = new DataView(buf)
+      const arr = []
+      for (let i = 0; i < 228; i++) {
+        // const debugId = dv.getUint32(i * 12, true)
+        const sAddr = dv.getUint32(i * 12 + 4, true)
+        const dAddr = dv.getUint32(i * 12 + 8, true)
+        
+        let s = S_ADDRS.indexOf(sAddr)
+        let d = D_ADDRS.indexOf(dAddr)
+        if (s === -1) s = 1
+        if (d === -1) d = 0
+        const t = getUnitType(s, d)
+        
+        arr.push({
+          'Unit Type': t,
+          'Status Function': s,
+          'Display Function': d
+        })
+      }
+      return arr
+    }),
+
     // TBL files
     _parseTblFile(statTxtUrl,       'UTF-8'),    // English — ASCII-safe
     _parseTblFile(statTxtKorEngUrl, 'EUC-KR'),
@@ -109,7 +155,7 @@ export function initDatStore() {
     _parseTblFile(sfxdataTblUrl,    'UTF-8'),    // SFX paths, ASCII-safe
     _parseTblFile(imagesTblUrl,     'UTF-8'),    // images paths, ASCII-safe
   ]).then(([
-    units, flingy, images, orders, portdata, sfxdata, sprites, techdata, upgrades, weapons,
+    units, flingy, images, orders, portdata, sfxdata, sprites, techdata, upgrades, weapons, statusInfor,
     statTxt, statTxtKorEng, statTxtKorKor, portdataTbl, sfxdataTbl, imagesTbl
   ]) => {
     _store.units    = units
@@ -122,6 +168,7 @@ export function initDatStore() {
     _store.techdata = techdata
     _store.upgrades = upgrades
     _store.weapons  = weapons
+    _store.statusInfor = statusInfor
     _store.statTxt       = statTxt
     _store.statTxtKorEng = statTxtKorEng
     _store.statTxtKorKor = statTxtKorKor
@@ -152,6 +199,7 @@ export const getSpritesData  = () => _store.sprites
 export const getTechdataData = () => _store.techdata
 export const getUpgradesData = () => _store.upgrades
 export const getWeaponsData  = () => _store.weapons
+export const getStatusInforData = () => _store.statusInfor
 
 // --- TBL Getters ---
 export const getStatTxt       = () => _store.statTxt        // English names (stat_txt.tbl)

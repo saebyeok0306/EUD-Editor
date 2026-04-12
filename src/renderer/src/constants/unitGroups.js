@@ -70,6 +70,14 @@ export const UNIT_GROUPS = {
     'rightClickAction',
     'aiInternal'
   ],
-  ui: [],
+  ui: [
+    'buttonSet',
+    'unitType',
+    'statusFunction',
+    'displayFunction',
+    'wireframe',
+    'grpWireframe',
+    'tranWireframe'
+  ],
   req: []
 }

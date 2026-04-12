@@ -6,10 +6,11 @@ const STORAGE_KEY = 'eud-editor-theme'
 const CUSTOM_STORAGE_KEY = 'eud-editor-custom-theme'
 
 export const DEFAULT_CUSTOM_COLORS = {
-  brand: '#6988e6',
-  bg:    '#1b1b1f',
-  panel: '#282828',
-  text:  '#e8e8ef',
+  brand:  '#6988e6',
+  bg:     '#1b1b1f',
+  panel:  '#282828',
+  border: '#32363f',
+  text:   '#e8e8ef',
 }
 
 export const THEMES = [
@@ -57,6 +58,12 @@ function mix(h1, h2, t = 0.5) {
   return toHex(r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t)
 }
 
+function isLight(hex) {
+  const [r, g, b] = hexToArr(hex)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5
+}
+
 // ─── Theme application ──────────────────────────────────────
 function applyTheme(themeId) {
   if (themeId === 'dark') {
@@ -68,16 +75,24 @@ function applyTheme(themeId) {
 
 function applyCustomColors(colors) {
   const el = document.documentElement
-  const { brand, bg, panel, text } = colors
+  const { brand, bg, panel, border, text } = colors
   const rgb = hexToRgbStr(text)
+
+  const isLightTheme = isLight(bg)
+  const sign = isLightTheme ? -1 : 1
+
+  // 하위 호환성 (기존 저장 데이터에 border가 없을 경우)
+  const customBorder = border || lighten(panel, 10 * sign)
 
   el.style.setProperty('--ev-c-brand', brand)
   el.style.setProperty('--ev-c-black', bg)
   el.style.setProperty('--ev-c-black-soft', panel)
   el.style.setProperty('--ev-c-black-mute', mix(bg, panel, 0.45))
-  el.style.setProperty('--ev-c-gray-3', lighten(panel, 10))
-  el.style.setProperty('--ev-c-gray-2', lighten(panel, 22))
-  el.style.setProperty('--ev-c-gray-1', lighten(panel, 40))
+  el.style.setProperty('--ev-c-gray-3', customBorder)
+  el.style.setProperty('--ev-c-gray-2', lighten(customBorder, 10 * sign))
+  el.style.setProperty('--ev-c-gray-1', lighten(customBorder, 20 * sign))
+  el.style.setProperty('--ev-c-divider', customBorder)
+  el.style.setProperty('--ev-c-divider-light', lighten(customBorder, 10 * sign))
   el.style.setProperty('--ev-c-text-1', `rgba(${rgb}, 0.90)`)
   el.style.setProperty('--ev-c-text-2', `rgba(${rgb}, 0.62)`)
   el.style.setProperty('--ev-c-text-3', `rgba(${rgb}, 0.38)`)
@@ -88,6 +103,7 @@ function clearCustomColors() {
   ;[
     '--ev-c-brand', '--ev-c-black', '--ev-c-black-soft', '--ev-c-black-mute',
     '--ev-c-gray-3', '--ev-c-gray-2', '--ev-c-gray-1',
+    '--ev-c-divider', '--ev-c-divider-light',
     '--ev-c-text-1', '--ev-c-text-2', '--ev-c-text-3',
   ].forEach(v => el.style.removeProperty(v))
 }

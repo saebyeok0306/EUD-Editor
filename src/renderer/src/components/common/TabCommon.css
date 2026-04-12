@@ -13,7 +13,7 @@
 
 .info-card {
   background: var(--ev-c-bg-soft);
-  border: 1px solid var(--ev-c-divider);
+  /* border: 1px solid var(--ev-c-divider); */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -28,7 +28,7 @@
 .card-header {
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid var(--ev-c-divider);
+  border: 1px solid var(--ev-c-divider);
   border-radius: 11px 11px 11px 11px;
   /* Match parent's 12px border-radius minus 1px border */
   display: flex;
@@ -197,7 +197,7 @@ select.modern-input option {
 .preview-box {
   flex: 1;
   background-color: var(--ev-c-bg-mute);
-  border: 1px solid var(--ev-c-divider);
+  /* border: 1px solid var(--ev-c-divider); */
   border-radius: 6px;
   display: flex;
   align-items: center;

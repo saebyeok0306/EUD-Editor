@@ -41,7 +41,7 @@ function UnitSelectField({ label, unitId, isMod, onChange, unitOptions, hasConfi
         width: 32,
         height: 32,
         flexShrink: 0,
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: 'var(--ev-c-graphic-bg)',
         borderRadius: '4px',
         border: '1px solid var(--ev-c-divider)',
         display: 'flex',

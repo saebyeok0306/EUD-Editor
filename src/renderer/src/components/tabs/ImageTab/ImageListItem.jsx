@@ -15,7 +15,7 @@ export const MemoizedListItem = React.memo(({ item, isActive, onClick, userDataP
       width: '44px',
       height: '44px',
       flexShrink: 0,
-      backgroundColor: 'var(--ev-c-bg-mute)',
+      backgroundColor: 'var(--ev-c-graphic-bg)',
       borderRadius: '6px',
       display: 'flex',
       alignItems: 'center',

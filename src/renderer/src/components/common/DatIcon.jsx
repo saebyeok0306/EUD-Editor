@@ -123,7 +123,7 @@ export default function DatIcon({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: 'var(--ev-c-graphic-bg)',
         borderRadius: '4px',
         overflow: 'hidden',
         border: '1px solid var(--ev-c-divider)',

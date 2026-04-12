@@ -25,7 +25,7 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
       width: '44px', 
       height: '44px', 
       flexShrink: 0, 
-      backgroundColor: 'var(--ev-c-bg-mute)', 
+      backgroundColor: 'var(--ev-c-graphic-bg)', 
       borderRadius: '6px',
       display: 'flex',
       alignItems: 'center',
@@ -137,7 +137,7 @@ function SpriteTab({ mapData, datReady }) {
               <div style={{ 
                 width: '128px', 
                 height: '128px', 
-                backgroundColor: 'var(--ev-c-bg-mute)', 
+                backgroundColor: 'var(--ev-c-graphic-bg)', 
                 border: '1px solid var(--ev-c-divider)',
                 borderRadius: '8px', 
                 display: 'flex', 

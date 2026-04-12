@@ -70,10 +70,11 @@ function ThemeCard({ themeId, isActive, onClick, label, overridePreview }) {
 
 // ─── Custom color editor ────────────────────────────────────
 const CUSTOM_KEYS = [
-  { key: 'brand', labelKey: 'settings.theme.customBrand' },
-  { key: 'bg',    labelKey: 'settings.theme.customBg' },
-  { key: 'panel', labelKey: 'settings.theme.customPanel' },
-  { key: 'text',  labelKey: 'settings.theme.customText' },
+  { key: 'brand',  labelKey: 'settings.theme.customBrand' },
+  { key: 'bg',     labelKey: 'settings.theme.customBg' },
+  { key: 'panel',  labelKey: 'settings.theme.customPanel' },
+  { key: 'border', labelKey: 'settings.theme.customBorder' },
+  { key: 'text',   labelKey: 'settings.theme.customText' },
 ]
 
 function CustomColorEditor({ customColors, updateCustomColor, resetCustomColors, t }) {
@@ -92,13 +93,13 @@ function CustomColorEditor({ customColors, updateCustomColor, resetCustomColors,
             <div className="custom-color-input-wrap">
               <input
                 type="color"
-                value={customColors[key]}
+                value={customColors[key] || '#000000'}
                 onInput={e => updateCustomColor(key, e.target.value)}
                 className="custom-color-swatch"
               />
               <input
                 type="text"
-                value={customColors[key]}
+                value={customColors[key] || ''}
                 onChange={e => {
                   if (/^#[0-9a-fA-F]{0,6}$/.test(e.target.value)) {
                     updateCustomColor(key, e.target.value)
@@ -129,7 +130,7 @@ export default function Theme() {
     bg:     customColors.bg,
     panel:  customColors.panel,
     accent: customColors.brand,
-    border: customColors.panel,
+    border: customColors.border || customColors.panel,
   }
 
   return (

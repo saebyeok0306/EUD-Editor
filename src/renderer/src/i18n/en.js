@@ -289,6 +289,7 @@ const en = {
   'settings.theme.customBrand': 'Accent Color',
   'settings.theme.customBg': 'Main Background',
   'settings.theme.customPanel': 'Panel Background',
+  'settings.theme.customBorder': 'Border/Divider',
   'settings.theme.customText': 'Base Text Color',
   'settings.starcraftPath': 'StarCraft Path',
   'settings.starcraftPathPlaceholder': 'Select StarCraft Launcher.exe file',

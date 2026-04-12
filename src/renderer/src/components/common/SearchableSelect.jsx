@@ -58,7 +58,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
       return (
         <div style={{
           width: THUMB_SIZE, height: THUMB_SIZE, flexShrink: 0,
-          backgroundColor: '#000', borderRadius: '3px',
+          backgroundColor: 'var(--ev-c-graphic-bg)', borderRadius: '3px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           overflow: 'hidden'
         }}>
@@ -77,7 +77,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
       return (
         <div style={{
           width: THUMB_SIZE, height: THUMB_SIZE, flexShrink: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '3px',
+          backgroundColor: 'var(--ev-c-graphic-bg)', borderRadius: '3px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           overflow: 'hidden'
         }}>
@@ -140,8 +140,8 @@ export default function SearchableSelect({ options, value, onChange, className, 
               lineHeight: '1.4', display: 'flex', alignItems: 'center', gap: '4px',
               transition: 'opacity 0.15s ease', opacity: disabled ? 0.5 : 0.85
             }}
-            onMouseEnter={(e) => { if(!disabled) e.currentTarget.style.opacity = '1' }}
-            onMouseLeave={(e) => { if(!disabled) e.currentTarget.style.opacity = '0.85' }}
+            onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.opacity = '1' }}
+            onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.opacity = '0.85' }}
           >
             <span>이동</span>
             <span style={{ fontSize: '10px' }}>➔</span>

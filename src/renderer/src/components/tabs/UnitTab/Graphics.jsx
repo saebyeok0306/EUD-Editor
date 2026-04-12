@@ -66,7 +66,7 @@ function DatSelectRow({ label, value, onChange, options, imageId, onNavigate }) 
         onChange={(e) => onChange(parseInt(e.target.value) || 0)}
       />
       {imageId !== undefined && (
-        <div className="small-graphic-box">
+        <div className="small-graphic-box" style={{ backgroundColor: 'var(--ev-c-graphic-bg)' }}>
           {imageId !== null ? (
             <ImageGraphic imageId={imageId} maxWidth={28} maxHeight={28} autoCrop={true} />
           ) : null}
@@ -112,7 +112,7 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
       else if (i === 24) key = 'unit.dir.left'
       else if (i >= 25 && i <= 31) key = 'unit.dir.topLeft'
       else if (i === 32) key = 'unit.dir.random'
-      
+
       return { value: i, label: `${i} ${t(key)}` }
     })
   }, [t])

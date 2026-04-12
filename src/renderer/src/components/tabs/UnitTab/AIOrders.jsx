@@ -41,7 +41,7 @@ function OrderField({ label, orderId, isMod, onChange, ordersData, options }) {
         width: 36,
         height: 36,
         flexShrink: 0,
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: 'var(--ev-c-graphic-bg)',
         borderRadius: '4px',
         border: '1px solid var(--ev-c-divider)',
         display: 'flex',
@@ -49,10 +49,10 @@ function OrderField({ label, orderId, isMod, onChange, ordersData, options }) {
         justifyContent: 'center',
         overflow: 'hidden',
       }}>
-        <DatIcon 
-          frameIndex={highlightFrame} 
-          size={36} 
-          style={{ border: 'none', borderRadius: 0, backgroundColor: 'transparent' }} 
+        <DatIcon
+          frameIndex={highlightFrame}
+          size={36}
+          style={{ border: 'none', borderRadius: 0, backgroundColor: 'transparent' }}
         />
       </div>
       <div style={{ flex: 1 }}>
@@ -178,44 +178,44 @@ function AIOrders({
       <div style={{ flex: 1, minWidth: 0 }}>
         <Card title={t('unit.ai.title', { defaultValue: '인공지능명령' })} style={{ marginTop: '0' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <OrderField 
-              label={t('unit.ai.compIdle', { defaultValue: '컴퓨터 기본' })} 
-              orderId={compAiIdle} 
-              isMod={isMod('compAiIdle')} 
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'compAiIdle', v)} 
-              ordersData={ordersData} 
+            <OrderField
+              label={t('unit.ai.compIdle', { defaultValue: '컴퓨터 기본' })}
+              orderId={compAiIdle}
+              isMod={isMod('compAiIdle')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'compAiIdle', v)}
+              ordersData={ordersData}
               options={orderOptions}
             />
-            <OrderField 
-              label={t('unit.ai.humanIdle', { defaultValue: '사람 기본' })} 
-              orderId={humanAiIdle} 
-              isMod={isMod('humanAiIdle')} 
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'humanAiIdle', v)} 
-              ordersData={ordersData} 
+            <OrderField
+              label={t('unit.ai.humanIdle', { defaultValue: '사람 기본' })}
+              orderId={humanAiIdle}
+              isMod={isMod('humanAiIdle')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'humanAiIdle', v)}
+              ordersData={ordersData}
               options={orderOptions}
             />
-            <OrderField 
-              label={t('unit.ai.returnToIdle', { defaultValue: '원상태로' })} 
-              orderId={returnToIdle} 
-              isMod={isMod('returnToIdle')} 
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'returnToIdle', v)} 
-              ordersData={ordersData} 
+            <OrderField
+              label={t('unit.ai.returnToIdle', { defaultValue: '원상태로' })}
+              orderId={returnToIdle}
+              isMod={isMod('returnToIdle')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'returnToIdle', v)}
+              ordersData={ordersData}
               options={orderOptions}
             />
-            <OrderField 
-              label={t('unit.ai.attackUnit', { defaultValue: '유닛 공격' })} 
-              orderId={attackUnit} 
-              isMod={isMod('attackUnit')} 
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackUnit', v)} 
-              ordersData={ordersData} 
+            <OrderField
+              label={t('unit.ai.attackUnit', { defaultValue: '유닛 공격' })}
+              orderId={attackUnit}
+              isMod={isMod('attackUnit')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackUnit', v)}
+              ordersData={ordersData}
               options={orderOptions}
             />
-            <OrderField 
-              label={t('unit.ai.attackMove', { defaultValue: '공격&이동' })} 
-              orderId={attackMove} 
-              isMod={isMod('attackMove')} 
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackMove', v)} 
-              ordersData={ordersData} 
+            <OrderField
+              label={t('unit.ai.attackMove', { defaultValue: '공격&이동' })}
+              orderId={attackMove}
+              isMod={isMod('attackMove')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackMove', v)}
+              ordersData={ordersData}
               options={orderOptions}
             />
 

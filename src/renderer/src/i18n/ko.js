@@ -289,6 +289,7 @@ const ko = {
   'settings.theme.customBrand': '강조색 (Accent)',
   'settings.theme.customBg': '메인 배경',
   'settings.theme.customPanel': '패널 배경',
+  'settings.theme.customBorder': '보더/구분선',
   'settings.theme.customText': '텍스트 기본색',
   'settings.starcraftPath': '스타크래프트 경로',
   'settings.starcraftPathPlaceholder': '스타크래프트 폴더를 선택하세요',

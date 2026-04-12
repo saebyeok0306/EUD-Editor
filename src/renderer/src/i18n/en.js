@@ -105,6 +105,18 @@ const en = {
   'unit.tab.ui': 'UIPreview',
   'unit.tab.req': 'Requirements',
   
+  // Requirements Tab
+  'unit.req.engine': 'Requirements',
+  'req.mode.default': 'Default',
+  'req.mode.always': 'Always Allow',
+  'req.mode.disabled': 'Disabled',
+  'req.mode.custom': 'Custom',
+  'req.custom.desc': 'Edit the requirement list directly.',
+  'req.default.hint': 'Default uses the original conditions from require.dat. Select "Custom" to edit.',
+  'req.default.empty': '(No original requirements for this entry)',
+  'req.always.hint': 'Always allowed without conditions.',
+  'req.disabled.hint': 'Disabled.',
+  
   // Reset
   'unit.reset.all': 'Reset Unit',
   'unit.reset.tab': 'Reset This Tab',
@@ -270,6 +282,8 @@ const en = {
   'settings.title': 'Settings',
   'settings.tab.general': 'General',
   'settings.general.title': 'General Settings',
+  'settings.section.environment': 'Work Environment',
+  'settings.section.options': 'Editor Options',
   'settings.tab.theme': 'Theme',
   'settings.theme.title': 'Theme Settings',
   'settings.theme.dark': 'Dark (Default)',
@@ -298,7 +312,9 @@ const en = {
   'settings.euddraftMinVersion': '(Minimum recommended: 0.10.1.3)',
   'settings.selectEudDraft': 'Select euddraft.exe',
   'settings.language': 'Language',
+  'settings.requirementLanguage': 'Requirement Language',
   'settings.browse': 'Browse',
+  'settings.playerColor': 'Player Color',
   'settings.close': 'Close',
   'settings.tab.changelog': 'Version History',
   'settings.changelog.title': 'Version History',
@@ -320,6 +336,20 @@ const en = {
   'common.clear': 'Clear',
   'common.sortId': 'By ID',
   'common.sortName': 'By Name',
+
+  // Colors
+  'colors.red': 'Red',
+  'colors.blue': 'Blue',
+  'colors.teal': 'Teal',
+  'colors.purple': 'Purple',
+  'colors.orange': 'Orange',
+  'colors.brown': 'Brown',
+  'colors.white': 'White',
+  'colors.yellow': 'Yellow',
+  'colors.green': 'Green',
+  'colors.paleYellow': 'Pale Yellow',
+  'colors.tan': 'Tan',
+  'colors.azure': 'Azure',
 }
 
 export default en

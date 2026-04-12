@@ -18,13 +18,15 @@ import { decodeGRP, renderToCanvas, decodeAndRenderGRP } from '../../utils/grpDe
 import { loadPalette } from '../../utils/paletteLoader'
 import iscriptJsonUrl from '../../data/iscript_data.json?url'
 import { isIscriptWasmReady, initIscriptDataRaw, getIscriptLabel, createIscriptState, stepIscriptLogic } from '../../utils/iscriptWasm'
+import { useSettings } from '../../contexts/SettingsContext'
+
 
 let sharedIscriptData = null
 const graphicCache = new Map()
 
 const ImageGraphic = forwardRef(({
   imageId,
-  playerColor = 'Red',
+  playerColor: propPlayerColor,
   tileset = 'badlands',
   maxWidth = 64,
   maxHeight = 64,
@@ -43,6 +45,9 @@ const ImageGraphic = forwardRef(({
   parentFrameInfo
 }, ref) => {
   const canvasRef = useRef(null)
+  const { playerColor: globalPlayerColor } = useSettings()
+  const playerColor = propPlayerColor || globalPlayerColor || 'Red'
+
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [hasNoScript, setHasNoScript] = useState(false)

@@ -70,6 +70,7 @@ function DatSelectRow({ label, value, onChange, options, imageId, onNavigate }) 
           {imageId !== null ? (
             <ImageGraphic imageId={imageId} maxWidth={28} maxHeight={28} autoCrop={true} />
           ) : null}
+
         </div>
       )}
       <SearchableSelect
@@ -273,8 +274,8 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
 
             <UnitGraphic
               unitId={selectedItem}
-              playerColor="Red"
               maxWidth={256}
+
               maxHeight={256}
               autoCrop={false}
               animate={true}
@@ -331,8 +332,8 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
 
             <ImageGraphic
               imageId={macr}
-              playerColor="Red"
               maxWidth={256}
+
               maxHeight={256}
               autoCrop={false}
               animate={true}

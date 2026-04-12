@@ -30,6 +30,7 @@ import weaponsDefText  from '../dat/weapons.def?raw'
 import weaponsDatUrl   from '../dat/weapons.dat?url'
 import statusInforDefText from '../dat/statusInfor.def?raw'
 import statusInforDatUrl  from '../dat/statusInfor.dat?url'
+import requireDatUrl      from '../dat/require.dat?url'
 
 // --- TBL static imports ---
 import statTxtUrl       from '../tbl/stat_txt.tbl?url'
@@ -60,6 +61,9 @@ const _store = {
   portdataTbl:   null,  // Portrait descriptions
   sfxdataTbl:    null,  // SFX file paths
   imagesTbl:     null,  // Image paths
+  
+  // Parsed Require Data
+  requireData:   null,
 }
 
 let _initPromise = null
@@ -154,9 +158,12 @@ export function initDatStore() {
     _parseTblFile(portdataTblUrl,   'EUC-KR'),
     _parseTblFile(sfxdataTblUrl,    'UTF-8'),    // SFX paths, ASCII-safe
     _parseTblFile(imagesTblUrl,     'UTF-8'),    // images paths, ASCII-safe
+
+    // Require.dat
+    import('./requireDataParser').then(m => m.parseRequireDatFile(requireDatUrl))
   ]).then(([
     units, flingy, images, orders, portdata, sfxdata, sprites, techdata, upgrades, weapons, statusInfor,
-    statTxt, statTxtKorEng, statTxtKorKor, portdataTbl, sfxdataTbl, imagesTbl
+    statTxt, statTxtKorEng, statTxtKorKor, portdataTbl, sfxdataTbl, imagesTbl, requireData
   ]) => {
     _store.units    = units
     _store.flingy   = flingy
@@ -175,6 +182,7 @@ export function initDatStore() {
     _store.portdataTbl   = portdataTbl
     _store.sfxdataTbl    = sfxdataTbl
     _store.imagesTbl     = imagesTbl
+    _store.requireData   = requireData
     console.log('[datStore] Loaded all files:',
       Object.fromEntries(Object.entries(_store).map(([k, v]) => [k, v?.length]))
     )
@@ -208,3 +216,10 @@ export const getStatTxtKorKor = () => _store.statTxtKorKor  // Korean only
 export const getPortdataTbl   = () => _store.portdataTbl    // Portrait descriptions
 export const getSfxdataTbl    = () => _store.sfxdataTbl     // SFX file paths
 export const getImagesTbl     = () => _store.imagesTbl      // Image paths
+
+// --- Require.dat Getter ---
+export const getRequireData   = (category, id) => {
+  if (!_store.requireData) return null
+  if (!_store.requireData[category]) return null
+  return _store.requireData[category][id] || null
+}

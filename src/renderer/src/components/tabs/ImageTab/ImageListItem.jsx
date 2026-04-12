@@ -2,7 +2,7 @@ import React from 'react'
 import ImageGraphic from '../../common/ImageGraphic'
 
 export function ImagePreview({ imageId, name, userDataPath }) {
-  return <ImageGraphic imageId={imageId} playerColor="Red" maxWidth={44} maxHeight={44} autoCrop={true} animate={false} />
+  return <ImageGraphic imageId={imageId} maxWidth={44} maxHeight={44} autoCrop={true} animate={false} />
 }
 
 export const MemoizedListItem = React.memo(({ item, isActive, onClick, userDataPath }) => (

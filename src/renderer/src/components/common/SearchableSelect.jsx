@@ -5,7 +5,7 @@ import ImageGraphic from './ImageGraphic'
 const ITEM_HEIGHT = 34   // px per list item
 const OVERSCAN = 5       // extra items to render above/below viewport
 
-export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...', onNavigate, disabled = false, iconGrfPath }) {
+export default function SearchableSelect({ options, value, onChange, className, style, renderOption, placeholder = '검색어 입력...', onNavigate, disabled = false, iconGrfPath, showSelectedIcon = false }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [scrollTop, setScrollTop] = useState(0)
@@ -124,6 +124,7 @@ export default function SearchableSelect({ options, value, onChange, className, 
           opacity: disabled ? 0.6 : 1
         }}
       >
+        {showSelectedIcon && selectedOption && renderThumb(selectedOption)}
         <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
           {displayLabel}
         </span>

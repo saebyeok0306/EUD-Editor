@@ -83,8 +83,8 @@ const GraphicRenderer = React.memo(({ imageId, tileset, selectedAnimation, autoC
           maxWidth={300}
           maxHeight={300}
           autoCrop={autoCrop}
-          playerColor="Red"
           customData={customData}
+
           playbackSpeed={playbackSpeed}
           paused={!isPlaying}
           onAnimationEnd={() => setIsPlaying(false)}

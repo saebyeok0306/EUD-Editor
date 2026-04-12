@@ -105,6 +105,18 @@ const ko = {
   'unit.tab.ui': '화면 정보',
   'unit.tab.req': '생산조건',
   
+  // Requirements Tab
+  'unit.req.engine': '요구사항',
+  'req.mode.default': '기본값',
+  'req.mode.always': '항상 허용',
+  'req.mode.disabled': '사용 안함',
+  'req.mode.custom': '사용자 설정',
+  'req.custom.desc': '요구사항 목록을 직접 편집합니다.',
+  'req.default.hint': '기본값은 원본 데이터(require.dat)의 조건을 그대로 사용합니다. 수정하려면 "사용자 설정"을 선택하세요.',
+  'req.default.empty': '(이 항목에는 원본 요구사항이 없습니다)',
+  'req.always.hint': '조건 없이 항상 허용됩니다.',
+  'req.disabled.hint': '사용이 비활성화됩니다.',
+  
   // Reset
   'unit.reset.all': '유닛 초기화',
   'unit.reset.tab': '현재 탭 초기화',
@@ -270,6 +282,8 @@ const ko = {
   'settings.title': '환경설정',
   'settings.tab.general': '기본 설정',
   'settings.general.title': '기본 설정',
+  'settings.section.environment': '작업 환경',
+  'settings.section.options': '편집기 옵션',
   'settings.tab.theme': '테마',
   'settings.theme.title': '테마 설정',
   'settings.theme.dark': '다크 (기본)',
@@ -298,7 +312,9 @@ const ko = {
   'settings.euddraftMinVersion': '(최소 권장 버전: 0.10.1.3)',
   'settings.selectEudDraft': 'euddraft.exe 선택',
   'settings.language': '언어(Language)',
+  'settings.requirementLanguage': '요구사항 번역 언어',
   'settings.browse': '찾아보기',
+  'settings.playerColor': '플레이어 색상',
   'settings.close': '닫기',
   'settings.tab.changelog': '업데이트 내역',
   'settings.changelog.title': '업데이트 내역',
@@ -320,6 +336,20 @@ const ko = {
   'common.clear': '지우기',
   'common.sortId': 'ID 순',
   'common.sortName': '이름 순',
+
+  // Colors
+  'colors.red': '빨강 (Red)',
+  'colors.blue': '파랑 (Blue)',
+  'colors.teal': '연두 (Teal)',
+  'colors.purple': '보라 (Purple)',
+  'colors.orange': '주황 (Orange)',
+  'colors.brown': '갈색 (Brown)',
+  'colors.white': '하얀색 (White)',
+  'colors.yellow': '노란색 (Yellow)',
+  'colors.green': '초록 (Green)',
+  'colors.paleYellow': '밝은 노랑 (Pale Yellow)',
+  'colors.tan': '살구색 (Tan)',
+  'colors.azure': '어두운 청록 (Dark Aqua)',
 }
 
 export default ko

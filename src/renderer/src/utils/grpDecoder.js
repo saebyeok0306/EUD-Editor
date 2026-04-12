@@ -145,7 +145,11 @@ export const PLAYER_COLORS = {
   Orange: generateColorRamp(248, 140, 20),
   Brown: generateColorRamp(112, 48, 20),
   White: generateColorRamp(212, 212, 236),
-  Yellow: generateColorRamp(252, 252, 56)
+  Yellow: generateColorRamp(252, 252, 56),
+  Green: generateColorRamp(8, 128, 8),
+  PaleYellow: generateColorRamp(252, 252, 124),
+  Tan: generateColorRamp(236, 196, 176),
+  Azure: generateColorRamp(64, 104, 212)
 };
 
 /**

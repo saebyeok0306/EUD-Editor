@@ -9,6 +9,7 @@ import TitleBar from './components/TitleBar'
 import { NavigationProvider } from './contexts/NavigationContext'
 import SettingsScreen from './components/Settings'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { SettingsProvider } from './contexts/SettingsContext'
 
 function App() {
   const [mapData, setMapData] = useState(null)
@@ -172,47 +173,49 @@ function App() {
 
   return (
     <I18nProvider>
-      <ThemeProvider>
-        <NavigationProvider>
-          <div className="app-container">
-            {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} />}
-            <TitleBar 
-              onCreateProject={handleCreateProject}
-              onOpenProject={handleOpenProject}
-              projectPath={projectPath}
-              projectName={projectName}
-              recentProjects={recentProjects}
-              onOpenRecentProject={handleOpenRecentProject}
-              onSaveProject={handleSaveProject}
-              onCloseMap={handleCloseMap} 
-              mapLoaded={!!mapData} 
-              onOpenSettings={() => setShowSettings(true)}
-              isSettingUp={scPath === null}
-            />
-            {scPath === null ? (
-              <SetupScreen onCompleted={(path) => setScPath(path)} />
-            ) : mapData ? (
-              <EditorLayout 
-                mapData={mapData} 
-                projectData={projectData}
-                datReady={datReady} 
-                onCloseMap={handleCloseMap} 
-                onUpdateProjectUnit={updateProjectUnit}
-                onResetProjectUnit={resetProjectUnit}
-                onUpdateProjectData={updateProjectData}
-              />
-            ) : (
-              <StartScreen 
-                onCreateProject={handleCreateProject} 
+      <SettingsProvider>
+        <ThemeProvider>
+          <NavigationProvider>
+            <div className="app-container">
+              {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} />}
+              <TitleBar 
+                onCreateProject={handleCreateProject}
                 onOpenProject={handleOpenProject}
+                projectPath={projectPath}
+                projectName={projectName}
                 recentProjects={recentProjects}
                 onOpenRecentProject={handleOpenRecentProject}
+                onSaveProject={handleSaveProject}
+                onCloseMap={handleCloseMap} 
+                mapLoaded={!!mapData} 
                 onOpenSettings={() => setShowSettings(true)}
+                isSettingUp={scPath === null}
               />
-            )}
-          </div>
-        </NavigationProvider>
-      </ThemeProvider>
+              {scPath === null ? (
+                <SetupScreen onCompleted={(path) => setScPath(path)} />
+              ) : mapData ? (
+                <EditorLayout 
+                  mapData={mapData} 
+                  projectData={projectData}
+                  datReady={datReady} 
+                  onCloseMap={handleCloseMap} 
+                  onUpdateProjectUnit={updateProjectUnit}
+                  onResetProjectUnit={resetProjectUnit}
+                  onUpdateProjectData={updateProjectData}
+                />
+              ) : (
+                <StartScreen 
+                  onCreateProject={handleCreateProject} 
+                  onOpenProject={handleOpenProject}
+                  recentProjects={recentProjects}
+                  onOpenRecentProject={handleOpenRecentProject}
+                  onOpenSettings={() => setShowSettings(true)}
+                />
+              )}
+            </div>
+          </NavigationProvider>
+        </ThemeProvider>
+      </SettingsProvider>
     </I18nProvider>
   )
 }

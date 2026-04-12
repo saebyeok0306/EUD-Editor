@@ -1,0 +1,47 @@
+/**
+ * Requirement Opcodes corresponding to reqopcode.txt and standard StarCraft engine values.
+ * Mapping logic:
+ * Some opcodes take additional parameters (like Unit, Tech, or Upgrade IDs).
+ */
+
+export const REQ_OPCODES = [
+  { index: 0, text: "==End of Sublist==", text_ko: "==목록 종료==", paramType: null },
+  { index: 1, text: "Or", text_ko: "또는 (Or)", paramType: null },
+  { index: 2, text: "Current unit is...", text_ko: "현재 유닛이... 일 것", paramType: "unit" },
+  { index: 3, text: "Must have...", text_ko: "...유닛을 보유할 것", paramType: "unit" },
+  { index: 4, text: "Must have add-on", text_ko: "애드온을 보유할 것", paramType: "unit" },
+  { index: 5, text: "Is not lifted off", text_ko: "이륙 상태가 아닐 것", paramType: null },
+  { index: 6, text: "Is lifted off", text_ko: "이륙 상태일 것", paramType: null },
+  { index: 7, text: "Is not training or morphing", text_ko: "생산 또는 변태 중이 아닐 것", paramType: null },
+  { index: 8, text: "Is not constructing add-on", text_ko: "애드온 건설 중이 아닐 것", paramType: null },
+  { index: 9, text: "Is not researching", text_ko: "연구 중이 아닐 것", paramType: null },
+  { index: 10, text: "Is not upgrading", text_ko: "업그레이드 중이 아닐 것", paramType: null },
+  { index: 11, text: "Is not constructing", text_ko: "건설 중이 아닐 것", paramType: null },
+  { index: 12, text: "Does not have add-on attached", text_ko: "애드온이 부착되지 않았을 것", paramType: null },
+  { index: 13, text: "Does not have exit", text_ko: "출구(나이더스 커널)가 없을 것", paramType: null },
+  { index: 14, text: "Has hangar space", text_ko: "격납고에 공간이 있을 것", paramType: null },
+  { index: 15, text: "Must be researched", text_ko: "...가 연구되어 있을 것", paramType: "tech" },
+  { index: 16, text: "Does not have loaded nuke", text_ko: "핵 미사일이 장전되지 않았을 것", paramType: null },
+  { index: 17, text: "Is not burrowed", text_ko: "잠복(버로우) 상태가 아닐 것", paramType: null },
+  { index: 18, text: "Can attack", text_ko: "공격 가능할 것", paramType: null },
+  { index: 19, text: "Can set rally point", text_ko: "랠리 포인트 지정이 가능할 것", paramType: null },
+  { index: 20, text: "Can move", text_ko: "이동 가능할 것", paramType: null },
+  { index: 21, text: "Has weapon", text_ko: "무기를 보유할 것", paramType: null },
+  { index: 22, text: "Is worker", text_ko: "일꾼 유닛일 것", paramType: null },
+  { index: 23, text: "Is flying building", text_ko: "비행 가능한 건물일 것", paramType: null },
+  { index: 24, text: "Is transport", text_ko: "수송선일 것", paramType: null },
+  { index: 25, text: "Is powerup", text_ko: "파워업 아이템일 것", paramType: null },
+  { index: 26, text: "Is Subunit", text_ko: "서브유닛(포탑 등)일 것", paramType: null },
+  { index: 27, text: "Has spidermines", text_ko: "스파이더 마인을 보유할 것", paramType: null },
+  { index: 28, text: "Is hero and enabled", text_ko: "활성화된 영웅 유닛일 것", paramType: null },
+  { index: 29, text: "Can hold position", text_ko: "위치 사수(Hold) 가능할 것", paramType: null },
+  { index: 30, text: "Allow on hallucinations", text_ko: "환상(할루시네이션)에 허용됨", paramType: null },
+  { index: 31, text: "Upgrade Lv-1 Require...", text_ko: "업그레이드 1단계 요구사항...", paramType: "upgrade" },
+  { index: 32, text: "Upgrade Lv-2 Require...", text_ko: "업그레이드 2단계 요구사항...", paramType: "upgrade" },
+  { index: 33, text: "Upgrade Lv-3+ Require...", text_ko: "업그레이드 3단계 이상 요구사항...", paramType: "upgrade" },
+  { index: 34, text: "Grey", text_ko: "비활성화 (Grey)", paramType: null },
+  { index: 35, text: "Blank", text_ko: "빈칸 (Blank)", paramType: null },
+  { index: 36, text: "Must be Brood War", text_ko: "브루드 워(확장팩) 환경일 것", paramType: null },
+  { index: 37, text: "Is researched...", text_ko: "...기술이 이미 연구되었을 것", paramType: "tech" },
+  { index: 38, text: "Is burrowed", text_ko: "잠복(버로우) 상태일 것", paramType: null },
+];

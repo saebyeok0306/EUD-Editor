@@ -66,7 +66,7 @@ const UnitPreview = memo(function UnitPreview({ unitId, name, userDataPath }) {
   // }
 
   // Fallback if path not ready or error
-  return <UnitGraphic unitId={unitId} playerColor="Red" maxWidth={44} maxHeight={44} autoCrop={true} />
+  return <UnitGraphic unitId={unitId} maxWidth={44} maxHeight={44} autoCrop={true} />
 })
 
 const UnitListItem = memo(({ i, name, isSelected, isModified, onClick, userDataPath }) => {
@@ -130,6 +130,7 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
     const commonProps = {
       selectedItem,
       currentProjectData,
+      projectUnits: projectData.units,
       currentMapData,
       currentEudData,
       unitNames: UNIT_NAMES,

@@ -13,7 +13,7 @@ function SpritePreview({ spriteId }) {
     return <div style={{ width: 44, height: 44 }} />
   }
 
-  return <ImageGraphic imageId={imageId} playerColor="Red" maxWidth={44} maxHeight={44} autoCrop={true} animate={false} />
+  return <ImageGraphic imageId={imageId} maxWidth={44} maxHeight={44} autoCrop={true} animate={false} />
 }
 
 const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
@@ -119,7 +119,7 @@ function SpriteTab({ mapData, datReady }) {
                     maxWidth={128} 
                     maxHeight={128} 
                     autoCrop={false} 
-                    playerColor="Red"
+
                   />
                 ) : (
                   <div style={{ color: 'var(--ev-c-text-3)', fontSize: '12px' }}>No Image</div>

@@ -7,10 +7,14 @@ const translations = { ko, en }
 const I18nContext = createContext(null)
 
 const STORAGE_KEY = 'eud-editor-language'
+const REQ_STORAGE_KEY = 'eud-editor-req-language'
 
 export function I18nProvider({ children }) {
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem(STORAGE_KEY) || 'ko'
+  })
+  const [requirementLanguage, setRequirementLanguage] = useState(() => {
+    return localStorage.getItem(REQ_STORAGE_KEY) || 'ko'
   })
 
   // 1. Load language from global settings on mount
@@ -20,6 +24,9 @@ export function I18nProvider({ children }) {
         const settings = await window.api.getSettings()
         if (settings.language && settings.language !== language) {
           setLanguage(settings.language)
+        }
+        if (settings.requirementLanguage && settings.requirementLanguage !== requirementLanguage) {
+          setRequirementLanguage(settings.requirementLanguage)
         }
       }
     }
@@ -42,10 +49,11 @@ export function I18nProvider({ children }) {
   // 3. Persist to localStorage and global settings whenever language changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, language)
+    localStorage.setItem(REQ_STORAGE_KEY, requirementLanguage)
     if (window.api?.saveSettings) {
-      window.api.saveSettings({ language })
+      window.api.saveSettings({ language, requirementLanguage })
     }
-  }, [language])
+  }, [language, requirementLanguage])
 
   /**
    * Translate a key, with optional variable interpolation.
@@ -61,7 +69,13 @@ export function I18nProvider({ children }) {
   }
 
   return (
-    <I18nContext.Provider value={{ language, changeLanguage: setLanguage, t }}>
+    <I18nContext.Provider value={{ 
+      language, 
+      changeLanguage: setLanguage, 
+      requirementLanguage, 
+      changeRequirementLanguage: setRequirementLanguage,
+      t 
+    }}>
       {children}
     </I18nContext.Provider>
   )

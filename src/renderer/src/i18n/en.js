@@ -314,6 +314,12 @@ const en = {
   'setup.start': 'Start Setup',
   'setup.extracting': 'Extracting Graphics...',
   'setup.errorSelection': 'Please select StarCraft Launcher.exe first.',
+
+  // Common List UI
+  'common.search': 'Search',
+  'common.clear': 'Clear',
+  'common.sortId': 'By ID',
+  'common.sortName': 'By Name',
 }
 
 export default en

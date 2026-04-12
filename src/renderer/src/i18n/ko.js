@@ -314,6 +314,12 @@ const ko = {
   'setup.start': '설정 시작',
   'setup.extracting': '그래픽 데이터 추출 중...',
   'setup.errorSelection': '먼저 스타크래프트 실행 파일(.exe)을 선택해 주세요.',
+
+  // Common List UI
+  'common.search': '검색',
+  'common.clear': '지우기',
+  'common.sortId': 'ID 순',
+  'common.sortName': '이름 순',
 }
 
 export default ko

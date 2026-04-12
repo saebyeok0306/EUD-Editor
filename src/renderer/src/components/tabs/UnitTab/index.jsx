@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useCallback } from 'react'
+import { useState, useEffect, useMemo, memo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import unitsText from '../../../data/Units.txt?raw'
 import {
@@ -10,6 +10,7 @@ import {
 } from '../../../utils/datStore'
 import UnitGraphic from '../../common/UnitGraphic'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
+import ListPane from '../../common/ListPane'
 
 // Sub-components
 import BasicInfo from './BasicInfo'
@@ -107,8 +108,6 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
   const [activeSubTab, setActiveSubTab] = useState('basic')
-  const [listWidth, setListWidth] = useState(300)
-  const [isDragging, setIsDragging] = useState(false)
   const [userDataPath, setUserDataPath] = useState(null)
 
   useNavigationTarget('Unit', setSelectedItem)
@@ -117,28 +116,9 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
     window.api.getUserDataPath().then(path => setUserDataPath(path))
   }, [])
 
-  useEffect(() => {
-    if (!isDragging) return
-
-    const handleMouseMove = (e) => {
-      const newWidth = e.clientX - 250
-      setListWidth(Math.max(200, Math.min(newWidth, window.innerWidth * 0.6)))
-    }
-    const handleMouseUp = () => {
-      setIsDragging(false)
-      document.body.style.cursor = 'default'
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-    document.body.style.cursor = 'col-resize'
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = 'default'
-    }
-  }, [isDragging])
+  const unitListItems = useMemo(() => {
+    return UNIT_NAMES.map((name, i) => ({ name, i }))
+  }, [])
 
   const eudUnits = getUnitsData()
   const unitSettingsList = mapData?.unitSettings || []
@@ -176,9 +156,10 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
 
   return (
     <div className="content-body">
-      {/* Left Pane: Items List */}
-      <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
-        {UNIT_NAMES.map((name, i) => (
+      <ListPane
+        items={unitListItems}
+        selectedItem={selectedItem}
+        renderItem={({ name, i }) => (
           <UnitListItem
             key={i}
             i={i}
@@ -188,13 +169,7 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
             onClick={setSelectedItem}
             userDataPath={userDataPath}
           />
-        ))}
-      </div>
-
-      {/* Resizer */}
-      <div
-        className={`resizer${isDragging ? ' dragging' : ''}`}
-        onMouseDown={() => setIsDragging(true)}
+        )}
       />
 
       {/* Right Pane: Properties */}

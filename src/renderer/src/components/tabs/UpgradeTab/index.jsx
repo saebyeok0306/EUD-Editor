@@ -3,6 +3,7 @@ import { useI18n } from '../../../i18n/i18nContext'
 import { getUpgradesData, getStatTxtKorEng } from '../../../utils/datStore'
 import DatIcon from '../../common/DatIcon'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
+import ListPane from '../../common/ListPane'
 
 const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
   <div
@@ -39,8 +40,6 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
 function UpgradeTab({ mapData, datReady }) {
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
-  const [listWidth, setListWidth] = useState(300)
-  const [isDragging, setIsDragging] = useState(false)
   const [upgradeNames, setUpgradeNames] = useState([])
 
   useNavigationTarget('Upgrade', setSelectedItem)
@@ -69,59 +68,23 @@ function UpgradeTab({ mapData, datReady }) {
     setUpgradeNames(names)
   }, [datReady])
 
-  useEffect(() => {
-    if (!isDragging) return
-
-    const handleMouseMove = (e) => {
-      const newWidth = e.clientX - 250
-      setListWidth(Math.max(200, Math.min(newWidth, window.innerWidth * 0.6)))
-    }
-    const handleMouseUp = () => {
-      setIsDragging(false)
-      document.body.style.cursor = 'default'
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-    document.body.style.cursor = 'col-resize'
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = 'default'
-    }
-  }, [isDragging])
-
   const currentUpgradesData = getUpgradesData()
   const currentItemData = (currentUpgradesData && selectedItem !== null) ? currentUpgradesData[selectedItem] : null
   const iconIdx = currentItemData?.['Icon']
 
-  const handleItemClick = useCallback((id) => {
-    setSelectedItem(id)
-  }, [])
-
-  const renderedList = useMemo(() => (
-    <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
-      {upgradeNames.map((item) => (
-        <MemoizedListItem
-          key={item.id}
-          item={item}
-          isActive={selectedItem === item.id}
-          onClick={handleItemClick}
-        />
-      ))}
-    </div>
-  ), [upgradeNames, selectedItem, listWidth])
-
   return (
     <div className="content-body">
-      {/* Left Pane: Items List */}
-      {renderedList}
-
-      {/* Resizer */}
-      <div
-        className={`resizer${isDragging ? ' dragging' : ''}`}
-        onMouseDown={() => setIsDragging(true)}
+      <ListPane
+        items={upgradeNames}
+        selectedItem={selectedItem}
+        renderItem={(item) => (
+          <MemoizedListItem
+            key={item.id}
+            item={item}
+            isActive={selectedItem === item.id}
+            onClick={setSelectedItem}
+          />
+        )}
       />
 
       {/* Right Pane: Properties */}

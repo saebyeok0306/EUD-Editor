@@ -216,3 +216,22 @@ select.modern-input option {
   font-weight: bold;
   color: var(--ev-c-text-1);
 }
+
+/* Custom Scrollbar for ListPane */
+.list-pane-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.list-pane-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list-pane-scroll::-webkit-scrollbar-thumb {
+  background: var(--ev-c-text-3);
+  border-radius: 4px;
+}
+
+.list-pane-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ev-c-brand);
+}

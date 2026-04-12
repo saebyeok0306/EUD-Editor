@@ -8,6 +8,7 @@ import SearchableSelect from '../../common/SearchableSelect'
 import VirtualList from '../../common/VirtualList'
 import '../../common/TabCommon.css'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
+import ListPane from '../../common/ListPane'
 
 import GraphicRenderer from './GraphicRenderer'
 import { MemoizedListItem } from './ImageListItem'
@@ -17,8 +18,6 @@ import { Field, Card } from './ImageFormUI'
 function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
-  const [listWidth, setListWidth] = useState(300)
-  const [isDragging, setIsDragging] = useState(false)
   const [imageNames, setImageNames] = useState([])
   const [iscriptData, setIscriptData] = useState(null)
   const [selectedAnimation, setSelectedAnimation] = useState('Init')
@@ -78,29 +77,6 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
     setImageNames(names)
   }, [datReady])
 
-  useEffect(() => {
-    if (!isDragging) return
-
-    const handleMouseMove = (e) => {
-      const newWidth = e.clientX - 250
-      setListWidth(Math.max(200, Math.min(newWidth, window.innerWidth * 0.6)))
-    }
-    const handleMouseUp = () => {
-      setIsDragging(false)
-      document.body.style.cursor = 'default'
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-    document.body.style.cursor = 'col-resize'
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = 'default'
-    }
-  }, [isDragging])
-
   const currentMapTileset = mapData?.tileset || 'badlands'
   const currentImagesData = getImagesData()
   const baseItemData = (currentImagesData && selectedItem !== null) ? currentImagesData[selectedItem] : null
@@ -128,24 +104,6 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
     })
   }, [iscriptData])
 
-  const handleItemClick = useCallback((id) => {
-    setSelectedItem(id)
-  }, [])
-
-  const renderedList = useMemo(() => (
-    <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
-      {imageNames.map((item) => (
-        <MemoizedListItem
-          key={item.id}
-          item={item}
-          isActive={selectedItem === item.id}
-          onClick={handleItemClick}
-          userDataPath={userDataPath}
-        />
-      ))}
-    </div>
-  ), [imageNames, selectedItem, listWidth, userDataPath])
-
   const handleUpdate = useCallback((key, value) => {
     if (onUpdateProjectImage) {
       onUpdateProjectImage('images', selectedItem, key, value)
@@ -154,28 +112,20 @@ function ImageTab({ mapData, projectData, datReady, onUpdateProjectImage }) {
 
   return (
     <div className="content-body">
-      {/* Left Pane: Items List */}
-      <div className="items-list-pane" style={{ width: `${listWidth}px`, minWidth: `${listWidth}px` }}>
-        <VirtualList
-          items={imageNames}
-          itemHeight={60}
-          scrollToIndex={selectedItem !== null ? imageNames.findIndex(n => n.id === selectedItem) : null}
-          style={{ height: '100%' }}
-          renderItem={(item) => (
-            <MemoizedListItem
-              item={item}
-              isActive={selectedItem === item.id}
-              onClick={handleItemClick}
-              userDataPath={userDataPath}
-            />
-          )}
-        />
-      </div>
-
-      {/* Resizer */}
-      <div
-        className={`resizer${isDragging ? ' dragging' : ''}`}
-        onMouseDown={() => setIsDragging(true)}
+      <ListPane
+        items={imageNames}
+        selectedItem={selectedItem}
+        useVirtualList={true}
+        itemHeight={60}
+        renderItem={(item) => (
+          <MemoizedListItem
+            key={item.id}
+            item={item}
+            isActive={selectedItem === item.id}
+            onClick={setSelectedItem}
+            userDataPath={userDataPath}
+          />
+        )}
       />
 
       {/* Right Pane: Properties */}

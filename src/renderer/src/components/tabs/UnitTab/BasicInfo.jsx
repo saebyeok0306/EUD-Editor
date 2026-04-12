@@ -105,28 +105,6 @@ function BasicInfo({
 
   return (
     <div className="tab-detail-container">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-        <button
-          className="btn-reset-tab"
-          onClick={() => {
-            if (confirm(t('unit.reset.confirmTab'))) {
-              onResetProjectUnit(selectedItem, 'basic')
-            }
-          }}
-          style={{
-            padding: '4px 12px',
-            fontSize: '11px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid var(--ev-c-divider)',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            color: 'var(--ev-c-text-2)'
-          }}
-        >
-          {t('unit.reset.tab')}
-        </button>
-      </div>
-
       <div className="tab-detail-grid">
         {/* Section 1: 유닛 생체 정보 */}
         <Card title={t('unit.section.bio') || '유닛 생체 정보'}>

@@ -40,9 +40,36 @@ export const UNIT_GROUPS = {
     'pissSoundStart',
     'pissSoundEnd'
   ],
-  graphics: [],
-  edit: [],
-  ai: [],
+  graphics: [
+    'graphics',
+    'constructionAnimation',
+    'portrait',
+    'elevationLevel',
+    'unitDirection',
+    'unitSizeLeft',
+    'unitSizeRight',
+    'unitSizeUp',
+    'unitSizeDown',
+    'starEditPlacementBoxWidth',
+    'starEditPlacementBoxHeight',
+    'addonHorizontalPosition',
+    'addonVerticalPosition'
+  ],
+  edit: [
+    'starEditAbilityFlags',
+    'starEditGroupFlags',
+    'rank',
+    'label'
+  ],
+  ai: [
+    'compAiIdle',
+    'humanAiIdle',
+    'returnToIdle',
+    'attackUnit',
+    'attackMove',
+    'rightClickAction',
+    'aiInternal'
+  ],
   ui: [],
   req: []
 }

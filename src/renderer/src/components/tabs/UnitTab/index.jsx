@@ -202,7 +202,36 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
         {selectedItem !== null ? (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             {/* Header with Reset All */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px', gap: '8px' }}>
+              <button
+                className="btn-reset-tab"
+                onClick={() => {
+                  if (confirm(t('unit.reset.confirmTab'))) {
+                    onResetProjectUnit(selectedItem, activeSubTab)
+                  }
+                }}
+                style={{
+                  padding: '5px 12px',
+                  fontSize: '11px',
+                  backgroundColor: 'var(--ev-c-gray-3)',
+                  color: 'var(--ev-c-text-1)',
+                  border: '1px solid var(--ev-c-divider)',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = 'var(--ev-c-gray-2)';
+                  e.target.style.borderColor = 'var(--ev-c-brand)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'var(--ev-c-gray-3)';
+                  e.target.style.borderColor = 'var(--ev-c-divider)';
+                }}
+              >
+                {t('unit.reset.tab')}
+              </button>
               <button
                 className="btn-reset-unit"
                 onClick={() => {

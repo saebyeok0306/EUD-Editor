@@ -175,28 +175,6 @@ function AIOrders({
 
   return (
     <div className="tab-detail-container">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-        <button
-          className="btn-reset-tab"
-          onClick={() => {
-            if (confirm(t('unit.reset.confirmTab') || '현재 탭의 변경사항을 초기화하시겠습니까?')) {
-              onResetProjectUnit(selectedItem, 'ai')
-            }
-          }}
-          style={{
-            padding: '4px 12px',
-            fontSize: '11px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid var(--ev-c-divider)',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            color: 'var(--ev-c-text-2)'
-          }}
-        >
-          {t('unit.reset.tab') || '탭 초기화'}
-        </button>
-      </div>
-
       <div style={{ flex: 1, minWidth: 0 }}>
         <Card title={t('unit.ai.title', { defaultValue: '인공지능명령' })} style={{ marginTop: '0' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

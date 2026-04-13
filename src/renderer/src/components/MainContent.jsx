@@ -23,8 +23,9 @@ function MainContent({
 
   return (
     <div className="main-content">
-      <div className="content-header">
+      <div className="content-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>{title}</h2>
+        <div id="header-actions-portal"></div>
       </div>
       <div style={{ display: selectedCategory === 'Unit' ? 'contents' : 'none' }}>
         <UnitTab 

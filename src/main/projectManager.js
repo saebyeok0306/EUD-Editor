@@ -6,7 +6,26 @@ import scmExtractor from 'scm-extractor'
 import bwChkData from 'bw-chk'
 import { pack, unpack } from 'msgpackr'
 import { extractChkSection, parseUnixSection } from './chkParser.js'
-import { addRecentProject } from './settings.js'
+import { addRecentProject, getSettings } from './settings.js'
+
+function restoreWindowSize(windowEvent) {
+  const win = windowEvent ? BrowserWindow.fromWebContents(windowEvent.sender) : null
+  if (win) {
+    const settings = getSettings()
+    if (settings.editorWindowBounds) {
+      const { width, height, isMaximized } = settings.editorWindowBounds
+      if (win.isMaximized()) win.unmaximize()
+      if (width && height) win.setSize(width, height)
+      win.center()
+      if (isMaximized) win.maximize()
+    } else {
+      // if (!win.isMaximized()) {
+      //   win.maximize()
+      // }
+      win.center()
+    }
+  }
+}
 
 const createExtractor = scmExtractor.default || scmExtractor
 const BwChk = bwChkData.default || bwChkData
@@ -91,11 +110,7 @@ export async function createProject(windowEvent) {
     const packed = pack(projectData)
     await fsp.writeFile(projectPath, packed)
 
-    // Optional: Auto maximize window if not already
-    const win = windowEvent ? BrowserWindow.fromWebContents(windowEvent.sender) : null
-    if (win && !win.isMaximized()) {
-      win.maximize()
-    }
+    restoreWindowSize(windowEvent)
 
     addRecentProject(projectPath)
 
@@ -141,10 +156,7 @@ export async function openProject(windowEvent) {
 
     const mapData = await loadMapData(mapPath)
     
-    const win = windowEvent ? BrowserWindow.fromWebContents(windowEvent.sender) : null
-    if (win && !win.isMaximized()) {
-      win.maximize()
-    }
+    restoreWindowSize(windowEvent)
 
     addRecentProject(projectPath)
 
@@ -206,10 +218,7 @@ export async function openProjectByPath(projectPath, windowEvent) {
 
         const mapData = await loadMapData(mapPath)
 
-        const win = windowEvent ? BrowserWindow.fromWebContents(windowEvent.sender) : null
-        if (win && !win.isMaximized()) {
-            win.maximize()
-        }
+        restoreWindowSize(windowEvent)
 
         addRecentProject(projectPath)
 

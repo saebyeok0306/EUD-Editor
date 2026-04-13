@@ -33,6 +33,7 @@ const api = {
   getUserDataPath: () => ipcRenderer.invoke('app:getUserDataPath'),
   getSettings: () => ipcRenderer.invoke('app:getSettings'),
   saveSettings: (settings) => ipcRenderer.invoke('app:saveSettings', settings),
+  saveEditorBounds: () => ipcRenderer.send('window:saveEditorBounds'),
   resetWindowSize: () => ipcRenderer.send('window:resetSize'),
   minimize: () => ipcRenderer.send('window:minimize'),
   maximize: () => ipcRenderer.send('window:maximize'),

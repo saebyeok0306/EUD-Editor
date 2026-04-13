@@ -108,6 +108,24 @@ app.whenReady().then(() => {
     if (win) win.close()
   })
 
+  ipcMain.on('window:saveEditorBounds', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win) {
+      const isMax = win.isMaximized()
+      let width, height;
+      if (typeof win.getNormalBounds === 'function') {
+        const nb = win.getNormalBounds();
+        width = nb.width; height = nb.height;
+      } else {
+        const [w, h] = win.getSize()
+        width = w; height = h;
+      }
+      const settings = getSettings()
+      settings.editorWindowBounds = { width, height, isMaximized: isMax }
+      saveSettings(settings)
+    }
+  })
+
   ipcMain.handle('project:create', async (event) => {
     return await createProject(event)
   })

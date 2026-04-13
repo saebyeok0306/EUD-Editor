@@ -183,7 +183,7 @@
 /* --- Properties Pane --- */
 .properties-pane {
   flex: 1;
-  padding: 30px;
+  padding: 10px;
   overflow-y: auto;
 }
 
@@ -330,7 +330,7 @@
   background-color: var(--ev-c-gray-3);
   padding: 2px;
   border-radius: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   flex-shrink: 0;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }

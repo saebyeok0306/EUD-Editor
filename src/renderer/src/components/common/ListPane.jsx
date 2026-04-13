@@ -3,7 +3,7 @@ import { useI18n } from '../../i18n/i18nContext'
 import VirtualList from './VirtualList'
 import './TabCommon.css'
 
-let globalListWidth = parseInt(localStorage.getItem('ev-list-pane-width') || '300', 10)
+let globalListWidth = parseInt(localStorage.getItem('ev-list-pane-width') || '265', 10)
 
 function ListPane({
   items,
@@ -20,7 +20,7 @@ function ListPane({
   const [isDragging, setIsDragging] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortType, setSortType] = useState('id')
-  
+
   const widthRef = React.useRef(listWidth)
 
   useEffect(() => {
@@ -147,7 +147,7 @@ function ListPane({
               </span>
             )}
           </div>
-          
+
           <div style={{ display: 'flex', background: 'var(--ev-c-bg-soft)', borderRadius: '4px', padding: '2px', border: '1px solid var(--ev-c-divider)' }}>
             <button
               onClick={() => setSortType('id')}

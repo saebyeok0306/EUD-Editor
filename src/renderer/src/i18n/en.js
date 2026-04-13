@@ -91,6 +91,24 @@ const en = {
   'unit.armorType.large': 'Large',
   'unit.empty.text': 'Select a Unit to view and edit its properties',
 
+  // Unit Graphics Tab
+  'unit.graphics.info': 'Graphics Info',
+  'unit.graphics.flingy': 'Flingy',
+  'unit.graphics.macr': 'Construction',
+  'unit.graphics.portrait': 'Portrait',
+  'unit.graphics.elevation': 'Elevation',
+  'unit.graphics.direction': 'Direction',
+  'unit.graphics.unitSize': 'Unit Size',
+  'unit.graphics.left': 'Left',
+  'unit.graphics.right': 'Right',
+  'unit.graphics.up': 'Up',
+  'unit.graphics.down': 'Down',
+  'unit.graphics.buildSize': 'Placement Box',
+  'unit.graphics.width': 'Width',
+  'unit.graphics.height': 'Height',
+  'unit.graphics.addonPos': 'Addon Position',
+  'unit.graphics.preview': 'Preview',
+
   // GenericTab
   'generic.empty.text': 'Select a {category} to view and edit its properties',
   'generic.prop.placeholder': 'Properties for this {category} will be constructed here.',

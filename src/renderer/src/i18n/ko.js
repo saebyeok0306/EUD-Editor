@@ -91,6 +91,24 @@ const ko = {
   'unit.armorType.large': '대형',
   'unit.empty.text': '유닛을 선택하면 속성을 볼 수 있습니다',
 
+  // Unit Graphics Tab
+  'unit.graphics.info': '그래픽 정보',
+  'unit.graphics.flingy': '비행정보',
+  'unit.graphics.macr': '생산모습',
+  'unit.graphics.portrait': '얼굴모습',
+  'unit.graphics.elevation': '높이',
+  'unit.graphics.direction': '생산방향',
+  'unit.graphics.unitSize': '유닛 크기',
+  'unit.graphics.left': '좌',
+  'unit.graphics.right': '우',
+  'unit.graphics.up': '상',
+  'unit.graphics.down': '하',
+  'unit.graphics.buildSize': '건설 크기',
+  'unit.graphics.width': '너비',
+  'unit.graphics.height': '높이',
+  'unit.graphics.addonPos': '애드온 위치',
+  'unit.graphics.preview': '미리보기',
+
   // GenericTab
   'generic.empty.text': '{category}을(를) 선택하면 속성을 볼 수 있습니다',
   'generic.prop.placeholder': '이 {category}의 속성이 여기에 표시됩니다.',

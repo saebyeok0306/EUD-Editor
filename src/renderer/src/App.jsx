@@ -20,6 +20,31 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [recentProjects, setRecentProjects] = useState([])
 
+// ...
+
+  const handleBuildProject = async () => {
+    if (!projectPath || !mapData) return;
+    
+    // First save the project
+    try {
+      await window.api.saveProject(projectPath, {
+        mapPath: mapData.filePath,
+        projectData: projectData
+      })
+    } catch (err) {
+      alert('Error saving project before build: ' + err)
+      return
+    }
+
+    const options = {
+      inputMap: mapData.filePath,
+      outputMap: projectData.settings?.main?.outputPath || undefined
+    }
+    await window.api.buildProject(projectPath, projectData, options)
+  }
+
+  // ... (find the right place to inject this function, probably around handleSaveProject)
+
   // Load all .dat files once at startup
   useEffect(() => {
     const init = async () => {
@@ -193,7 +218,7 @@ function App() {
         <ThemeProvider>
           <NavigationProvider>
             <div className="app-container">
-              {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} />}
+              {showSettings && <SettingsScreen onClose={() => setShowSettings(false)} mapLoaded={!!mapData} projectData={projectData} updateProjectData={updateProjectData} />}
               <TitleBar 
                 onCreateProject={handleCreateProject}
                 onOpenProject={handleOpenProject}
@@ -202,6 +227,7 @@ function App() {
                 recentProjects={recentProjects}
                 onOpenRecentProject={handleOpenRecentProject}
                 onSaveProject={handleSaveProject}
+                onBuildProject={handleBuildProject}
                 onCloseMap={handleCloseMap} 
                 mapLoaded={!!mapData} 
                 onOpenSettings={() => setShowSettings(true)}

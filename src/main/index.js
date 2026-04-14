@@ -14,6 +14,7 @@ import { packCascData, readDatapackFile } from './cascPacker.js'
 import { setupPortablePath } from './paths.js'
 import path from 'path'
 import { createProject, openProject, saveProject, openProjectByPath } from './projectManager.js'
+import { buildProject } from './buildSystem.js'
 // Set up portable data path before anything else
 setupPortablePath()
 
@@ -140,6 +141,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('project:save', async (event, projectPath, data) => {
     return await saveProject(projectPath, data)
+  })
+
+  ipcMain.handle('project:build', async (event, projectPath, data, options) => {
+    return await buildProject(event, projectPath, data, options)
   })
 
   // StarCraft Path & CASC
@@ -341,6 +346,29 @@ app.whenReady().then(() => {
     
     if (canceled || filePaths.length === 0) return null
     return filePaths[0]
+  })
+
+  ipcMain.handle('app:selectFolder', async (event, title) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+      properties: ['openDirectory'],
+      title: title || 'Select Folder'
+    })
+    
+    if (canceled || filePaths.length === 0) return null
+    return filePaths[0]
+  })
+
+  ipcMain.handle('app:showSaveDialog', async (event, { filters, title, defaultPath }) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      filters: filters || [],
+      title: title || 'Save File',
+      defaultPath
+    })
+    
+    if (canceled || !filePath) return null
+    return filePath
   })
 
   ipcMain.handle('starcraft:extract', async (event, scPath) => {

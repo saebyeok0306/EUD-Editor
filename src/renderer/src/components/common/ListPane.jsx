@@ -3,7 +3,7 @@ import { useI18n } from '../../i18n/i18nContext'
 import VirtualList from './VirtualList'
 import './TabCommon.css'
 
-let globalListWidth = parseInt(localStorage.getItem('ev-list-pane-width') || '265', 10)
+let globalListWidth = parseInt(localStorage.getItem('ev-list-pane-width') || '260', 10)
 
 function ListPane({
   items,

@@ -7,6 +7,12 @@ const api = {
   openProject: () => ipcRenderer.invoke('project:open'),
   openProjectByPath: (path) => ipcRenderer.invoke('project:openByPath', path),
   saveProject: (projectPath, data) => ipcRenderer.invoke('project:save', projectPath, data),
+  buildProject: (projectPath, data, options) => ipcRenderer.invoke('project:build', projectPath, data, options),
+  onBuildLog: (callback) => {
+    const listener = (_event, log) => callback(log)
+    ipcRenderer.on('build:log', listener)
+    return () => ipcRenderer.removeListener('build:log', listener)
+  },
   onLanguageChanged: (callback) => {
     const listener = (_event, lang) => callback(lang)
     ipcRenderer.on('language-changed', listener)
@@ -14,6 +20,8 @@ const api = {
   },
   getStarcraftPath: () => ipcRenderer.invoke('starcraft:getPath'),
   selectStarcraftFolder: () => ipcRenderer.invoke('starcraft:selectFolder'),
+  selectFolder: (title) => ipcRenderer.invoke('app:selectFolder', title),
+  showSaveDialog: (options) => ipcRenderer.invoke('app:showSaveDialog', options),
   selectStarcraftFile: (filters, title) => ipcRenderer.invoke('starcraft:selectFile', { filters, title }),
   extractStarcraftGraphics: (path) => ipcRenderer.invoke('starcraft:extract', path),
   getStarcraftFile: (path, fileName) => ipcRenderer.invoke('starcraft:getFile', path, fileName),

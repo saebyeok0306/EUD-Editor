@@ -3,8 +3,9 @@ import { useI18n } from '../../i18n/i18nContext'
 import General from './General'
 import Changelog from './Changelog'
 import Theme from './Theme'
+import ProjectSettings from './ProjectSettings'
 
-export default function Settings({ onClose }) {
+export default function Settings({ onClose, mapLoaded, projectData, updateProjectData }) {
   const { t } = useI18n()
   const [activeTab, setActiveTab] = useState('general')
 
@@ -20,6 +21,14 @@ export default function Settings({ onClose }) {
         >
           {t('settings.tab.general') || '기본 설정'}
         </div>
+        {mapLoaded && (
+          <div 
+            className={`settings-tab ${activeTab === 'project' ? 'active' : ''}`}
+            onClick={() => setActiveTab('project')}
+          >
+            {t('settings.tab.project') || '프로젝트 설정'}
+          </div>
+        )}
         <div 
           className={`settings-tab ${activeTab === 'theme' ? 'active' : ''}`}
           onClick={() => setActiveTab('theme')}
@@ -37,6 +46,7 @@ export default function Settings({ onClose }) {
       <div className="settings-content-wrapper">
         <div className="settings-body">
           {activeTab === 'general' && <General />}
+          {activeTab === 'project' && mapLoaded && <ProjectSettings projectData={projectData} updateProjectData={updateProjectData} />}
           {activeTab === 'theme' && <Theme />}
           {activeTab === 'changelog' && <Changelog />}
         </div>

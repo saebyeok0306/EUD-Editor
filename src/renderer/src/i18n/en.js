@@ -17,6 +17,7 @@ const en = {
   'sidebar.closeMap': 'Close Project',
   'sidebar.saveProject': 'Save Project',
   'sidebar.saveProjectDesc': 'Save current project',
+  'sidebar.build': 'Build Project',
 
   // Categories
   'category.Unit': 'Unit',
@@ -339,6 +340,11 @@ const en = {
   'settings.changelog.loading': 'Loading version history...',
   'settings.changelog.error': 'Failed to load version history.',
   'settings.changelog.viewOnGithub': 'View on GitHub',
+  'settings.tab.project': 'Project Settings',
+  'settings.section.projectOptions': 'Project Options',
+  'settings.outputPath': 'Output Map Path',
+  'settings.outputPathPlaceholder': 'ex: C:\\Games\\Starcraft\\Maps\\Download\\MyMap.scx',
+  'settings.selectOutputFolder': 'Select Output Map Location',
 
   // SetupScreen
   'setup.welcome': 'Welcome to EUD Editor',

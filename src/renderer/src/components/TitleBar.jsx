@@ -5,6 +5,7 @@ export default function TitleBar({
   onCreateProject, 
   onOpenProject, 
   onSaveProject, 
+  onBuildProject,
   onCloseMap, 
   mapLoaded, 
   projectName, 
@@ -152,6 +153,29 @@ export default function TitleBar({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {mapLoaded && !isSettingUp && (
+          <div className="menu-items" style={{ marginLeft: '8px' }}>
+            <div className="menu-item">
+              <button 
+                onClick={onBuildProject}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: '#4CAF50',
+                  fontWeight: '600'
+                }}
+                title={t('sidebar.build') || 'Build Project'}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Build</span>
+              </button>
             </div>
           </div>
         )}

@@ -17,6 +17,7 @@ const ko = {
   'sidebar.closeMap': '프로젝트 닫기',
   'sidebar.saveProject': '프로젝트 저장',
   'sidebar.saveProjectDesc': '현재 프로젝트를 저장합니다',
+  'sidebar.build': '프로젝트 빌드',
 
   // Categories
   'category.Unit': 'Unit',
@@ -339,6 +340,11 @@ const ko = {
   'settings.changelog.loading': '업데이트 내역을 불러오고 있습니다...',
   'settings.changelog.error': '업데이트 내역을 불러오는데 실패했습니다.',
   'settings.changelog.viewOnGithub': 'GitHub에서 보기',
+  'settings.tab.project': '프로젝트 설정',
+  'settings.section.projectOptions': '프로젝트 전용 설정',
+  'settings.outputPath': '빌드 결과 맵 경로 (Output Map)',
+  'settings.outputPathPlaceholder': '예: C:\\Games\\Starcraft\\Maps\\Download\\MyMap.scx',
+  'settings.selectOutputFolder': '맵 저장 위치 설정',
   
   // SetupScreen
   'setup.welcome': 'EUD 에디터에 오신 것을 환영합니다',

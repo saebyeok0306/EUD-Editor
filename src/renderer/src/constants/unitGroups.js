@@ -1,28 +1,28 @@
 export const UNIT_GROUPS = {
   basic: [
-    'rawHp',
-    'shield',
-    'shieldEnable',
+    'maxHp',
+    'maxShield',
+    'hasShield',
     'armorUpgrade',
     'armor',
-    'buildTime',
-    'minerals',
-    'gas',
-    'bwFlag',
+    'timeCost',
+    'mineralCost',
+    'gasCost',
+    'broodWarFlag',
     'buildScore',
-    'destroyScore',
+    'killScore',
     'groundWeapon',
     'airWeapon',
     'maxGroundHits',
     'maxAirHits',
     'sightRange',
-    'targetAcquisitionRange',
-    'unitSize',
+    'seekRange',
+    'sizeType',
     'graphics',
     'supplyProvided',
-    'supplyRequired',
-    'spaceRequired',
-    'spaceProvided',
+    'supplyUsed',
+    'transportSpaceRequired',
+    'transportSpaceProvided',
   ],
   advanced: [
     'specialAbilityFlags',
@@ -56,7 +56,7 @@ export const UNIT_GROUPS = {
     'addonVerticalPosition'
   ],
   edit: [
-    'starEditAbilityFlags',
+    'availabilityFlags',
     'starEditGroupFlags',
     'rank',
     'label'
@@ -68,7 +68,8 @@ export const UNIT_GROUPS = {
     'attackUnit',
     'attackMove',
     'rightClickAction',
-    'aiInternal'
+    'ignoreStrategicSuicideMissions',
+    'dontBecomeGuard'
   ],
   ui: [
     'buttonSet',

@@ -114,11 +114,11 @@ function AdvancedInfo({
 
   const isMod = (field) => currentProjectData?.[field] !== undefined
 
-  const specialFlags = getVal('specialAbilityFlags', SPECIAL_ABILITY_KEY)
+  const baseProperty = getVal('baseProperty', SPECIAL_ABILITY_KEY)
   const movementFlags = getVal('movementFlags', MOVEMENT_KEY)
-  const infestation = getVal('infestation', INFESTATION_KEY)
-  const subUnit1 = getVal('subUnit1', SUBUNIT1_KEY)
-  const subUnit2 = getVal('subUnit2', SUBUNIT2_KEY)
+  const infestationUnit = getVal('infestationUnit', INFESTATION_KEY)
+  const subUnit = getVal('subUnit', SUBUNIT1_KEY)
+  const subunit2 = getVal('subunit2', SUBUNIT2_KEY)
 
   return (
     <div className="tab-detail-container">
@@ -127,23 +127,23 @@ function AdvancedInfo({
         <Card title={t('unit.section.specialAbility') || '스페셜 어빌리티 플래그'}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', color: 'var(--ev-c-text-1)' }}>{t('unit.section.specialAbilityText')}</span>
-            <input
+              <input
               type="text"
-              className={`modern-input ${isMod('specialAbilityFlags') ? 'modified' : ''}`}
-              value={specialFlags.toString(16).toUpperCase()}
+              className={`modern-input ${isMod('baseProperty') ? 'modified' : ''}`}
+              value={baseProperty.toString(16).toUpperCase()}
               onChange={(e) => {
                 const num = parseInt(e.target.value, 16);
-                if (!isNaN(num)) onUpdateProjectUnit(selectedItem, 'specialAbilityFlags', num);
+                if (!isNaN(num)) onUpdateProjectUnit(selectedItem, 'baseProperty', num);
               }}
               style={{ width: '100px', fontFamily: 'monospace' }}
             />
           </div>
           <BitfieldCheckboxes
-            value={specialFlags}
+            value={baseProperty}
             labels={SPECIAL_ABILITY_KEYS.map(k => t(k))}
-            isMod={isMod('specialAbilityFlags')}
+            isMod={isMod('baseProperty')}
             rows={8}
-            onChange={(newVal) => onUpdateProjectUnit(selectedItem, 'specialAbilityFlags', newVal)}
+            onChange={(newVal) => onUpdateProjectUnit(selectedItem, 'baseProperty', newVal)}
           />
         </Card>
 
@@ -154,19 +154,19 @@ function AdvancedInfo({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <UnitIconField
                 label={t('unit.misc.infestedUnit')}
-                id={infestation}
+                id={infestationUnit}
                 unitNames={unitNames}
                 onConfirm={() => { /* Open unit picker logic if needed in future */ }}
               />
               <UnitIconField
                 label={t('unit.misc.subUnit1')}
-                id={subUnit1}
+                id={subUnit}
                 unitNames={unitNames}
                 onConfirm={() => { }}
               />
               <UnitIconField
                 label={t('unit.misc.subUnit2')}
-                id={subUnit2}
+                id={subunit2}
                 unitNames={unitNames}
                 onConfirm={() => { }}
               />

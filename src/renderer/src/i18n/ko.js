@@ -360,6 +360,9 @@ const ko = {
   'common.clear': '지우기',
   'common.sortId': 'ID 순',
   'common.sortName': '이름 순',
+  'common.notice': '알림',
+  'common.confirm': '확인',
+  'common.cancel': '취소',
 
   // Colors
   'colors.red': '빨강 (Red)',

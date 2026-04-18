@@ -12,6 +12,7 @@ import {
 import UnitGraphic from '../../common/UnitGraphic'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
 import ListPane from '../../common/ListPane'
+import ConfirmModal from '../../common/ConfirmModal'
 
 // Sub-components
 import BasicInfo from './BasicInfo'
@@ -111,6 +112,7 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
   const [activeSubTab, setActiveSubTab] = useState('basic')
   const [userDataPath, setUserDataPath] = useState(null)
   const [portalNode, setPortalNode] = useState(null)
+  const [confirmConfig, setConfirmConfig] = useState(null)
 
   useNavigationTarget('Unit', setSelectedItem)
 
@@ -160,6 +162,19 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
 
   return (
     <div className="content-body">
+      {confirmConfig && (
+        <ConfirmModal
+          title={t('common.notice')}
+          message={confirmConfig.message}
+          confirmText={t('common.confirm')}
+          cancelText={t('common.cancel')}
+          onConfirm={() => {
+            confirmConfig.onConfirm()
+            setConfirmConfig(null)
+          }}
+          onCancel={() => setConfirmConfig(null)}
+        />
+      )}
       <ListPane
         items={unitListItems}
         selectedItem={selectedItem}
@@ -186,9 +201,10 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
                 <button
                   className="btn-reset-tab"
                   onClick={() => {
-                    if (confirm(t('unit.reset.confirmTab'))) {
-                      onResetProjectUnit(selectedItem, activeSubTab)
-                    }
+                    setConfirmConfig({
+                      message: t('unit.reset.confirmTab'),
+                      onConfirm: () => onResetProjectUnit(selectedItem, activeSubTab)
+                    })
                   }}
                   style={{
                     padding: '5px 12px',
@@ -215,9 +231,10 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
                 <button
                   className="btn-reset-unit"
                   onClick={() => {
-                    if (confirm(t('unit.reset.confirmUnit'))) {
-                      onResetProjectUnit(selectedItem, 'all')
-                    }
+                    setConfirmConfig({
+                      message: t('unit.reset.confirmUnit'),
+                      onConfirm: () => onResetProjectUnit(selectedItem, 'all')
+                    })
                   }}
                   style={{
                     padding: '5px 12px',

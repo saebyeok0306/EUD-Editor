@@ -360,6 +360,9 @@ const en = {
   'common.clear': 'Clear',
   'common.sortId': 'By ID',
   'common.sortName': 'By Name',
+  'common.notice': 'Notice',
+  'common.confirm': 'Confirm',
+  'common.cancel': 'Cancel',
 
   // Colors
   'colors.red': 'Red',

@@ -76,32 +76,32 @@ function BasicInfo({
   const isMod = (field) => currentProjectData?.[field] !== undefined
 
   // Field Getters
-  const hp = getVal('rawHp', 'rawHp', 'Hit Points')
-  const shield = getVal('shield', 'shield', 'Shield Amount')
-  const shieldEnable = getVal('shieldEnable', 'shieldEnable', 'Shield Enable')
+  const maxHp = getVal('maxHp', 'rawHp', 'Hit Points')
+  const maxShield = getVal('maxShield', 'shield', 'Shield Amount')
+  const hasShield = getVal('hasShield', 'shieldEnable', 'Shield Enable')
   const armorUpgrade = getVal('armorUpgrade', null, 'Armor Upgrade')
   const armor = getVal('armor', 'armor', 'Armor')
 
-  const minerals = getVal('minerals', 'minerals', 'Mineral Cost')
-  const gas = getVal('gas', 'gas', 'Vespene Cost')
-  const buildTime = getVal('buildTime', 'buildTime', 'Build Time')
-  const bwFlag = getVal('bwFlag', null, 'Broodwar Unit Flag')
+  const mineralCost = getVal('mineralCost', 'minerals', 'Mineral Cost')
+  const gasCost = getVal('gasCost', 'gas', 'Vespene Cost')
+  const timeCost = getVal('timeCost', 'buildTime', 'Build Time')
+  const broodWarFlag = getVal('broodWarFlag', null, 'Broodwar Unit Flag')
   const buildScore = getVal('buildScore', null, 'Build Score')
-  const destroyScore = getVal('destroyScore', null, 'Destroy Score')
+  const killScore = getVal('killScore', null, 'Destroy Score')
 
-  const gWep = getVal('groundWeapon', null, 'Ground Weapon')
-  const aWep = getVal('airWeapon', null, 'Air Weapon')
-  const gHits = getVal('maxGroundHits', null, 'Max Ground Hits')
-  const aHits = getVal('maxAirHits', null, 'Max Air Hits')
+  const groundWeapon = getVal('groundWeapon', null, 'Ground Weapon')
+  const airWeapon = getVal('airWeapon', null, 'Air Weapon')
+  const maxGroundHits = getVal('maxGroundHits', null, 'Max Ground Hits')
+  const maxAirHits = getVal('maxAirHits', null, 'Max Air Hits')
 
-  const supplyReq = getVal('supplyRequired', null, 'Supply Required')
-  const supplyProv = getVal('supplyProvided', null, 'Supply Provided')
-  const spaceReq = getVal('spaceRequired', null, 'Space Required')
-  const spaceProv = getVal('spaceProvided', null, 'Space Provided')
+  const supplyUsed = getVal('supplyUsed', null, 'Supply Required')
+  const supplyProvided = getVal('supplyProvided', null, 'Supply Provided')
+  const transportSpaceRequired = getVal('transportSpaceRequired', null, 'Space Required')
+  const transportSpaceProvided = getVal('transportSpaceProvided', null, 'Space Provided')
 
-  const sight = getVal('sightRange', null, 'Sight Range')
-  const targetAcq = getVal('targetAcquisitionRange', null, 'Target Acquisition Range')
-  const unitSize = getVal('unitSize', null, 'Unit Size')
+  const sightRange = getVal('sightRange', null, 'Sight Range')
+  const seekRange = getVal('seekRange', null, 'Target Acquisition Range')
+  const sizeType = getVal('sizeType', null, 'Unit Size')
 
   return (
     <div className="tab-detail-container">
@@ -114,18 +114,18 @@ function BasicInfo({
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <input
                   type="number"
-                  className={`modern-input ${isMod('rawHp') ? 'modified' : ''}`}
-                  value={Math.floor((hp || 0) / 256)}
-                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'rawHp', (parseInt(e.target.value) || 0) * 256)}
+                  className={`modern-input ${isMod('maxHp') ? 'modified' : ''}`}
+                  value={Math.floor((maxHp || 0) / 256)}
+                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'maxHp', (parseInt(e.target.value) || 0) * 256)}
                   title="Actual Hit Points"
                 />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <input
                   type="number"
-                  className={`modern-input ${isMod('rawHp') ? 'modified' : ''}`}
-                  value={hp || 0}
-                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'rawHp', parseInt(e.target.value) || 0)}
+                  className={`modern-input ${isMod('maxHp') ? 'modified' : ''}`}
+                  value={maxHp || 0}
+                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'maxHp', parseInt(e.target.value) || 0)}
                   title="Raw Hit Points"
                 />
               </div>
@@ -136,16 +136,16 @@ function BasicInfo({
             <div className="value-row">
               <input
                 type="number"
-                className={`modern-input ${isMod('shield') ? 'modified' : ''}`}
-                value={shield}
-                onChange={(e) => onUpdateProjectUnit(selectedItem, 'shield', parseInt(e.target.value) || 0)}
+                className={`modern-input ${isMod('maxShield') ? 'modified' : ''}`}
+                value={maxShield}
+                onChange={(e) => onUpdateProjectUnit(selectedItem, 'maxShield', parseInt(e.target.value) || 0)}
                 style={{ flex: 1 }}
               />
               <label className="checkbox-label">
                 <input
                   type="checkbox"
-                  checked={shieldEnable === 1}
-                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'shieldEnable', e.target.checked ? 1 : 0)}
+                  checked={hasShield === 1}
+                  onChange={(e) => onUpdateProjectUnit(selectedItem, 'hasShield', e.target.checked ? 1 : 0)}
                 />
                 {t('unit.prop.shieldEnable') || '사용'}
               </label>
@@ -171,15 +171,15 @@ function BasicInfo({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <Field
               label={t('unit.prop.mineralCost')}
-              value={minerals}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'minerals', v)}
-              modified={isMod('minerals')}
+              value={mineralCost}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'mineralCost', v)}
+              modified={isMod('mineralCost')}
             />
             <label className="checkbox-label" style={{ alignSelf: 'center' }}>
               <input
                 type="checkbox"
-                checked={bwFlag === 1}
-                onChange={(e) => onUpdateProjectUnit(selectedItem, 'bwFlag', e.target.checked ? 1 : 0)}
+                checked={broodWarFlag === 1}
+                onChange={(e) => onUpdateProjectUnit(selectedItem, 'broodWarFlag', e.target.checked ? 1 : 0)}
               />
               {t('unit.prop.bwUnit') || '브루드워유닛'}
             </label>
@@ -187,9 +187,9 @@ function BasicInfo({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <Field
               label={t('unit.prop.gasCost')}
-              value={gas}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'gas', v)}
-              modified={isMod('gas')}
+              value={gasCost}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'gasCost', v)}
+              modified={isMod('gasCost')}
             />
             <Field
               label={t('unit.prop.buildScore') || '생산점수'}
@@ -201,15 +201,15 @@ function BasicInfo({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <Field
               label={t('unit.prop.buildTime')}
-              value={buildTime}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'buildTime', v)}
-              modified={isMod('buildTime')}
+              value={timeCost}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'timeCost', v)}
+              modified={isMod('timeCost')}
             />
             <Field
               label={t('unit.prop.destroyScore') || '파괴점수'}
-              value={destroyScore}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'destroyScore', v)}
-              modified={isMod('destroyScore')}
+              value={killScore}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'killScore', v)}
+              modified={isMod('killScore')}
             />
           </div>
         </Card>
@@ -223,7 +223,7 @@ function BasicInfo({
               </div>
               <div style={{ flex: '0 0 50%' }}>
                 <DatIconField
-                  id={gWep}
+                  id={groundWeapon}
                   data={weaponsData}
                   statTxt={statTxt}
                   onConfirm={() => { }}
@@ -232,7 +232,7 @@ function BasicInfo({
               <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
                 <Field
                   label={t('unit.prop.weaponHits') || '타격수'}
-                  value={gHits}
+                  value={maxGroundHits}
                   onChange={(v) => onUpdateProjectUnit(selectedItem, 'maxGroundHits', v)}
                   modified={isMod('maxGroundHits')}
                   style={{ display: 'flex', gap: '8px', width: '100%' }}
@@ -245,7 +245,7 @@ function BasicInfo({
               </div>
               <div style={{ flex: '0 0 50%' }}>
                 <DatIconField
-                  id={aWep}
+                  id={airWeapon}
                   data={weaponsData}
                   statTxt={statTxt}
                   onConfirm={() => { }}
@@ -254,7 +254,7 @@ function BasicInfo({
               <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
                 <Field
                   label={t('unit.prop.weaponHits') || '타격수'}
-                  value={aHits}
+                  value={maxAirHits}
                   onChange={(v) => onUpdateProjectUnit(selectedItem, 'maxAirHits', v)}
                   modified={isMod('maxAirHits')}
                   style={{ display: 'flex', gap: '8px', width: '100%' }}
@@ -270,13 +270,13 @@ function BasicInfo({
           <Card title={t('unit.section.population') || '인구'}>
             <Field
               label={t('unit.prop.supplyRequired')}
-              value={supplyReq}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'supplyRequired', v)}
-              modified={isMod('supplyRequired')}
+              value={supplyUsed}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'supplyUsed', v)}
+              modified={isMod('supplyUsed')}
             />
             <Field
               label={t('unit.prop.supplyProvided')}
-              value={supplyProv}
+              value={supplyProvided}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'supplyProvided', v)}
               modified={isMod('supplyProvided')}
             />
@@ -284,15 +284,15 @@ function BasicInfo({
           <Card title={t('unit.section.transport') || '탑승공간'}>
             <Field
               label={t('unit.prop.spaceRequired') || '필요 공간'}
-              value={spaceReq}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'spaceRequired', v)}
-              modified={isMod('spaceRequired')}
+              value={transportSpaceRequired}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'transportSpaceRequired', v)}
+              modified={isMod('transportSpaceRequired')}
             />
             <Field
               label={t('unit.prop.spaceProvided') || '탑승 공간'}
-              value={spaceProv}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'spaceProvided', v)}
-              modified={isMod('spaceProvided')}
+              value={transportSpaceProvided}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'transportSpaceProvided', v)}
+              modified={isMod('transportSpaceProvided')}
             />
           </Card>
         </div>
@@ -302,23 +302,23 @@ function BasicInfo({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <Field
               label={t('unit.prop.sightRange')}
-              value={sight}
+              value={sightRange}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'sightRange', v)}
               modified={isMod('sightRange')}
             />
             <Field
               label={t('unit.prop.targetAcqRange') || '인지거리'}
-              value={targetAcq}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'targetAcquisitionRange', v)}
-              modified={isMod('targetAcquisitionRange')}
+              value={seekRange}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'seekRange', v)}
+              modified={isMod('seekRange')}
             />
           </div>
           <div className="field-group">
             <label className="field-label">{t('unit.prop.armorType') || '방어타입'}</label>
             <select
-              className={`modern-input ${isMod('unitSize') ? 'modified' : ''}`}
-              value={unitSize}
-              onChange={(e) => onUpdateProjectUnit(selectedItem, 'unitSize', parseInt(e.target.value))}
+              className={`modern-input ${isMod('sizeType') ? 'modified' : ''}`}
+              value={sizeType}
+              onChange={(e) => onUpdateProjectUnit(selectedItem, 'sizeType', parseInt(e.target.value))}
             >
               <option value={0}>{t('unit.armorType.independent') || '독립적인 크기'}</option>
               <option value={1}>{t('unit.armorType.small') || '소형'}</option>

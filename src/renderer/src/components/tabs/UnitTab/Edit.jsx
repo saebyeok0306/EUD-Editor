@@ -131,10 +131,10 @@ function EditTab({
   const isMod = (field) => currentProjectData?.[field] !== undefined
 
   // 1. StarEdit Ability Flags
-  const abilityFlags = getVal('starEditAbilityFlags', 'Staredit Availability Flags')
+  const abilityFlags = getVal('availabilityFlags', 'Staredit Availability Flags')
 
   // 2. StarEdit Group Flags
-  const groupFlags = getVal('starEditGroupFlags', 'Staredit Group Flags')
+  const groupFlags = getVal('groupFlags', 'Staredit Group Flags')
 
   // 3. Text Information (Rank, Label)
   const rankVal = getVal('rank', 'Rank/Sublabel')
@@ -182,11 +182,11 @@ function EditTab({
               <span style={{ fontSize: '13px', color: 'var(--ev-c-text-1)' }}>{t('unit.edit.hexValue', { defaultValue: '설정값 (Hex)' })}</span>
               <input
                 type="text"
-                className={`modern-input ${isMod('starEditAbilityFlags') ? 'modified' : ''}`}
+                className={`modern-input ${isMod('availabilityFlags') ? 'modified' : ''}`}
                 value={(typeof abilityFlags === 'number' ? abilityFlags : 0).toString(16).toUpperCase()}
                 onChange={(e) => {
                   const num = parseInt(e.target.value, 16);
-                  if (!isNaN(num)) onUpdateProjectUnit(selectedItem, 'starEditAbilityFlags', num);
+                  if (!isNaN(num)) onUpdateProjectUnit(selectedItem, 'availabilityFlags', num);
                 }}
                 style={{ width: '80px', fontFamily: 'monospace' }}
               />
@@ -194,8 +194,8 @@ function EditTab({
             <BitfieldCheckboxes
               labels={STAR_EDIT_ABILITY_FLAGS}
               value={abilityFlags}
-              isMod={isMod('starEditAbilityFlags')}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'starEditAbilityFlags', v)}
+              isMod={isMod('availabilityFlags')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'availabilityFlags', v)}
               rows={8}
             />
           </Card>
@@ -208,11 +208,11 @@ function EditTab({
               <span style={{ fontSize: '13px', color: 'var(--ev-c-text-1)' }}>{t('unit.edit.hexValue', { defaultValue: '설정값 (Hex)' })}</span>
               <input
                 type="text"
-                className={`modern-input ${isMod('starEditGroupFlags') ? 'modified' : ''}`}
+                className={`modern-input ${isMod('groupFlags') ? 'modified' : ''}`}
                 value={(typeof groupFlags === 'number' ? groupFlags : 0).toString(16).toUpperCase()}
                 onChange={(e) => {
                   const num = parseInt(e.target.value, 16);
-                  if (!isNaN(num)) onUpdateProjectUnit(selectedItem, 'starEditGroupFlags', num);
+                  if (!isNaN(num)) onUpdateProjectUnit(selectedItem, 'groupFlags', num);
                 }}
                 style={{ width: '80px', fontFamily: 'monospace' }}
               />
@@ -220,8 +220,8 @@ function EditTab({
             <BitfieldCheckboxes
               labels={STAR_EDIT_GROUP_FLAGS}
               value={groupFlags}
-              isMod={isMod('starEditGroupFlags')}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'starEditGroupFlags', v)}
+              isMod={isMod('groupFlags')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'groupFlags', v)}
               rows={8}
             />
           </Card>

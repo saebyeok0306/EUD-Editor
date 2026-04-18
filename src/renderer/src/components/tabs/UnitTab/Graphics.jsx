@@ -125,16 +125,16 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
   const portraitOptions = useDatOptions('portrait')
 
   // Fields mapping
-  const flingy = getVal('graphics', 'Graphics')
-  const macr = getVal('constructionAnimation', 'Construction Animation')
+  const flingy = getVal('flingy', 'Graphics')
+  const constructionGraphic = getVal('constructionGraphic', 'Construction Animation')
   const portrait = getVal('portrait', 'Portrait')
-  const elevation = getVal('elevationLevel', 'Elevation Level')
-  const direction = getVal('unitDirection', 'Unit Direction')
+  const elevation = getVal('elevation', 'Elevation Level')
+  const startDirection = getVal('startDirection', 'Unit Direction')
 
-  const dimLeft = getVal('unitSizeLeft', 'Unit Size Left')
-  const dimRight = getVal('unitSizeRight', 'Unit Size Right')
-  const dimUp = getVal('unitSizeUp', 'Unit Size Up')
-  const dimDown = getVal('unitSizeDown', 'Unit Size Down')
+  const unitBoundsL = getVal('unitBoundsL', 'Unit Size Left')
+  const unitBoundsR = getVal('unitBoundsR', 'Unit Size Right')
+  const unitBoundsT = getVal('unitBoundsT', 'Unit Size Up')
+  const unitBoundsB = getVal('unitBoundsB', 'Unit Size Down')
 
   const boxWidth = getVal('starEditPlacementBoxWidth', 'StarEdit Placement Box Width')
   const boxHeight = getVal('starEditPlacementBoxHeight', 'StarEdit Placement Box Height')
@@ -163,17 +163,17 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
           <DatSelectRow
             label={t('unit.graphics.flingy') || '비행정보(Flingy)'}
             value={flingy}
-            onChange={(v) => onUpdateProjectUnit(selectedItem, 'graphics', v)}
+            onChange={(v) => onUpdateProjectUnit(selectedItem, 'flingy', v)}
             options={flingyOptions}
             imageId={flingyImageId}
             onNavigate={(v) => navigateTo('Flingy', v)}
           />
           <DatSelectRow
             label={t('unit.graphics.macr') || '생산모습(Image)'}
-            value={macr}
-            onChange={(v) => onUpdateProjectUnit(selectedItem, 'constructionAnimation', v)}
+            value={constructionGraphic}
+            onChange={(v) => onUpdateProjectUnit(selectedItem, 'constructionGraphic', v)}
             options={imageOptions}
-            imageId={macr}
+            imageId={constructionGraphic}
             onNavigate={(v) => navigateTo('Image', v)}
           />
           <DatSelectRow
@@ -189,10 +189,10 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
               <label className="field-label">{t('unit.graphics.elevation') || '높이'}</label>
               <div className="value-row">
                 <SearchableSelect
-                  className={`modern-input ${isMod('elevationLevel') ? 'modified' : ''}`}
+                  className={`modern-input ${isMod('elevation') ? 'modified' : ''}`}
                   options={ELEVATION_OPTIONS.find(o => o.value === elevation) ? ELEVATION_OPTIONS : [...ELEVATION_OPTIONS, { value: elevation, label: `${elevation} (Custom)` }]}
                   value={elevation}
-                  onChange={(v) => onUpdateProjectUnit(selectedItem, 'elevationLevel', v)}
+                  onChange={(v) => onUpdateProjectUnit(selectedItem, 'elevation', v)}
                   style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
                 />
               </div>
@@ -201,10 +201,10 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
               <label className="field-label">{t('unit.graphics.direction') || '생산방향'}</label>
               <div className="value-row">
                 <SearchableSelect
-                  className={`modern-input ${isMod('unitDirection') ? 'modified' : ''}`}
-                  options={DIRECTION_OPTIONS.find(o => o.value === direction) ? DIRECTION_OPTIONS : [...DIRECTION_OPTIONS, { value: direction, label: `${direction} (Custom)` }]}
-                  value={direction}
-                  onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitDirection', v)}
+                  className={`modern-input ${isMod('startDirection') ? 'modified' : ''}`}
+                  options={DIRECTION_OPTIONS.find(o => o.value === startDirection) ? DIRECTION_OPTIONS : [...DIRECTION_OPTIONS, { value: startDirection, label: `${startDirection} (Custom)` }]}
+                  value={startDirection}
+                  onChange={(v) => onUpdateProjectUnit(selectedItem, 'startDirection', v)}
                   style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
                 />
               </div>
@@ -219,10 +219,10 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
           {/* 유닛 크기 */}
           <Card title={t('unit.graphics.unitSize') || '유닛 크기'}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <Field label={t('unit.graphics.left') || '좌'} value={dimLeft} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitSizeLeft', v)} modified={isMod('unitSizeLeft')} style={{ gridTemplateColumns: '30px 1fr' }} />
-              <Field label={t('unit.graphics.right') || '우'} value={dimRight} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitSizeRight', v)} modified={isMod('unitSizeRight')} style={{ gridTemplateColumns: '30px 1fr' }} />
-              <Field label={t('unit.graphics.up') || '상'} value={dimUp} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitSizeUp', v)} modified={isMod('unitSizeUp')} style={{ gridTemplateColumns: '30px 1fr' }} />
-              <Field label={t('unit.graphics.down') || '하'} value={dimDown} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitSizeDown', v)} modified={isMod('unitSizeDown')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.left') || '좌'} value={unitBoundsL} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsL', v)} modified={isMod('unitBoundsL')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.right') || '우'} value={unitBoundsR} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsR', v)} modified={isMod('unitBoundsR')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.up') || '상'} value={unitBoundsT} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsT', v)} modified={isMod('unitBoundsT')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.down') || '하'} value={unitBoundsB} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsB', v)} modified={isMod('unitBoundsB')} style={{ gridTemplateColumns: '30px 1fr' }} />
             </div>
           </Card>
 
@@ -275,7 +275,7 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
                 maxHeight={256}
                 autoCrop={false}
                 animate={true}
-                direction={direction}
+                direction={startDirection}
                 style={{ zIndex: 2 }}
               />
 
@@ -297,10 +297,10 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
               {/* Draw Red Bounding Box representing Unit Size */}
               <div style={{
                 position: 'absolute',
-                left: `calc(50% - ${dimLeft}px)`,
-                top: `calc(50% - ${dimUp}px)`,
-                width: `${dimLeft + dimRight}px`,
-                height: `${dimUp + dimDown}px`,
+                left: `calc(50% - ${unitBoundsL}px)`,
+                top: `calc(50% - ${unitBoundsT}px)`,
+                width: `${unitBoundsL + unitBoundsR}px`,
+                height: `${unitBoundsT + unitBoundsB}px`,
                 border: '1px solid red',
                 pointerEvents: 'none',
                 zIndex: 10
@@ -331,12 +331,12 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
               </div>
 
               <ImageGraphic
-                imageId={macr}
+                imageId={constructionGraphic}
                 maxWidth={256}
                 maxHeight={256}
                 autoCrop={false}
                 animate={true}
-                direction={direction}
+                direction={startDirection}
                 style={{ zIndex: 2 }}
               />
 

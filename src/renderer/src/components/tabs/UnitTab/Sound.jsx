@@ -58,13 +58,13 @@ function SoundTab({
   const isMod = (field) => currentProjectData?.[field] !== undefined
 
   // Fields
-  const ready = getVal('readySound', 'Ready Sound')
-  const yesStart = getVal('yesSoundStart', 'Yes Sound Start')
-  const yesEnd = getVal('yesSoundEnd', 'Yes Sound End')
-  const whatStart = getVal('whatSoundStart', 'What Sound Start')
-  const whatEnd = getVal('whatSoundEnd', 'What Sound End')
-  const pissStart = getVal('pissSoundStart', 'Piss Sound Start')
-  const pissEnd = getVal('pissSoundEnd', 'Piss Sound End')
+  const readySound = getVal('readySound', 'Ready Sound')
+  const yesSoundStart = getVal('yesSoundStart', 'Yes Sound Start')
+  const yesSoundEnd = getVal('yesSoundEnd', 'Yes Sound End')
+  const whatSoundStart = getVal('whatSoundStart', 'What Sound Start')
+  const whatSoundEnd = getVal('whatSoundEnd', 'What Sound End')
+  const pissedSoundStart = getVal('pissedSoundStart', 'Piss Sound Start')
+  const pissedSoundEnd = getVal('pissedSoundEnd', 'Piss Sound End')
 
   return (
     <div className="tab-detail-container">
@@ -75,51 +75,51 @@ function SoundTab({
         <div className="card-content" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <SoundRow
             label={t('unit.sound.ready') || '기다림'}
-            value={ready}
+            value={readySound}
             modified={isMod('readySound')}
             onChange={(v) => onUpdateProjectUnit(selectedItem, 'readySound', v)}
             sfxOptions={sfxOptions}
           />
           <SoundRow
             label={t('unit.sound.yesStart') || '대답(첫번째)'}
-            value={yesStart}
+            value={yesSoundStart}
             modified={isMod('yesSoundStart')}
             onChange={(v) => onUpdateProjectUnit(selectedItem, 'yesSoundStart', v)}
             sfxOptions={sfxOptions}
           />
           <SoundRow
             label={t('unit.sound.yesEnd') || '대답(마지막)'}
-            value={yesEnd}
+            value={yesSoundEnd}
             modified={isMod('yesSoundEnd')}
             onChange={(v) => onUpdateProjectUnit(selectedItem, 'yesSoundEnd', v)}
             sfxOptions={sfxOptions}
           />
           <SoundRow
             label={t('unit.sound.whatStart') || '물어봄(첫번째)'}
-            value={whatStart}
+            value={whatSoundStart}
             modified={isMod('whatSoundStart')}
             onChange={(v) => onUpdateProjectUnit(selectedItem, 'whatSoundStart', v)}
             sfxOptions={sfxOptions}
           />
           <SoundRow
             label={t('unit.sound.whatEnd') || '물어봄(마지막)'}
-            value={whatEnd}
+            value={whatSoundEnd}
             modified={isMod('whatSoundEnd')}
             onChange={(v) => onUpdateProjectUnit(selectedItem, 'whatSoundEnd', v)}
             sfxOptions={sfxOptions}
           />
           <SoundRow
             label={t('unit.sound.pissStart') || '짜증(첫번째)'}
-            value={pissStart}
-            modified={isMod('pissSoundStart')}
-            onChange={(v) => onUpdateProjectUnit(selectedItem, 'pissSoundStart', v)}
+            value={pissedSoundStart}
+            modified={isMod('pissedSoundStart')}
+            onChange={(v) => onUpdateProjectUnit(selectedItem, 'pissedSoundStart', v)}
             sfxOptions={sfxOptions}
           />
           <SoundRow
             label={t('unit.sound.pissEnd') || '짜증(마지막)'}
-            value={pissEnd}
-            modified={isMod('pissSoundEnd')}
-            onChange={(v) => onUpdateProjectUnit(selectedItem, 'pissSoundEnd', v)}
+            value={pissedSoundEnd}
+            modified={isMod('pissedSoundEnd')}
+            onChange={(v) => onUpdateProjectUnit(selectedItem, 'pissedSoundEnd', v)}
             sfxOptions={sfxOptions}
           />
         </div>

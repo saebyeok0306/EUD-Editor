@@ -2,7 +2,7 @@ import { spawn } from 'child_process'
 import path from 'path'
 import fs from 'fs'
 import { getSettings } from './settings.js'
-import { BrowserWindow, dialog } from 'electron'
+import { app, BrowserWindow, dialog } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { generateEdpFile } from './build/generateEdpFile.js'
 import { generateEpsFile } from './build/generateEpsFile.js'
@@ -73,7 +73,7 @@ export async function buildProject(event, projectPath, data, options = {}) {
       let isFinished = false
 
       buildWin.webContents.once('did-finish-load', () => {
-        setTimeout(() => {
+        setTimeout(async () => {
           const buildDir = path.join(path.dirname(projectPath), 'build')
           const configDir = path.join(buildDir, '.eudeditor')
           if (!fs.existsSync(buildDir)) {
@@ -96,7 +96,10 @@ export async function buildProject(event, projectPath, data, options = {}) {
           sendLog('info', '> Generated main.eps\n')
           
           // 3. Generate EEData.py
-          generateEEData(buildDir, data)
+          await generateEEData(buildDir, data, { 
+            mapPath, 
+            userDataPath: app.getPath('userData') 
+          })
           sendLog('info', '> Generated EEData.py\n')
 
           // 3. Execute euddraft.exe

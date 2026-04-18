@@ -133,13 +133,14 @@ function AIOrders({
 
   const isMod = (field) => currentProjectData?.[field] !== undefined
 
-  const compAiIdle = getVal('compAiIdle', 'Comp AI Idle')
-  const humanAiIdle = getVal('humanAiIdle', 'Human AI Idle')
-  const returnToIdle = getVal('returnToIdle', 'Return to Idle')
-  const attackUnit = getVal('attackUnit', 'Attack Unit')
-  const attackMove = getVal('attackMove', 'Attack Move')
+  const computerIdleOrder = getVal('computerIdleOrder', 'Comp AI Idle')
+  const humanIdleOrder = getVal('humanIdleOrder', 'Human AI Idle')
+  const returnToIdleOrder = getVal('returnToIdleOrder', 'Return to Idle')
+  const attackUnitOrder = getVal('attackUnitOrder', 'Attack Unit')
+  const attackMoveOrder = getVal('attackMoveOrder', 'Attack Move')
   const rightClickAction = getVal('rightClickAction', 'Right-click Action')
-  const aiInternal = getVal('aiInternal', 'AI Internal')
+  const ignoreStrategicSuicideMissions = getVal('ignoreStrategicSuicideMissions', 'Ignore Strategic Suicide Missions')
+  const dontBecomeGuard = getVal('dontBecomeGuard', 'Dont Become Guard')
 
   const RIGHT_CLICK_OPTIONS = [
     { value: 0, label: t('order.rightClick.0', { defaultValue: '0  명령없음 / 자동 Attack' }) },
@@ -149,11 +150,6 @@ function AIOrders({
     { value: 4, label: t('order.rightClick.4', { defaultValue: '4  자원캐기' }) },
     { value: 5, label: t('order.rightClick.5', { defaultValue: '5  자원캐기 / 수리' }) },
     { value: 6, label: t('order.rightClick.6', { defaultValue: '6  없음' }) },
-  ]
-
-  const AI_INTERNAL_FLAGS = [
-    t('ai.internal.suicide', { defaultValue: '"Strategic Suicide missions" AI를 무시한다.' }),
-    t('ai.internal.guard', { defaultValue: '"Guard" 상태가 되지 않는다.' })
   ]
 
   const orderOptions = React.useMemo(() => {
@@ -180,41 +176,41 @@ function AIOrders({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <OrderField
               label={t('unit.ai.compIdle', { defaultValue: '컴퓨터 기본' })}
-              orderId={compAiIdle}
-              isMod={isMod('compAiIdle')}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'compAiIdle', v)}
+              orderId={computerIdleOrder}
+              isMod={isMod('computerIdleOrder')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'computerIdleOrder', v)}
               ordersData={ordersData}
               options={orderOptions}
             />
             <OrderField
               label={t('unit.ai.humanIdle', { defaultValue: '사람 기본' })}
-              orderId={humanAiIdle}
-              isMod={isMod('humanAiIdle')}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'humanAiIdle', v)}
+              orderId={humanIdleOrder}
+              isMod={isMod('humanIdleOrder')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'humanIdleOrder', v)}
               ordersData={ordersData}
               options={orderOptions}
             />
             <OrderField
               label={t('unit.ai.returnToIdle', { defaultValue: '원상태로' })}
-              orderId={returnToIdle}
-              isMod={isMod('returnToIdle')}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'returnToIdle', v)}
+              orderId={returnToIdleOrder}
+              isMod={isMod('returnToIdleOrder')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'returnToIdleOrder', v)}
               ordersData={ordersData}
               options={orderOptions}
             />
             <OrderField
               label={t('unit.ai.attackUnit', { defaultValue: '유닛 공격' })}
-              orderId={attackUnit}
-              isMod={isMod('attackUnit')}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackUnit', v)}
+              orderId={attackUnitOrder}
+              isMod={isMod('attackUnitOrder')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackUnitOrder', v)}
               ordersData={ordersData}
               options={orderOptions}
             />
             <OrderField
               label={t('unit.ai.attackMove', { defaultValue: '공격&이동' })}
-              orderId={attackMove}
-              isMod={isMod('attackMove')}
-              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackMove', v)}
+              orderId={attackMoveOrder}
+              isMod={isMod('attackMoveOrder')}
+              onChange={(v) => onUpdateProjectUnit(selectedItem, 'attackMoveOrder', v)}
               ordersData={ordersData}
               options={orderOptions}
             />
@@ -250,29 +246,27 @@ function AIOrders({
               </div>
             </div>
 
-            <div className="icon-field-row" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
-                <div style={{ width: '90px', flexShrink: 0, fontSize: '13px', textAlign: 'right', color: 'var(--ev-c-text-1)' }}>
-                  {t('unit.ai.aiInternal', { defaultValue: '내부 인공지능' })}
-                </div>
-                <input
-                  type="text"
-                  className={`modern-input ${isMod('aiInternal') ? 'modified' : ''}`}
-                  style={{ width: '50px', flex: 'none', textAlign: 'center', padding: '6px 8px', fontFamily: 'monospace' }}
-                  value={aiInternal.toString(16).toUpperCase()}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 16)
-                    if (!isNaN(val)) onUpdateProjectUnit(selectedItem, 'aiInternal', val)
-                  }}
-                />
+            <div className="icon-field-row" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '90px', flexShrink: 0, fontSize: '13px', textAlign: 'right', color: 'var(--ev-c-text-1)' }}>
+                {t('unit.ai.aiInternal', { defaultValue: '내부 인공지능' })}
               </div>
-              <div style={{ paddingLeft: '100px', width: '100%', boxSizing: 'border-box' }}>
-                <BitfieldCheckboxes
-                  value={aiInternal}
-                  labels={AI_INTERNAL_FLAGS}
-                  isMod={isMod('aiInternal')}
-                  onChange={(v) => onUpdateProjectUnit(selectedItem, 'aiInternal', v)}
-                />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px', padding: '6px 0' }}>
+                <label className="checkbox-label" style={{ fontSize: '12px', color: isMod('ignoreStrategicSuicideMissions') ? 'var(--ev-c-brand)' : 'var(--ev-c-text-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={ignoreStrategicSuicideMissions === 1}
+                    onChange={(e) => onUpdateProjectUnit(selectedItem, 'ignoreStrategicSuicideMissions', e.target.checked ? 1 : 0)}
+                  />
+                  {t('ai.internal.suicide', { defaultValue: '"Strategic Suicide missions" AI를 무시한다.' })}
+                </label>
+                <label className="checkbox-label" style={{ fontSize: '12px', color: isMod('dontBecomeGuard') ? 'var(--ev-c-brand)' : 'var(--ev-c-text-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={dontBecomeGuard === 1}
+                    onChange={(e) => onUpdateProjectUnit(selectedItem, 'dontBecomeGuard', e.target.checked ? 1 : 0)}
+                  />
+                  {t('ai.internal.guard', { defaultValue: '"Guard" 상태가 되지 않는다.' })}
+                </label>
               </div>
             </div>
           </div>

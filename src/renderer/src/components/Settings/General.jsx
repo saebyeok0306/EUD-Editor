@@ -94,7 +94,10 @@ export default function General() {
             className="settings-input"
             style={{ width: '100%' }}
             value={language}
-            onChange={(e) => changeLanguage(e.target.value)}
+            onChange={(e) => {
+              changeLanguage(e.target.value)
+              changeRequirementLanguage(e.target.value)
+            }}
           >
             <option value="ko">한국어 (Korean)</option>
             <option value="en">English</option>
@@ -110,7 +113,7 @@ export default function General() {
             onChange={(e) => changeRequirementLanguage(e.target.value)}
           >
             <option value="ko">한국어 (Korean)</option>
-            <option value="en">English (Opcode)</option>
+            <option value="en">English</option>
           </select>
         </div>
 

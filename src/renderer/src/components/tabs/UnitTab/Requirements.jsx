@@ -140,7 +140,8 @@ function Requirements({ selectedItem, currentProjectData, projectUnits, onUpdate
           }
         >
           <RequirementEditor
-        tblLanguage={tblLanguage}
+            tblLanguage={tblLanguage}
+            projectUnits={projectUnits}
             value={reqData}
             onChange={handleReqChange}
             defaultData={defaultData}

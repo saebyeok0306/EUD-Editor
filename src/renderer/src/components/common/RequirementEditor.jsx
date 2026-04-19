@@ -264,7 +264,7 @@ function InfoBox({ children }) {
  *   onChange    – (newValue) => void
  *   defaultData – The parsed require.dat entry (read-only display for Default mode)
  */
-export default function RequirementEditor({ value, onChange, defaultData, tblLanguage = 'eng' }) {
+export default function RequirementEditor({ value, onChange, defaultData, tblLanguage = 'eng', projectUnits }) {
   const { t, requirementLanguage } = useI18n()
   const currentValue = value || { mode: 'default', opcodes: [] }
 
@@ -279,12 +279,14 @@ export default function RequirementEditor({ value, onChange, defaultData, tblLan
       let name = `Unit ${i}`
       if (statTxt[i]) name = statTxt[i]
       
-      const flingyId = units[i]?.['Graphics']
+      // Use custom flingy from project data if available
+      const customFlingy = projectUnits?.[i]?.flingy
+      const flingyId = customFlingy !== undefined ? customFlingy : units[i]?.['Graphics']
       const spriteId = flingy[flingyId]?.['Sprite']
       const imageId = sprites[spriteId]?.['Image File']
       return { value: i, label: `${name} (ID: ${i})`, imageId }
     })
-  }, [tblLanguage])
+  }, [tblLanguage, projectUnits])
 
   const techOptions = useMemo(() => {
     const data = getTechdataData() || []

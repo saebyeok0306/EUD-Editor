@@ -269,8 +269,8 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
                 <div style={{ position: 'absolute', top: '50%', left: '0', right: '0', height: '1px', backgroundColor: 'rgba(128, 128, 128, 0.5)' }} />
               </div>
 
-              <UnitGraphic
-                unitId={selectedItem}
+              <ImageGraphic
+                imageId={flingyImageId}
                 maxWidth={256}
                 maxHeight={256}
                 autoCrop={false}

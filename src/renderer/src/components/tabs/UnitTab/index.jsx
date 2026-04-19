@@ -7,9 +7,12 @@ import {
   getWeaponsData,
   getUpgradesData,
   getOrdersData,
-  getStatTxt
+  getStatTxt,
+  getFlingyData,
+  getSpritesData
 } from '../../../utils/datStore'
 import UnitGraphic from '../../common/UnitGraphic'
+import ImageGraphic from '../../common/ImageGraphic'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
 import ListPane from '../../common/ListPane'
 import ConfirmModal from '../../common/ConfirmModal'
@@ -37,41 +40,26 @@ const SUB_TABS = [
   { id: 'req', key: 'unit.tab.req' },
 ]
 
-const UnitPreview = memo(function UnitPreview({ unitId, name, userDataPath }) {
-  // const [hasError, setHasError] = useState(false)
-  // const [loaded, setLoaded] = useState(false)
-
-  // // Construct local file URL
-  // const previewUrl = userDataPath 
-  //   ? `file://${userDataPath}/unit_previews/${unitId}.webp`.replace(/\\/g, '/')
-  //   : null
-
-  // if (previewUrl && !hasError) {
-  //   return (
-  //     <img 
-  //       src={previewUrl} 
-  //       alt={name} 
-  //       decoding="async"
-  //       loading="lazy"
-  //       onLoad={() => setLoaded(true)}
-  //       onError={() => setHasError(true)}
-  //       style={{ 
-  //         maxWidth: '100%', 
-  //         maxHeight: '100%', 
-  //         objectFit: 'contain',
-  //         imageRendering: 'pixelated',
-  //         opacity: loaded ? 1 : 0,
-  //         transition: 'opacity 0.2s ease-in-out'
-  //       }} 
-  //     />
-  //   )
-  // }
+const UnitPreview = memo(function UnitPreview({ unitId, name, userDataPath, customFlingy }) {
+  if (customFlingy !== undefined && customFlingy !== null) {
+    const flingyData = getFlingyData();
+    const spritesData = getSpritesData();
+    if (flingyData && spritesData && flingyData[customFlingy]) {
+      const spriteId = flingyData[customFlingy]['Sprite']
+      if (spriteId !== undefined && spritesData[spriteId]) {
+        const imageId = spritesData[spriteId]['Image File']
+        if (imageId !== undefined) {
+          return <ImageGraphic imageId={imageId} maxWidth={44} maxHeight={44} autoCrop={true} />
+        }
+      }
+    }
+  }
 
   // Fallback if path not ready or error
   return <UnitGraphic unitId={unitId} maxWidth={44} maxHeight={44} autoCrop={true} />
 })
 
-const UnitListItem = memo(({ i, name, isSelected, isModified, onClick, userDataPath }) => {
+const UnitListItem = memo(({ i, name, isSelected, isModified, customFlingy, onClick, userDataPath }) => {
   return (
     <div
       className={`list-item${isSelected ? ' active' : ''}`}
@@ -90,7 +78,7 @@ const UnitListItem = memo(({ i, name, isSelected, isModified, onClick, userDataP
         overflow: 'hidden',
         border: '1px solid var(--ev-c-divider)'
       }}>
-        <UnitPreview unitId={i} name={name} userDataPath={userDataPath} />
+        <UnitPreview unitId={i} name={name} userDataPath={userDataPath} customFlingy={customFlingy} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -193,6 +181,7 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
             name={name}
             isSelected={selectedItem === i}
             isModified={!!projectData.units[i]}
+            customFlingy={projectData.units[i]?.flingy}
             onClick={setSelectedItem}
             userDataPath={userDataPath}
           />

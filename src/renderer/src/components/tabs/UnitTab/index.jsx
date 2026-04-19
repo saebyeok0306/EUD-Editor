@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, memo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '../../../i18n/i18nContext'
-import unitsText from '../../../data/Units.txt?raw'
+
 import {
   getUnitsData,
   getWeaponsData,
@@ -24,7 +24,7 @@ import AIOrders from './AIOrders'
 import UIPreview from './UIPreview'
 import Requirements from './Requirements'
 
-const UNIT_NAMES = unitsText.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+
 
 const SUB_TABS = [
   { id: 'basic', key: 'unit.tab.basic' },
@@ -121,9 +121,16 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
     setPortalNode(document.getElementById('header-actions-portal'))
   }, [])
 
+  const tblLanguage = projectData?.settings?.main?.tblLanguage || 'eng'
+  const statTxt = getStatTxt(tblLanguage)
+
+  const unitNames = useMemo(() => {
+    return statTxt ? statTxt.slice(0, 228) : []
+  }, [statTxt])
+
   const unitListItems = useMemo(() => {
-    return UNIT_NAMES.map((name, i) => ({ name, i }))
-  }, [])
+    return unitNames.map((name, i) => ({ name, i }))
+  }, [unitNames])
 
   const eudUnits = getUnitsData()
   const unitSettingsList = mapData?.unitSettings || []
@@ -138,13 +145,14 @@ function UnitTab({ mapData, projectData, datReady, onUpdateProjectUnit, onResetP
       projectUnits: projectData.units,
       currentMapData,
       currentEudData,
-      unitNames: UNIT_NAMES,
+      unitNames: unitNames,
       onUpdateProjectUnit,
       onResetProjectUnit,
       weaponsData: getWeaponsData(),
       upgradesData: getUpgradesData(),
       ordersData: getOrdersData(),
-      statTxt: getStatTxt()
+      statTxt,
+      tblLanguage
     }
 
     switch (activeSubTab) {

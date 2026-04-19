@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
-import { getOrdersData, getStatTxtKorEng } from '../../../utils/datStore'
+import { getOrdersData, getStatTxt } from '../../../utils/datStore'
 import DatIcon from '../../common/DatIcon'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
 import ListPane from '../../common/ListPane'
@@ -37,17 +37,19 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
   </div>
 ))
 
-function OrderTab({ mapData, datReady }) {
+function OrderTab({ mapData, datReady, projectData }) {
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
   const [orderNames, setOrderNames] = useState([])
 
   useNavigationTarget('Order', setSelectedItem)
 
+  const tblLanguage = projectData?.settings?.main?.tblLanguage || 'eng'
+
   useEffect(() => {
     if (!datReady) return
     const ordersData = getOrdersData()
-    const statTxt = getStatTxtKorEng()
+    const statTxt = getStatTxt(tblLanguage)
     if (!ordersData || !statTxt) return
 
     const names = []
@@ -66,7 +68,7 @@ function OrderTab({ mapData, datReady }) {
       names.push({ id, name, icon: iconIdx })
     }
     setOrderNames(names)
-  }, [datReady])
+  }, [datReady, tblLanguage])
 
   const currentOrdersData = getOrdersData()
   const currentItemData = (currentOrdersData && selectedItem !== null) ? currentOrdersData[selectedItem] : null

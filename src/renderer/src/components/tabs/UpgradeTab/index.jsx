@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
-import { getUpgradesData, getStatTxtKorEng } from '../../../utils/datStore'
+import { getUpgradesData, getStatTxt } from '../../../utils/datStore'
 import DatIcon from '../../common/DatIcon'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
 import ListPane from '../../common/ListPane'
@@ -37,17 +37,19 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
   </div>
 ))
 
-function UpgradeTab({ mapData, datReady }) {
+function UpgradeTab({ mapData, datReady, projectData }) {
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
   const [upgradeNames, setUpgradeNames] = useState([])
 
   useNavigationTarget('Upgrade', setSelectedItem)
+
+  const tblLanguage = projectData?.settings?.main?.tblLanguage || 'eng'
   
   useEffect(() => {
     if (!datReady) return
     const upgradesData = getUpgradesData()
-    const statTxt = getStatTxtKorEng()
+    const statTxt = getStatTxt(tblLanguage)
     if (!upgradesData || !statTxt) return
 
     const names = []
@@ -66,7 +68,7 @@ function UpgradeTab({ mapData, datReady }) {
       names.push({ id, name, icon: iconIdx })
     }
     setUpgradeNames(names)
-  }, [datReady])
+  }, [datReady, tblLanguage])
 
   const currentUpgradesData = getUpgradesData()
   const currentItemData = (currentUpgradesData && selectedItem !== null) ? currentUpgradesData[selectedItem] : null

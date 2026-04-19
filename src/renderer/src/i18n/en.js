@@ -343,6 +343,11 @@ const en = {
   'settings.changelog.viewOnGithub': 'View on GitHub',
   'settings.tab.project': 'Project Settings',
   'settings.section.projectOptions': 'Project Options',
+  'settings.tblLanguage': 'TBL Language Reference',
+  'settings.tblLang.eng': 'stat_txt.tbl (English)',
+  'settings.tblLang.korEng': 'stat_txt_kor_eng.tbl (Kor/Eng)',
+  'settings.tblLang.korKor': 'stat_txt_kor_kor.tbl (Kor)',
+
   'settings.outputPath': 'Output Map Path',
   'settings.outputPathPlaceholder': 'ex: C:\\Games\\Starcraft\\Maps\\Download\\MyMap.scx',
   'settings.selectOutputFolder': 'Select Output Map Location',

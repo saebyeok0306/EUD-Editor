@@ -5,10 +5,6 @@ import ImageGraphic from './ImageGraphic'
 import DatIcon from './DatIcon'
 import { REQ_OPCODES } from '../../constants/reqOpcodes'
 import { getTechdataData, getUpgradesData, getStatTxt, getUnitsData, getFlingyData, getSpritesData } from '../../utils/datStore'
-import unitsText from '../../data/Units.txt?raw'
-
-const UNIT_NAMES = unitsText.split('\n').map(line => line.trim()).filter(line => line.length > 0)
-
 function getDatName(dataArray, index, statTxt, fallback) {
   if (!dataArray || !dataArray[index]) return fallback || `Unknown (${index})`
   const labelIdx = dataArray[index]['Label']
@@ -268,7 +264,7 @@ function InfoBox({ children }) {
  *   onChange    – (newValue) => void
  *   defaultData – The parsed require.dat entry (read-only display for Default mode)
  */
-export default function RequirementEditor({ value, onChange, defaultData }) {
+export default function RequirementEditor({ value, onChange, defaultData, tblLanguage = 'eng' }) {
   const { t, requirementLanguage } = useI18n()
   const currentValue = value || { mode: 'default', opcodes: [] }
 
@@ -276,34 +272,39 @@ export default function RequirementEditor({ value, onChange, defaultData }) {
     const units = getUnitsData() || []
     const flingy = getFlingyData() || []
     const sprites = getSpritesData() || []
-    return UNIT_NAMES.map((name, i) => {
-      // Resolve the chain: units→flingy→sprites→images
+    const statTxt = getStatTxt(tblLanguage) || []
+    
+    // There are 228 units in original dat files
+    return Array.from({ length: 228 }, (_, i) => {
+      let name = `Unit ${i}`
+      if (statTxt[i]) name = statTxt[i]
+      
       const flingyId = units[i]?.['Graphics']
       const spriteId = flingy[flingyId]?.['Sprite']
       const imageId = sprites[spriteId]?.['Image File']
       return { value: i, label: `${name} (ID: ${i})`, imageId }
     })
-  }, [])
+  }, [tblLanguage])
 
   const techOptions = useMemo(() => {
     const data = getTechdataData() || []
-    const statTxt = getStatTxt() || []
+    const statTxt = getStatTxt(tblLanguage) || []
     return Array.from({ length: Math.max(data.length, 44) }, (_, i) => ({
       value: i,
       label: `${getDatName(data, i, statTxt, `Tech ${i}`)} (ID: ${i})`,
       icon: data[i]?.['Icon'] ?? null,
     }))
-  }, [])
+  }, [tblLanguage])
 
   const upgradeOptions = useMemo(() => {
     const data = getUpgradesData() || []
-    const statTxt = getStatTxt() || []
+    const statTxt = getStatTxt(tblLanguage) || []
     return Array.from({ length: Math.max(data.length, 61) }, (_, i) => ({
       value: i,
       label: `${getDatName(data, i, statTxt, `Upgrade ${i}`)} (ID: ${i})`,
       icon: data[i]?.['Icon'] ?? null,
     }))
-  }, [])
+  }, [tblLanguage])
 
   const opcodeOptions = useMemo(() =>
     // Exclude ==End of Sublist== (index 0) — it is managed automatically

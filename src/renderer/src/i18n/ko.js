@@ -343,6 +343,11 @@ const ko = {
   'settings.changelog.viewOnGithub': 'GitHub에서 보기',
   'settings.tab.project': '프로젝트 설정',
   'settings.section.projectOptions': '프로젝트 전용 설정',
+  'settings.tblLanguage': 'TBL 언어 기준',
+  'settings.tblLang.eng': 'stat_txt.tbl (영문)',
+  'settings.tblLang.korEng': 'stat_txt_kor_eng.tbl (한글 음역)',
+  'settings.tblLang.korKor': 'stat_txt_kor_kor.tbl (한글 완역)',
+
   'settings.outputPath': '빌드 결과 맵 경로 (Output Map)',
   'settings.outputPathPlaceholder': '예: C:\\Games\\Starcraft\\Maps\\Download\\MyMap.scx',
   'settings.selectOutputFolder': '맵 저장 위치 설정',

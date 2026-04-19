@@ -40,7 +40,7 @@ function getWordCount(opcodes) {
   return wordCount
 }
 
-function Requirements({ selectedItem, currentProjectData, projectUnits, onUpdateProjectUnit }) {
+function Requirements({ selectedItem, currentProjectData, projectUnits, onUpdateProjectUnit, tblLanguage }) {
   const { t } = useI18n()
 
   if (selectedItem === null) return null
@@ -140,6 +140,7 @@ function Requirements({ selectedItem, currentProjectData, projectUnits, onUpdate
           }
         >
           <RequirementEditor
+        tblLanguage={tblLanguage}
             value={reqData}
             onChange={handleReqChange}
             defaultData={defaultData}

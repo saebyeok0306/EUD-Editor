@@ -7,6 +7,7 @@ import WeaponTab from './tabs/WeaponTab/index'
 import UpgradeTab from './tabs/UpgradeTab/index'
 import TechTab from './tabs/TechTab/index'
 import OrderTab from './tabs/OrderTab/index'
+import TextTab from './tabs/TextTab/index'
 import GenericTab from './tabs/GenericTab'
 
 function MainContent({ 
@@ -43,22 +44,22 @@ function MainContent({
         <SpriteTab mapData={mapData} datReady={datReady} />
       </div>
       <div style={{ display: selectedCategory === 'Weapon' ? 'contents' : 'none' }}>
-        <WeaponTab mapData={mapData} datReady={datReady} />
+        <WeaponTab mapData={mapData} projectData={projectData} datReady={datReady} />
       </div>
       <div style={{ display: selectedCategory === 'Image' ? 'contents' : 'none' }}>
         <ImageTab mapData={mapData} projectData={projectData} datReady={datReady} onUpdateProjectImage={onUpdateProjectData} />
       </div>
       <div style={{ display: selectedCategory === 'Upgrade' ? 'contents' : 'none' }}>
-        <UpgradeTab mapData={mapData} datReady={datReady} />
+        <UpgradeTab mapData={mapData} projectData={projectData} datReady={datReady} />
       </div>
       <div style={{ display: selectedCategory === 'Tech' ? 'contents' : 'none' }}>
-        <TechTab mapData={mapData} datReady={datReady} />
+        <TechTab mapData={mapData} projectData={projectData} datReady={datReady} />
       </div>
       <div style={{ display: selectedCategory === 'Order' ? 'contents' : 'none' }}>
-        <OrderTab mapData={mapData} datReady={datReady} />
+        <OrderTab mapData={mapData} projectData={projectData} datReady={datReady} />
       </div>
       <div style={{ display: selectedCategory === 'Text' ? 'contents' : 'none' }}>
-        <GenericTab category="Text" mapData={mapData} />
+        <TextTab projectData={projectData} datReady={datReady} />
       </div>
       <div style={{ display: selectedCategory === 'Buttonset' ? 'contents' : 'none' }}>
         <GenericTab category="Buttonset" mapData={mapData} />

@@ -28,6 +28,20 @@ export default function ProjectSettings({ projectData, updateProjectData }) {
         {t('settings.section.projectOptions') || '프로젝트 전용 설정'}
       </h3>
 
+      
+      <div className="settings-group">
+        <label className="settings-label">{t('settings.tblLanguage') || 'TBL 언어 기준'}</label>
+        <select
+          className="settings-input"
+          value={projectData?.settings?.main?.tblLanguage || 'eng'}
+          onChange={(e) => updateProjectData('settings', 'main', 'tblLanguage', e.target.value)}
+          style={{ width: '100%', marginBottom: '16px' }}
+        >
+          <option value="eng">{t('settings.tblLang.eng') || 'stat_txt.tbl (영문)'}</option>
+          <option value="kor_eng">{t('settings.tblLang.korEng') || 'stat_txt_kor_eng.tbl (한글 음역)'}</option>
+          <option value="kor_kor">{t('settings.tblLang.korKor') || 'stat_txt_kor_kor.tbl (한글 완역)'}</option>
+        </select>
+      </div>
       <div className="settings-group">
         <label className="settings-label">{t('settings.outputPath') || '빌드 결과 맵 경로 (.scx)'}</label>
         <div className="settings-input-row">

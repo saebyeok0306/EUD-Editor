@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
-import { getWeaponsData, getFlingyData, getSpritesData, getStatTxtKorEng } from '../../../utils/datStore'
+import { getWeaponsData, getFlingyData, getSpritesData, getStatTxt } from '../../../utils/datStore'
 import ImageGraphic from '../../common/ImageGraphic'
 import DatIcon from '../../common/DatIcon'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
@@ -54,17 +54,19 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
   </div>
 ))
 
-function WeaponTab({ mapData, datReady }) {
+function WeaponTab({ mapData, datReady, projectData }) {
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
   const [weaponNames, setWeaponNames] = useState([])
 
   useNavigationTarget('Weapon', setSelectedItem)
+
+  const tblLanguage = projectData?.settings?.main?.tblLanguage || 'eng'
   
   useEffect(() => {
     if (!datReady) return
     const weaponsData = getWeaponsData()
-    const statTxt = getStatTxtKorEng() // Or getStatTxt() depending on preference
+    const statTxt = getStatTxt(tblLanguage) // Or getStatTxt() depending on preference
     if (!weaponsData || !statTxt) return
 
     const names = []
@@ -83,7 +85,7 @@ function WeaponTab({ mapData, datReady }) {
       names.push({ id, name, icon: iconIdx })
     }
     setWeaponNames(names)
-  }, [datReady])
+  }, [datReady, tblLanguage])
 
   const currentMapTileset = mapData?.tileset || 'badlands'
   

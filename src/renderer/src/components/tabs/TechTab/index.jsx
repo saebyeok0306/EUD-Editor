@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
-import { getTechdataData, getStatTxtKorEng } from '../../../utils/datStore'
+import { getTechdataData, getStatTxt } from '../../../utils/datStore'
 import DatIcon from '../../common/DatIcon'
 import useNavigationTarget from '../../../hooks/useNavigationTarget'
 import ListPane from '../../common/ListPane'
@@ -37,17 +37,19 @@ const MemoizedListItem = React.memo(({ item, isActive, onClick }) => (
   </div>
 ))
 
-function TechTab({ mapData, datReady }) {
+function TechTab({ mapData, datReady, projectData }) {
   const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState(null)
   const [techNames, setTechNames] = useState([])
 
   useNavigationTarget('Tech', setSelectedItem)
+
+  const tblLanguage = projectData?.settings?.main?.tblLanguage || 'eng'
   
   useEffect(() => {
     if (!datReady) return
     const techdataData = getTechdataData()
-    const statTxt = getStatTxtKorEng()
+    const statTxt = getStatTxt(tblLanguage)
     if (!techdataData || !statTxt) return
 
     const names = []
@@ -66,7 +68,7 @@ function TechTab({ mapData, datReady }) {
       names.push({ id, name, icon: iconIdx })
     }
     setTechNames(names)
-  }, [datReady])
+  }, [datReady, tblLanguage])
 
   const currentTechdataData = getTechdataData()
   const currentItemData = (currentTechdataData && selectedItem !== null) ? currentTechdataData[selectedItem] : null

@@ -210,7 +210,11 @@ export const getWeaponsData  = () => _store.weapons
 export const getStatusInforData = () => _store.statusInfor
 
 // --- TBL Getters ---
-export const getStatTxt       = () => _store.statTxt        // English names (stat_txt.tbl)
+export const getStatTxt = (lang = 'eng') => {
+  if (lang === 'kor_eng') return _store.statTxtKorEng
+  if (lang === 'kor_kor') return _store.statTxtKorKor
+  return _store.statTxt
+}
 export const getStatTxtKorEng = () => _store.statTxtKorEng  // Korean+English mixed
 export const getStatTxtKorKor = () => _store.statTxtKorKor  // Korean only
 export const getPortdataTbl   = () => _store.portdataTbl    // Portrait descriptions

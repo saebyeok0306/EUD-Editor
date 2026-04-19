@@ -169,7 +169,7 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
             onNavigate={(v) => navigateTo('Flingy', v)}
           />
           <DatSelectRow
-            label={t('unit.graphics.macr') || '생산모습(Image)'}
+            label={t('unit.graphics.constructionGraphic') || '생산모습(Image)'}
             value={constructionGraphic}
             onChange={(v) => onUpdateProjectUnit(selectedItem, 'constructionGraphic', v)}
             options={imageOptions}
@@ -198,7 +198,7 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
               </div>
             </div>
             <div className="field-group" style={{ gridTemplateColumns: '60px 1fr' }}>
-              <label className="field-label">{t('unit.graphics.direction') || '생산방향'}</label>
+              <label className="field-label">{t('unit.graphics.startDirection') || '생산방향'}</label>
               <div className="value-row">
                 <SearchableSelect
                   className={`modern-input ${isMod('startDirection') ? 'modified' : ''}`}
@@ -219,10 +219,10 @@ function GraphicsTab({ selectedItem, currentProjectData, currentMapData, current
           {/* 유닛 크기 */}
           <Card title={t('unit.graphics.unitSize') || '유닛 크기'}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <Field label={t('unit.graphics.left') || '좌'} value={unitBoundsL} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsL', v)} modified={isMod('unitBoundsL')} style={{ gridTemplateColumns: '30px 1fr' }} />
-              <Field label={t('unit.graphics.right') || '우'} value={unitBoundsR} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsR', v)} modified={isMod('unitBoundsR')} style={{ gridTemplateColumns: '30px 1fr' }} />
-              <Field label={t('unit.graphics.up') || '상'} value={unitBoundsT} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsT', v)} modified={isMod('unitBoundsT')} style={{ gridTemplateColumns: '30px 1fr' }} />
-              <Field label={t('unit.graphics.down') || '하'} value={unitBoundsB} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsB', v)} modified={isMod('unitBoundsB')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.unitBoundsL') || '좌'} value={unitBoundsL} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsL', v)} modified={isMod('unitBoundsL')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.unitBoundsR') || '우'} value={unitBoundsR} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsR', v)} modified={isMod('unitBoundsR')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.unitBoundsT') || '상'} value={unitBoundsT} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsT', v)} modified={isMod('unitBoundsT')} style={{ gridTemplateColumns: '30px 1fr' }} />
+              <Field label={t('unit.graphics.unitBoundsB') || '하'} value={unitBoundsB} onChange={(v) => onUpdateProjectUnit(selectedItem, 'unitBoundsB', v)} modified={isMod('unitBoundsB')} style={{ gridTemplateColumns: '30px 1fr' }} />
             </div>
           </Card>
 

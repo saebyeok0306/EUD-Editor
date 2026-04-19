@@ -109,7 +109,7 @@ function BasicInfo({
         {/* Section 1: 유닛 생체 정보 */}
         <Card title={t('unit.section.bio') || '유닛 생체 정보'}>
           <div className="field-group">
-            <label className="field-label">{t('unit.prop.hitPoints')}</label>
+            <label className="field-label">{t('unit.prop.maxHp')}</label>
             <div className="value-row" style={{ display: 'flex', gap: '10px' }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <input
@@ -132,7 +132,7 @@ function BasicInfo({
             </div>
           </div>
           <div className="field-group">
-            <label className="field-label">{t('unit.prop.shieldPoints')}</label>
+            <label className="field-label">{t('unit.prop.maxShield')}</label>
             <div className="value-row">
               <input
                 type="number"
@@ -147,7 +147,7 @@ function BasicInfo({
                   checked={hasShield === 1}
                   onChange={(e) => onUpdateProjectUnit(selectedItem, 'hasShield', e.target.checked ? 1 : 0)}
                 />
-                {t('unit.prop.shieldEnable') || '사용'}
+                {t('unit.prop.hasShield') || '사용'}
               </label>
             </div>
           </div>
@@ -181,7 +181,7 @@ function BasicInfo({
                 checked={broodWarFlag === 1}
                 onChange={(e) => onUpdateProjectUnit(selectedItem, 'broodWarFlag', e.target.checked ? 1 : 0)}
               />
-              {t('unit.prop.bwUnit') || '브루드워유닛'}
+              {t('unit.prop.broodWarFlag') || '브루드워유닛'}
             </label>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
@@ -200,13 +200,13 @@ function BasicInfo({
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <Field
-              label={t('unit.prop.buildTime')}
+              label={t('unit.prop.timeCost')}
               value={timeCost}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'timeCost', v)}
               modified={isMod('timeCost')}
             />
             <Field
-              label={t('unit.prop.destroyScore') || '파괴점수'}
+              label={t('unit.prop.killScore') || '파괴점수'}
               value={killScore}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'killScore', v)}
               modified={isMod('killScore')}
@@ -231,7 +231,7 @@ function BasicInfo({
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
                 <Field
-                  label={t('unit.prop.weaponHits') || '타격수'}
+                  label={t('unit.prop.maxGroundHits') || '타격수'}
                   value={maxGroundHits}
                   onChange={(v) => onUpdateProjectUnit(selectedItem, 'maxGroundHits', v)}
                   modified={isMod('maxGroundHits')}
@@ -253,7 +253,7 @@ function BasicInfo({
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
                 <Field
-                  label={t('unit.prop.weaponHits') || '타격수'}
+                  label={t('unit.prop.maxAirHits') || '타격수'}
                   value={maxAirHits}
                   onChange={(v) => onUpdateProjectUnit(selectedItem, 'maxAirHits', v)}
                   modified={isMod('maxAirHits')}
@@ -269,7 +269,7 @@ function BasicInfo({
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           <Card title={t('unit.section.population') || '인구'}>
             <Field
-              label={t('unit.prop.supplyRequired')}
+              label={t('unit.prop.supplyUsed')}
               value={supplyUsed}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'supplyUsed', v)}
               modified={isMod('supplyUsed')}
@@ -283,13 +283,13 @@ function BasicInfo({
           </Card>
           <Card title={t('unit.section.transport') || '탑승공간'}>
             <Field
-              label={t('unit.prop.spaceRequired') || '필요 공간'}
+              label={t('unit.prop.transportSpaceRequired') || '필요 공간'}
               value={transportSpaceRequired}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'transportSpaceRequired', v)}
               modified={isMod('transportSpaceRequired')}
             />
             <Field
-              label={t('unit.prop.spaceProvided') || '탑승 공간'}
+              label={t('unit.prop.transportSpaceProvided') || '탑승 공간'}
               value={transportSpaceProvided}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'transportSpaceProvided', v)}
               modified={isMod('transportSpaceProvided')}
@@ -307,23 +307,23 @@ function BasicInfo({
               modified={isMod('sightRange')}
             />
             <Field
-              label={t('unit.prop.targetAcqRange') || '인지거리'}
+              label={t('unit.prop.seekRange') || '인지거리'}
               value={seekRange}
               onChange={(v) => onUpdateProjectUnit(selectedItem, 'seekRange', v)}
               modified={isMod('seekRange')}
             />
           </div>
           <div className="field-group">
-            <label className="field-label">{t('unit.prop.armorType') || '방어타입'}</label>
+            <label className="field-label">{t('unit.prop.sizeType') || '방어타입'}</label>
             <select
               className={`modern-input ${isMod('sizeType') ? 'modified' : ''}`}
               value={sizeType}
               onChange={(e) => onUpdateProjectUnit(selectedItem, 'sizeType', parseInt(e.target.value))}
             >
-              <option value={0}>{t('unit.armorType.independent') || '독립적인 크기'}</option>
-              <option value={1}>{t('unit.armorType.small') || '소형'}</option>
-              <option value={2}>{t('unit.armorType.medium') || '중형'}</option>
-              <option value={3}>{t('unit.armorType.large') || '대형'}</option>
+              <option value={0}>{t('unit.sizeType.independent') || '독립적인 크기'}</option>
+              <option value={1}>{t('unit.sizeType.small') || '소형'}</option>
+              <option value={2}>{t('unit.sizeType.medium') || '중형'}</option>
+              <option value={3}>{t('unit.sizeType.large') || '대형'}</option>
             </select>
           </div>
         </Card>

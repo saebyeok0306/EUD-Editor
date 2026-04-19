@@ -79,14 +79,51 @@ async function _parseDatFile(defText, datUrl) {
   return await parseDat(arrayBuffer, defData)
 }
 
-async function _parseTblFile(url, encoding = 'EUC-KR') {
+/**
+ * Escape non-standard characters in TBL strings.
+ * Keeps: 0-9, A-Z, a-z, Korean (Hangul), space, common punctuation ()/-
+ * Everything else → \xHH
+ */
+function sanitizeTblString(str) {
+  let result = ''
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i]
+    const code = str.charCodeAt(i)
+    // Space
+    if (code === 0x20) { result += ch; continue }
+    // 0-9
+    if (code >= 0x30 && code <= 0x39) { result += ch; continue }
+    // A-Z, a-z
+    if ((code >= 0x41 && code <= 0x5A) || (code >= 0x61 && code <= 0x7A)) { result += ch; continue }
+    // Korean Hangul syllables (AC00-D7AF), Jamo (1100-11FF, 3130-318F), compatibility Jamo (FFA0-FFDC)
+    if ((code >= 0xAC00 && code <= 0xD7AF) ||
+        (code >= 0x1100 && code <= 0x11FF) ||
+        (code >= 0x3130 && code <= 0x318F)) { result += ch; continue }
+    // Common punctuation that should stay readable: ( ) / - . , : ' "
+    if ('()/-.,:;\'"!?+=%#@&*[]{}|~`^_<>'.includes(ch)) { result += ch; continue }
+    // Everything else → <HH>
+    if (code <= 0xFF) {
+      result += '<' + code.toString(16).toUpperCase().padStart(2, '0') + '>'
+    } else {
+      result += '<' + code.toString(16).toUpperCase().padStart(4, '0') + '>'
+    }
+  }
+  return result
+}
+
+function sanitizeTblArray(arr) {
+  return arr.map(s => sanitizeTblString(s))
+}
+
+async function _parseTblFile(url, encoding = 'EUC-KR', sanitize = false) {
   console.log(`[datStore] Fetching TBL from: ${url}`)
   const res = await fetch(url)
   if (!res.ok) {
     throw new Error(`HTTP ${res.status} when fetching TBL: ${url}`)
   }
   const arrayBuffer = await res.arrayBuffer()
-  return await parseTbl(arrayBuffer, encoding)
+  const strings = await parseTbl(arrayBuffer, encoding)
+  return sanitize ? sanitizeTblArray(strings) : strings
 }
 
 /**
@@ -152,9 +189,9 @@ export function initDatStore() {
     }),
 
     // TBL files
-    _parseTblFile(statTxtUrl,       'UTF-8'),    // English — ASCII-safe
-    _parseTblFile(statTxtKorEngUrl, 'EUC-KR'),
-    _parseTblFile(statTxtKorKorUrl, 'EUC-KR'),
+    _parseTblFile(statTxtUrl,       'UTF-8',   true),    // English — sanitize special chars
+    _parseTblFile(statTxtKorEngUrl, 'EUC-KR',  true),
+    _parseTblFile(statTxtKorKorUrl, 'EUC-KR',  true),
     _parseTblFile(portdataTblUrl,   'EUC-KR'),
     _parseTblFile(sfxdataTblUrl,    'UTF-8'),    // SFX paths, ASCII-safe
     _parseTblFile(imagesTblUrl,     'UTF-8'),    // images paths, ASCII-safe

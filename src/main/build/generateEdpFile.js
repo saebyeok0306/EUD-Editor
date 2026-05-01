@@ -7,7 +7,10 @@ input: ${mapPath}
 output: ${outputPath}
 
 [eudTurbo]
+[dataDumper]
+
 [EEData.py]
+[EERequire.py]
 
 [../main.eps]
 `

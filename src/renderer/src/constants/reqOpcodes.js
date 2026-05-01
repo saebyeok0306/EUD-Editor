@@ -44,4 +44,5 @@ export const REQ_OPCODES = [
   { index: 36, text: "Must be Brood War", text_ko: "브루드 워(확장팩) 환경일 것", paramType: null },
   { index: 37, text: "Is researched...", text_ko: "...기술이 이미 연구되었을 것", paramType: "tech" },
   { index: 38, text: "Is burrowed", text_ko: "잠복(버로우) 상태일 것", paramType: null },
+  { index: 39, text: "(Must have...)", text_ko: "(유닛을 보유할 것)", paramType: "unit" },
 ];

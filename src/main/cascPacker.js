@@ -26,6 +26,7 @@ export async function packCascData(scPath, targetPath, onProgress) {
     // Additional essential files
     fileSet.add('arr/images.tbl')
     fileSet.add('arr/units.dat')
+    fileSet.add('arr/require.dat')
     fileSet.add('arr/sprites.dat')
     fileSet.add('game/tunit.pcx')
     fileSet.add('game/ticon.pcx')

@@ -70,8 +70,9 @@ export async function parseRequireDatFile(url) {
              opcodes.push({ opcode: opcodeIndex, param: undefined })
           }
         } else {
-          // Implicit "Must have..." (Index 3). The unit ID is exactly the value.
-          opcodes.push({ opcode: 3, param: val })
+          // Implicit "(Must have...)" (Opcode 39). The unit ID is exactly the value.
+          // In VB: Code(index) <= 0xFF → ComboBox11.SelectedIndex = 38 → internal opcode 39
+          opcodes.push({ opcode: 39, param: val })
         }
       }
       
